@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Ministério dos Justos Aperfeiçoados</title>
+    <meta name="description" content="Igreja Ministério dos Justos Aperfeiçoados - Porque há um só Deus e um só mediador entre Deus e os homens: Jesus Cristo, homem.">
+    
+    <!-- SEO e Compartilhamento -->
+    <meta name="author" content="Igreja Ministério dos Justos Aperfeiçoados">
+    <meta name="keywords" content="igreja, ministério, culto, cristão, Moçambique, Hipólito de Sousa, bíblia">
+    <meta property="og:title" content="Ministério dos Justos Aperfeiçoados">
+    <meta property="og:description" content="Porque há um só Deus e um só mediador entre Deus e os homens: Jesus Cristo, homem.">
+    <meta property="og:image" content="logo_igreja.jpeg">
+    <meta property="og:url" content="https://seudominio.com">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Ministério dos Justos Aperfeiçoados">
+    <meta name="twitter:description" content="Cristo é o centro. A Palavra é o fundamento.">
+    <meta name="twitter:image" content="logo_igreja.jpeg">
+
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- AOS para animações de scroll -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Overlay para login obrigatório -->
+    <div class="modal-overlay" id="loginOverlay">
+        <div class="login-content">
+            <h2 style="text-align: center; margin-bottom: 1.5rem;">Bem-vindo ao Ministério dos Justos Aperfeiçoados</h2>
+            <p style="text-align: center; margin-bottom: 2rem;">Por favor, faça login ou registre-se para acessar o conteúdo</p>
+            
+            <div class="social-login">
+                <button class="social-btn email-btn" id="emailLoginInitial">
+                    <i class="fas fa-envelope"></i> Entrar com Email
+                </button>
+                <button class="social-btn" id="visitorLogin" style="background-color: var(--background-primary); color: var(--text-primary);">
+                    <i class="fas fa-eye"></i> Entrar como Visitante
+                </button>
+            </div>
+            
+            <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem;">
+                Ainda não tem conta? <a href="#" id="showRegisterInitial" style="color: var(--primary-color);">Registre-se agora</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Overlay para modo visitante -->
+    <div class="visitor-overlay" id="visitorOverlay" style="display: none;">
+        <h2>Modo Visitante Ativado</h2>
+        <p>Você está navegando no modo visitante. Para interagir com o conteúdo, faça login ou registre-se.</p>
+        <button id="loginFromVisitor">Fazer Login</button>
+    </div>
+
+    <!-- Modal de Login -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <span class="close" id="closeLogin">&times;</span>
+            <h2>Entrar</h2>
+            <form id="userLoginForm">
+                <input type="email" id="loginEmail" placeholder="Email" required>
+                <input type="password" id="loginPassword" placeholder="Senha" required>
+                <button type="submit" class="submit-btn">Entrar</button>
+            </form>
+            <p style="text-align: center; margin-top: 1rem;">
+                Não tem conta? <a href="#" id="showRegister" style="color: var(--primary-color);">Registre-se</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Modal de Registro -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <span class="close" id="closeRegister">&times;</span>
+            <h2>Registrar</h2>
+            <form id="userRegisterForm">
+                <input type="text" id="registerName" placeholder="Nome completo" required>
+                <input type="email" id="registerEmail" placeholder="Email" required>
+                <input type="password" id="registerPassword" placeholder="Senha" required>
+                <select id="registerRole" required>
+                    <option value="">Selecione seu papel</option>
+                    <option value="member">Membro</option>
+                    <option value="leader">Líder de Célula</option>
+                </select>
+                <select id="registerCell">
+                    <option value="">Selecione sua célula (opcional)</option>
+                </select>
+                <button type="submit" class="submit-btn">Registrar</button>
+            </form>
+            <p style="text-align: center; margin-top: 1rem;">
+                Já tem conta? <a href="#" id="showLogin" style="color: var(--primary-color);">Entrar</a>
+            </p>
+        </div>
+    </div>
+
+    <header>
+        <div class="logo">
+            <img src="logo_igreja.jpeg" alt="Logo Justos Aperfeiçoados">
+            <span class="logo-text-mobile">I.M.J.A</span>
+            <span class="logo-text-desktop">I.M.J.A - Igreja Ministério dos Justos Aperfeiçoados</span>
+        </div>
+        
+        <div class="desktop-menu">
+            <button class="menu-btn" id="menuBtn"><i class="fas fa-bars"></i></button>
+            <div class="dropdown-menu" id="dropdownMenu">
+                <a href="#" data-page="home-page"><i class="fas fa-home"></i> Início</a>
+                <a href="#" data-page="bible-page"><i class="fas fa-bible"></i> Bíblia</a>
+                <a href="#" data-page="events-page"><i class="fas fa-calendar-check"></i> Eventos</a>
+                <a href="#" data-page="cells-page"><i class="fas fa-home"></i> Células</a>
+                <a href="#" data-page="location-page"><i class="fas fa-map-marker-alt"></i> Local</a>
+                <a href="#" data-page="profile-page"><i class="fas fa-user"></i> Perfil</a>
+                <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container content-blocked" id="mainContent">
+        <!-- PÁGINA INICIAL -->
+        <div class="page active" id="home-page">
+            <div class="countdown-container">
+                <div id="next-service-info">Próximo Culto</div>
+                <div class="countdown-timer">
+                    <span id="countdown-days">00d</span>
+                    <span id="countdown-hours">00h</span>
+                    <span id="countdown-minutes">00m</span>
+                    <span id="countdown-seconds">00s</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-content">
+                    <h2>Sobre o Ministério</h2>
+                    <p>Liderança do Apóstolo Hipólito de Sousa. Fundada em 2016, a igreja cresceu de 4 para mais de 1500 membros.</p>
+                    <h3>Nossas Filiais</h3>
+                    <ul>
+                        <li><strong>Sede Marracuene Mumemo:</strong> 500+ membros</li>
+                        <li><strong>Matalane:</strong> 60+ membros</li>
+                        <li><strong>Faftine:</strong> 40+ membros</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-content">
+                    <h3>Mensagens do Apóstolo Hipólito de Sousa</h3>
+                    <div class="youtube-playlist">
+                        <iframe src="https://www.youtube.com/embed/videoseries?list=PLgl85Axv9WVGdilZKYB6f3Qxahk6MbTNd" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <div id="feed-content">
+                <!-- Posts serão carregados aqui -->
+            </div>
+        </div>
+        
+        <!-- PÁGINA DA BÍBLIA -->
+        <div class="page" id="bible-page">
+            <div class="card">
+                <div class="card-content">
+                    <h2><i class="fas fa-bible"></i> Bíblia Online</h2>
+                    <div class="bible-controls">
+                        <select id="bibleBook">
+                            <option value="">Selecione um livro</option>
+                            <option value="genesis">Gênesis</option>
+                            <option value="exodus">Êxodo</option>
+                            <option value="matthew">Mateus</option>
+                            <option value="john">João</option>
+                            <option value="romans">Romanos</option>
+                        </select>
+                        <input type="number" id="bibleChapter" placeholder="Capítulo" min="1">
+                        <button id="loadBibleChapter" class="submit-btn">Carregar</button>
+                    </div>
+                    <div id="bible-content">
+                        <p>Selecione um livro e capítulo para começar a leitura.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PÁGINA DE EVENTOS -->
+        <div class="page" id="events-page">
+            <div class="card">
+                <div class="card-content">
+                    <h2><i class="fas fa-calendar-check"></i> Eventos e Cultos</h2>
+                    <div class="events-schedule">
+                        <div class="event-item">
+                            <div class="event-day">Domingo</div>
+                            <div class="event-time">8:00</div>
+                            <div class="event-title">Culto Dominical</div>
+                            <div class="event-location">Sede Marracuene</div>
+                        </div>
+                        <div class="event-item">
+                            <div class="event-day">Terça</div>
+                            <div class="event-time">18:00</div>
+                            <div class="event-title">Culto de Oração</div>
+                            <div class="event-location">Sede Marracuene</div>
+                        </div>
+                        <div class="event-item">
+                            <div class="event-day">Quinta</div>
+                            <div class="event-time">18:00</div>
+                            <div class="event-title">Culto de Ensino</div>
+                            <div class="event-location">Sede Marracuene</div>
+                        </div>
+                        <div class="event-item">
+                            <div class="event-day">Sexta</div>
+                            <div class="event-time">17:00</div>
+                            <div class="event-title">Intercessão</div>
+                            <div class="event-location">Sede Marracuene</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-content">
+                    <h3><i class="fas fa-pray"></i> Pedidos de Oração</h3>
+                    <form id="prayerRequestForm">
+                        <input type="text" id="prayerName" placeholder="Seu nome" required>
+                        <textarea id="prayerRequest" placeholder="Seu pedido de oração" required></textarea>
+                        <button type="submit" class="submit-btn">Enviar Pedido</button>
+                    </form>
+                    <div id="prayer-requests-list">
+                        <!-- Pedidos de oração serão carregados aqui -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PÁGINA DE CÉLULAS -->
+        <div class="page" id="cells-page">
+            <div class="card">
+                <div class="card-content">
+                    <h2><i class="fas fa-home"></i> Células/Grupos Familiares</h2>
+                    <div id="cells-content">
+                        <!-- Células serão carregadas aqui -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="card cell-leader-section" style="display: none;">
+                <div class="card-content">
+                    <h3><i class="fas fa-clipboard-list"></i> Relatório de Célula</h3>
+                    <form id="cellReportForm">
+                        <input type="number" id="reportAttendance" placeholder="Número de presentes" required>
+                        <input type="number" id="reportVisitors" placeholder="Número de visitantes" required>
+                        <textarea id="reportNotes" placeholder="Observações da reunião"></textarea>
+                        <button type="submit" class="submit-btn">Enviar Relatório</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- PÁGINA DE LOCALIZAÇÃO -->
+        <div class="page" id="location-page">
+            <div class="card">
+                <div class="card-content">
+                    <h2><i class="fas fa-map-marker-alt"></i> Nossa Localização</h2>
+                    <div class="location-info">
+                        <h3>Sede Principal - Marracuene Mumemo</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Marracuene, Mumemo, Moçambique</p>
+                        <p><i class="fas fa-phone"></i> +258 84 123 4567</p>
+                        <p><i class="fas fa-envelope"></i> ministerio.554411@gmail.com</p>
+                        
+                        <h4>Filiais:</h4>
+                        <ul>
+                            <li><strong>Matalane:</strong> 60+ membros</li>
+                            <li><strong>Faftine:</strong> 40+ membros</li>
+                        </ul>
+                        
+                        <div class="directions-btn">
+                            <button class="submit-btn" onclick="window.open('https://maps.google.com/?q=Marracuene,Moçambique', '_blank')">
+                                <i class="fas fa-directions"></i> Ver no Google Maps
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PÁGINA DE PERFIL -->
+        <div class="page" id="profile-page">
+            <div class="card">
+                <div class="card-content">
+                    <h2><i class="fas fa-user"></i> Meu Perfil</h2>
+                    <div class="profile-info">
+                        <div class="profile-avatar">
+                            <img src="logo_igreja.jpeg" alt="Avatar" id="profileAvatar">
+                            <button class="change-avatar-btn" id="changeAvatarBtn">
+                                <i class="fas fa-camera"></i>
+                            </button>
+                        </div>
+                        <div class="profile-details">
+                            <h3 id="profileName">Nome do Usuário</h3>
+                            <p id="profileRole">Membro</p>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="prayerCount">0</div>
+                            <div class="stat-label">Pedidos de Oração</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="cellCount">0</div>
+                            <div class="stat-label">Células</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="eventsCount">0</div>
+                            <div class="stat-label">Eventos</div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-actions">
+                        <button class="action-btn" id="editProfileBtn">
+                            <i class="fas fa-edit"></i> Editar Perfil
+                        </button>
+                        <button class="action-btn" id="shareAppBtn">
+                            <i class="fas fa-share"></i> Compartilhar App
+                        </button>
+                        <button class="action-btn logout-btn" id="logoutProfileBtn">
+                            <i class="fas fa-sign-out-alt"></i> Sair
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção de Analytics para Admin -->
+            <div class="card admin-analytics-section" id="adminAnalyticsSection" style="display: none;">
+                <div class="card-content">
+                    <h3><i class="fas fa-chart-bar"></i> Analytics da Igreja</h3>
+                    <div class="analytics-grid">
+                        <div class="analytics-item">
+                            <div class="analytics-number" id="totalUsers">0</div>
+                            <div class="analytics-label">Total de Usuários</div>
+                        </div>
+                        <div class="analytics-item">
+                            <div class="analytics-number" id="totalLeaders">0</div>
+                            <div class="analytics-label">Líderes</div>
+                        </div>
+                        <div class="analytics-item">
+                            <div class="analytics-number" id="totalPrayers">0</div>
+                            <div class="analytics-label">Pedidos de Oração</div>
+                        </div>
+                    </div>
+                    
+                    <h4>Últimos Logins</h4>
+                    <div id="lastLoginsList">
+                        <!-- Lista de últimos logins -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edição de Perfil -->
+    <div class="modal" id="editProfileModal">
+        <div class="modal-content">
+            <span class="close" id="closeEditProfile">&times;</span>
+            <h2>Editar Perfil</h2>
+            <form id="editProfileForm">
+                <input type="text" id="editName" placeholder="Nome completo" required>
+                <input type="email" id="editEmail" placeholder="Email" required>
+                <input type="password" id="editPassword" placeholder="Nova senha (opcional)">
+                <select id="editRole">
+                    <option value="member">Membro</option>
+                    <option value="leader">Líder de Célula</option>
+                </select>
+                <select id="editCell">
+                    <option value="">Selecione sua célula</option>
+                </select>
+                <button type="submit" class="submit-btn">Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Painel Administrativo -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-content">
+            <span class="close" id="closeAdmin">&times;</span>
+            <h2>Painel Administrativo</h2>
+            
+            <div class="admin-tabs">
+                <button class="tab-btn active" data-tab="posts">Posts</button>
+                <button class="tab-btn" data-tab="cells">Células</button>
+                <button class="tab-btn" data-tab="users">Usuários</button>
+            </div>
+            
+            <!-- Aba de Posts -->
+            <div class="tab-content active" id="posts-tab">
+                <h3>Criar Novo Post</h3>
+                <form id="postForm">
+                    <input type="text" id="postTitle" placeholder="Título do post" required>
+                    <select id="postType" required>
+                        <option value="">Tipo de conteúdo</option>
+                        <option value="text">Texto</option>
+                        <option value="image">Imagem</option>
+                        <option value="video">Vídeo</option>
+                        <option value="youtube">YouTube</option>
+                    </select>
+                    <textarea id="postContent" placeholder="Conteúdo do post" required></textarea>
+                    <button type="submit" class="submit-btn">Publicar Post</button>
+                </form>
+            </div>
+            
+            <!-- Aba de Células -->
+            <div class="tab-content" id="cells-tab">
+                <h3>Gerenciar Células</h3>
+                <form id="cellForm">
+                    <input type="text" id="cellName" placeholder="Nome da célula" required>
+                    <input type="text" id="cellLocation" placeholder="Localização" required>
+                    <input type="text" id="cellLeaders" placeholder="Líderes (separados por vírgula)" required>
+                    <button type="submit" class="submit-btn">Criar Célula</button>
+                </form>
+                <div id="admin-cells-list">
+                    <!-- Lista de células para administração -->
+                </div>
+            </div>
+            
+            <!-- Aba de Usuários -->
+            <div class="tab-content" id="users-tab">
+                <h3>Usuários Registrados</h3>
+                <div id="admin-users-list">
+                    <!-- Lista de usuários -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegação Mobile -->
+    <nav class="mobile-nav">
+        <button class="nav-btn active" data-page="home-page">
+            <i class="fas fa-home"></i>
+            <span>Início</span>
+        </button>
+        <button class="nav-btn" data-page="bible-page">
+            <i class="fas fa-bible"></i>
+            <span>Bíblia</span>
+        </button>
+        <button class="nav-btn" data-page="events-page">
+            <i class="fas fa-calendar-check"></i>
+            <span>Eventos</span>
+        </button>
+        <button class="nav-btn" data-page="cells-page">
+            <i class="fas fa-home"></i>
+            <span>Células</span>
+        </button>
+        <button class="nav-btn" data-page="location-page">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>Local</span>
+        </button>
+        <button class="nav-btn" data-page="profile-page">
+            <i class="fas fa-user"></i>
+            <span>Perfil</span>
+        </button>
+    </nav>
+
+    <!-- Botão de Admin (visível apenas para administradores) -->
+    <button class="admin-btn" id="adminBtn" style="display: none;">
+        <i class="fas fa-cog"></i>
+    </button>
+
+    <!-- Botão de Tema -->
+    <button class="theme-toggle" id="themeToggle">
+        <i class="fas fa-sun"></i>
+    </button>
+
+    <!-- Notificação -->
+    <div class="notification" id="notification"></div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+
