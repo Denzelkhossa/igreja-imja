@@ -4,26 +4,1106 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Ministério dos Justos Aperfeiçoados</title>
-    <meta name="description" content="Igreja Ministério dos Justos Aperfeiçoados - Porque há um só Deus e um só mediador entre Deus e os homens: Jesus Cristo, homem.">
+    <meta name="description" content="Igreja Ministério dos Justos Aperfeiçoados - Porque há um só Deus e um só medirador entre Deus e os homens: Jesus Cristo, homem.">
     
     <!-- SEO e Compartilhamento -->
     <meta name="author" content="Igreja Ministério dos Justos Aperfeiçoados">
     <meta name="keywords" content="igreja, ministério, culto, cristão, Moçambique, Hipólito de Sousa, bíblia">
     <meta property="og:title" content="Ministério dos Justos Aperfeiçoados">
     <meta property="og:description" content="Porque há um só Deus e um só mediador entre Deus e os homens: Jesus Cristo, homem.">
-    <meta property="og:image" content="logo_igreja.jpeg">
+    <meta property="og:image" content="https://i.ibb.co/rfLWMXK7/FB-IMG-1748755074055.jpg">
     <meta property="og:url" content="https://seudominio.com">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Ministério dos Justos Aperfeiçoados">
     <meta name="twitter:description" content="Cristo é o centro. A Palavra é o fundamento.">
-    <meta name="twitter:image" content="logo_igreja.jpeg">
+    <meta name="twitter:image" content="https://i.ibb.co/rfLWMXK7/FB-IMG-1748755074055.jpg">
+
+    <!-- Google Analytics GA4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-B0CVY1R4PZ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'G-B0CVY1R4PZ');
+    </script>
 
     <!-- Font Awesome para ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- AOS para animações de scroll -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-functions.js"></script>
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --primary-color-dark: #1e3a8a;
+            --background-primary: #121212;
+            --background-secondary: #1E1E1E;
+            --text-primary: #E0E0E0;
+            --text-secondary: #b0b3b8;
+            --text-on-gradient: #FFFFFF;
+            --border-color: #333333;
+            --shadow: 0 4px 6px rgba(0,0,0,0.3);
+            --gradient: linear-gradient(135deg, var(--primary-color-dark) 0%, var(--primary-color) 100%);
+            --error-color: #d32f2f;
+            --success-color: #388e3c;
+            --warning-color: #f57c00;
+        }
+
+        [data-theme="light"] {
+            --primary-color: #2563eb;
+            --primary-color-dark: #1e40af;
+            --background-primary: #f0f2f5;
+            --background-secondary: #ffffff;
+            --text-primary: #1c1e21;
+            --text-secondary: #65676b;
+            --border-color: #ced0d4;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Segoe UI', Helvetica, Arial, sans-serif; 
+        }
+        
+        body {
+            background-color: var(--background-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding-bottom: 56px;
+            position: relative;
+            overflow-x: hidde8n;
+        }
+
+        /* Nome da Igreja - Visível em todos os dispositivos */
+        .logo-text-mobile {
+            display: block;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .logo-text-desktop {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .logo-text-mobile {
+                display: none;
+            }
+            .logo-text-desktop {
+                display: block;
+                font-size: 1.2rem;
+                font-weight: bold;
+            }
+        }
+
+        /* Overlay para modal de login */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container { 
+            max-width: 100%; 
+            margin: 0 auto; 
+            padding: 0.5rem; 
+        }
+
+        header, .bottom-nav { 
+            background: var(--gradient); 
+            color: var(--text-on-gradient); 
+            box-shadow: var(--shadow); 
+        }
+        
+        header { 
+            padding: 0.8rem 1rem; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        
+        .logo { 
+            font-size: 1.2rem; 
+            font-weight: bold; 
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem; 
+        }
+        
+        .logo img { 
+            height: 40px; 
+            border-radius: 50%; 
+            border: 2px solid rgba(255,255,255,0.5); 
+        }
+        
+        .post, .card {
+            background-color: var(--background-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+        
+        .post-header { 
+            padding: 0.8rem; 
+            display: flex; 
+            align-items: center; 
+        }
+        
+        .post-avatar { 
+            width: 40px; 
+            height: 40px; 
+            border-radius: 50%; 
+            margin-right: 0.8rem; 
+            overflow: hidden; 
+        }
+        
+        .post-avatar img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+        }
+        
+        .post-content { 
+            padding: 0.8rem; 
+        }
+        
+        .card-content { 
+            padding: 1rem; 
+        }
+        
+        .bottom-nav { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            width: 100%; 
+            display: flex; 
+            justify-content: space-around; 
+            z-index: 100; 
+            height: 56px; 
+            padding-bottom: env(safe-area-inset-bottom); /* Suporte para notch do iPhone */
+        }
+        
+        .nav-btn { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 0.2rem; 
+            color: rgba(255,255,255,0.8); 
+            text-decoration: none; 
+            font-size: 0.6rem; 
+            text-align: center; 
+            min-height: 48px; /* Tamanho mínimo para área de toque */
+        }
+        
+        .nav-btn i { 
+            font-size: 1.3rem; 
+            margin-bottom: 0.2rem; 
+        }
+        
+        .nav-btn.active, .nav-btn:hover { 
+            color: var(--text-on-gradient); 
+        }
+
+        .page { 
+            display: none; 
+        }
+        
+        .page.active { 
+            display: block; 
+        }
+        
+        h2, h3 { 
+            color: var(--primary-color); 
+            margin-bottom: 0.5rem; 
+        }
+
+        /* Contador de Cultos */
+        .countdown-container {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--gradient);
+            color: white;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .countdown-timer {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap; /* Permite quebra de linha em telas pequenas */
+        }
+
+        /* Localização */
+        .branch-card { 
+            margin-bottom: 1rem; 
+        }
+        
+        .branch-card h3 { 
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem; 
+        }
+        
+        .map-container { 
+            height: 200px; 
+            width: 100%; 
+            border-radius: 8px; 
+            overflow: hidden; 
+            margin-top: 0.5rem; 
+        }
+        
+        .map-container iframe { 
+            width: 100%; 
+            height: 100%; 
+            border: 0; 
+        }
+
+        /* Oração */
+        .prayer-form .form-group { 
+            margin-bottom: 1rem; 
+        }
+        
+        .prayer-form label { 
+            display: block; 
+            margin-bottom: 0.3rem; 
+        }
+        
+        .prayer-form input, .prayer-form textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--background-primary);
+            color: var(--text-primary);
+        }
+
+        /* Admin */
+        .admin-panel { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.8); 
+            z-index: 1000; 
+            padding: 1rem; 
+            overflow-y: auto; 
+        }
+        
+        .admin-content { 
+            background-color: var(--background-secondary); 
+            max-width: 600px; 
+            margin: 2rem auto; 
+            padding: 1.5rem; 
+            border-radius: 8px; 
+        }
+        
+        .form-group { 
+            margin-bottom: 1rem; 
+        }
+        
+        .form-group label { 
+            display: block; 
+            margin-bottom: 0.5rem; 
+        }
+        
+        .form-group input, 
+        .form-group textarea, 
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--background-primary);
+            color: var(--text-primary);
+        }
+        
+        .submit-btn {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+        }
+
+        .floating-btn {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            position: fixed;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            z-index: 99;
+        }
+        
+        #adminBtn { 
+            bottom: 76px; 
+            display: none; /* Escondido por padrão */
+        }
+        
+        #theme-toggle { 
+            bottom: 136px; 
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #2a3b4d;
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1002;
+            max-width: 90%;
+            text-align: center;
+        }
+        
+        .notification.show { 
+            display: block; 
+        }
+        
+        .notification.error { 
+            background-color: var(--error-color); 
+        }
+        
+        .notification.success { 
+            background-color: var(--success-color); 
+        }
+        
+        .notification.warning { 
+            background-color: var(--warning-color); 
+        }
+
+        /* Reações - Estilo Facebook */
+        .post-actions {
+            display: flex;
+            justify-content: space-around;
+            padding: 0.5rem 0;
+            border-top: 1px solid var(--border-color);
+            margin-top: 0.5rem;
+        }
+        
+        .post-action {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            padding: 0.3rem 0.5rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .post-action i {
+            margin-right: 0.3rem;
+            font-size: 1rem;
+        }
+        
+        .post-action:hover {
+            background-color: rgba(0,0,0,0.1);
+        }
+        
+        .post-action.active {
+            color: var(--primary-color);
+        }
+
+        /* Login Modal */
+        .login-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 1001;
+            padding: 1rem;
+        }
+        
+        .login-content {
+            background-color: var(--background-secondary);
+            max-width: 400px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            border-radius: 8px;
+            position: relative;
+            max-height: 90vh; /* Altura máxima */
+            overflow-y: auto; /* Permitir rolagem vertical */
+        }
+        
+        .close-login {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Células/Grupos Familiares */
+        .cell-card {
+            background-color: var(--background-secondary);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .cell-leaders {
+            display: flex;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+        }
+        
+        .leader-badge {
+            background-color: var(--primary-color-dark);
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .report-form {
+            margin-top: 1rem;
+        }
+        
+        .report-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .members-list {
+            margin-top: 1rem;
+        }
+        
+        .member-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Login Social */
+        .social-login {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+        
+        .social-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.8rem;
+            border-radius: 6px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .google-btn {
+            background-color: #fff;
+            color: #757575;
+        }
+        
+        .email-btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Playlist YouTube */
+        .youtube-playlist {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            margin-top: 1rem;
+            border-radius: 8px;
+        }
+        
+        .youtube-playlist iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        /* Gerenciamento de Células */
+        .cell-management {
+            margin-top: 2rem;
+        }
+        
+        .cell-management h3 {
+            margin-bottom: 1rem;
+        }
+        
+        .cell-list {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .cell-item {
+            background-color: var(--background-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Menu de navegação para desktop */
+        .desktop-menu {
+            display: none;
+            position: relative;
+        }
+        
+        .menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: var(--background-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            min-width: 200px;
+            z-index: 101;
+        }
+        
+        .dropdown-menu a {
+            display: block;
+            padding: 0.8rem 1rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        
+        .dropdown-menu a:hover {
+            background-color: var(--background-primary);
+        }
+        
+        .dropdown-menu a i {
+            margin-right: 0.5rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Perfil do usuário */
+        .profile-page {
+            padding: 1rem;
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid var(--primary-color);
+        }
+        
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .profile-info h2 {
+            margin-bottom: 0.2rem;
+        }
+        
+        .profile-info p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .profile-stats {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 0.5rem;
+            background-color: var(--background-primary);
+            border-radius: 8px;
+            flex: 1;
+        }
+        
+        .stat-item .stat-value {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+        
+        .stat-item .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+        
+        .profile-actions {
+            display: grid;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+        
+        .profile-action {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem;
+            background-color: var(--background-primary);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: background-color 0.2s;
+        }
+        
+        .profile-action i {
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+        
+        .profile-action:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+        
+        /* Analytics para admin */
+        .analytics-grid {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .analytics-card {
+            background-color: var(--background-primary);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        
+        .analytics-card h3 {
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .user-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .user-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .user-item:last-child {
+            border-bottom: none;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 0.8rem;
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-info h4 {
+            margin-bottom: 0.2rem;
+        }
+        
+        .user-info p {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        /* Assistente Cristão */
+        .floating-btn-assistente {
+            background: #151b3b;
+            box-shadow: 0 0 12px #3b82f6;
+            bottom: 200px;
+            padding: 0.8rem;
+            z-index: 9999;
+        }
+        
+        #assistenteCristaoBtn {
+            display: none;
+        }
+        
+        #assistenteCristaoJanela {
+            display: none;
+            position: fixed;
+            right: 20px;
+            bottom: 280px;
+            width: 320px;
+            height: 400px;
+            background: #1E1E1E;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            z-index: 9999;
+            padding: 1rem;
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        #chatMensagens {
+            height: 290px;
+            overflow-y: auto;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            background: #2c2c2c;
+            padding: 0.5rem;
+        }
+        
+        #chatInput {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 6px;
+            border: none;
+        }
+
+        /* Comentários */
+        .comments-section {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .comment-input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--background-primary);
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .comments-list {
+            margin-top: 1rem;
+        }
+        
+        .comment-item {
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            background-color: var(--background-primary);
+            border-radius: 6px;
+        }
+        
+        .comment-author {
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+        }
+        
+        .comment-text {
+            margin-bottom: 0.3rem;
+        }
+        
+        .comment-date {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        /* Responsividade */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 100%;
+                margin: 0 auto;
+                padding: 0.5rem;
+            }
+            
+            .bottom-nav {
+                display: none;
+            }
+            
+            .desktop-menu {
+                display: block;
+            }
+            
+            .floating-btn {
+                display: none;
+            }
+            
+            .countdown-timer {
+                font-size: 2rem;
+            }
+            
+            .cell-list {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            /* Melhorias para modais em desktop */
+            .login-content, .login-modal .login-content {
+                max-width: 500px;
+                padding: 2rem;
+            }
+            
+            .userRegisterForm {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+            
+            .userRegisterForm .form-group:not(.full-width) {
+                margin-bottom: 0;
+            }
+            
+            .full-width {
+                grid-column: span 2;
+            }
+            
+            /* Layout de tela cheia para desktop */
+            body {
+                padding-bottom: 0;
+            }
+            
+            header {
+                padding: 0.8rem 2rem;
+            }
+            
+            .container {
+                padding: 1rem 2rem;
+            }
+            
+            .card, .post {
+                margin-bottom: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .logo-text-desktop {
+                display: none;
+            }
+            .logo-text-mobile {
+                display: block;
+            }
+            
+            .countdown-timer {
+                font-size: 1.2rem;
+                gap: 0.3rem;
+            }
+            
+            .countdown-timer span {
+                min-width: 50px;
+                text-align: center;
+            }
+        }
+        
+        /* Estilos para telas muito pequenas (ex: iPhone SE) */
+        @media (max-width: 320px) {
+            .nav-btn i {
+                font-size: 1.1rem;
+            }
+            
+            .nav-btn span {
+                font-size: 0.5rem;
+            }
+            
+            .countdown-timer {
+                font-size: 1rem;
+            }
+            
+            .post-header {
+                padding: 0.5rem;
+            }
+            
+            .post-avatar {
+                width: 35px;
+                height: 35px;
+            }
+        }
+        
+        /* Estilos para desktop em tela cheia */
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 100%;
+                padding: 1rem 3rem;
+            }
+            
+            .card {
+                margin-bottom: 2rem;
+            }
+            
+            .countdown-container {
+                padding: 2rem;
+            }
+            
+            .countdown-timer {
+                font-size: 2.5rem;
+            }
+            
+            .profile-header {
+                gap: 2rem;
+            }
+            
+            .profile-avatar {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .analytics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        /* Ajustes para dispositivos com notch */
+        @supports(padding: max(0px)) {
+            .bottom-nav {
+                padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+            }
+            
+            header {
+                padding-top: max(0.8rem, env(safe-area-inset-top));
+            }
+            
+            .floating-btn {
+                bottom: max(76px, calc(76px + env(safe-area-inset-bottom)));
+            }
+            
+            #theme-toggle {
+                bottom: max(136px, calc(136px + env(safe-area-inset-bottom)));
+            }
+            
+            .floating-btn-assistente {
+                bottom: max(200px, calc(200px + env(safe-area-inset-bottom)));
+            }
+        }
+        
+        /* Melhorias de acessibilidade para toque */
+        button, .nav-btn, .social-btn, .submit-btn {
+            touch-action: manipulation;
+        }
+        
+        input, select, textarea, button {
+            font-size: 16px; /* Evita zoom em iOS */
+        }
+        
+        /* Bloqueio de interação antes do login */
+        .content-blocked {
+            filter: blur(5px);
+            pointer-events: none;
+            user-select: none;
+        }
+        
+        /* Modo visitante */
+        .visitor-mode {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        
+        .visitor-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+        
+        .visitor-overlay button {
+            margin-top: 1rem;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        /* Rodapé Legal */
+        footer {
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.8rem;
+            background: var(--background-secondary);
+            border-top: 1px solid var(--border-color);
+        }
+        
+        footer a {
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
     <!-- Overlay para login obrigatório -->
@@ -33,6 +1113,9 @@
             <p style="text-align: center; margin-bottom: 2rem;">Por favor, faça login ou registre-se para acessar o conteúdo</p>
             
             <div class="social-login">
+                <button class="social-btn google-btn" id="googleLoginInitial">
+                    <i class="fab fa-google"></i> Entrar com Google
+                </button>
                 <button class="social-btn email-btn" id="emailLoginInitial">
                     <i class="fas fa-envelope"></i> Entrar com Email
                 </button>
@@ -54,50 +1137,9 @@
         <button id="loginFromVisitor">Fazer Login</button>
     </div>
 
-    <!-- Modal de Login -->
-    <div class="modal" id="loginModal">
-        <div class="modal-content">
-            <span class="close" id="closeLogin">&times;</span>
-            <h2>Entrar</h2>
-            <form id="userLoginForm">
-                <input type="email" id="loginEmail" placeholder="Email" required>
-                <input type="password" id="loginPassword" placeholder="Senha" required>
-                <button type="submit" class="submit-btn">Entrar</button>
-            </form>
-            <p style="text-align: center; margin-top: 1rem;">
-                Não tem conta? <a href="#" id="showRegister" style="color: var(--primary-color);">Registre-se</a>
-            </p>
-        </div>
-    </div>
-
-    <!-- Modal de Registro -->
-    <div class="modal" id="registerModal">
-        <div class="modal-content">
-            <span class="close" id="closeRegister">&times;</span>
-            <h2>Registrar</h2>
-            <form id="userRegisterForm">
-                <input type="text" id="registerName" placeholder="Nome completo" required>
-                <input type="email" id="registerEmail" placeholder="Email" required>
-                <input type="password" id="registerPassword" placeholder="Senha" required>
-                <select id="registerRole" required>
-                    <option value="">Selecione seu papel</option>
-                    <option value="member">Membro</option>
-                    <option value="leader">Líder de Célula</option>
-                </select>
-                <select id="registerCell">
-                    <option value="">Selecione sua célula (opcional)</option>
-                </select>
-                <button type="submit" class="submit-btn">Registrar</button>
-            </form>
-            <p style="text-align: center; margin-top: 1rem;">
-                Já tem conta? <a href="#" id="showLogin" style="color: var(--primary-color);">Entrar</a>
-            </p>
-        </div>
-    </div>
-
     <header>
         <div class="logo">
-            <img src="logo_igreja.jpeg" alt="Logo Justos Aperfeiçoados">
+            <img src="https://i.ibb.co/rfLWMXK7/FB-IMG-1748755074055.jpg" alt="Logo Justos Aperfeiçoados">
             <span class="logo-text-mobile">I.M.J.A</span>
             <span class="logo-text-desktop">I.M.J.A - Igreja Ministério dos Justos Aperfeiçoados</span>
         </div>
@@ -163,21 +1205,32 @@
         <div class="page" id="bible-page">
             <div class="card">
                 <div class="card-content">
-                    <h2><i class="fas fa-bible"></i> Bíblia Online</h2>
-                    <div class="bible-controls">
-                        <select id="bibleBook">
-                            <option value="">Selecione um livro</option>
-                            <option value="genesis">Gênesis</option>
-                            <option value="exodus">Êxodo</option>
-                            <option value="matthew">Mateus</option>
-                            <option value="john">João</option>
-                            <option value="romans">Romanos</option>
-                        </select>
-                        <input type="number" id="bibleChapter" placeholder="Capítulo" min="1">
-                        <button id="loadBibleChapter" class="submit-btn">Carregar</button>
+                    <h3>Versículo do Dia</h3>
+                    <div id="daily-verse-container">
+                        <p>"Confia no SENHOR de todo o teu coração..."</p>
+                        <p style="text-align:right;font-weight:600;color:var(--primary-color)">Provérbios 3:5</p>
                     </div>
-                    <div id="bible-content">
-                        <p>Selecione um livro e capítulo para começar a leitura.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-content">
+                    <h3>Recursos Bíblicos</h3>
+                    <div style="display: grid; gap: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background-color: var(--background-primary); border-radius: 8px;">
+                            <i class="fas fa-video" style="font-size: 1.5rem; color: var(--primary-color);"></i>
+                            <div>
+                                <h4>Mensagens do Apóstolo</h4>
+                                <p style="font-size: 0.8rem; color: var(--text-secondary);">Pregações transformadoras</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background-color: var(--background-primary); border-radius: 8px;">
+                            <i class="fas fa-book-bible" style="font-size: 1.5rem; color: var(--primary-color);"></i>
+                            <div>
+                                <h4>Plano de Leitura</h4>
+                                <p style="font-size: 0.8rem; color: var(--text-secondary);">Leia a Bíblia em 1 ano</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -187,294 +1240,1929 @@
         <div class="page" id="events-page">
             <div class="card">
                 <div class="card-content">
-                    <h2><i class="fas fa-calendar-check"></i> Eventos e Cultos</h2>
-                    <div class="events-schedule">
-                        <div class="event-item">
-                            <div class="event-day">Domingo</div>
-                            <div class="event-time">8:00</div>
-                            <div class="event-title">Culto Dominical</div>
-                            <div class="event-location">Sede Marracuene</div>
+                    <h2>Próximos Eventos</h2>
+                    <div style="display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="background: var(--gradient); color: white; padding: 0.5rem; border-radius: 6px; text-align: center; min-width: 55px;">
+                            <div style="font-weight: bold; font-size: 1.5rem;">Ter</div>
+                            <div style="font-size: 0.7rem; text-transform: uppercase;">SEMANA</div>
                         </div>
-                        <div class="event-item">
-                            <div class="event-day">Terça</div>
-                            <div class="event-time">18:00</div>
-                            <div class="event-title">Culto de Oração</div>
-                            <div class="event-location">Sede Marracuene</div>
-                        </div>
-                        <div class="event-item">
-                            <div class="event-day">Quinta</div>
-                            <div class="event-time">18:00</div>
-                            <div class="event-title">Culto de Ensino</div>
-                            <div class="event-location">Sede Marracuene</div>
-                        </div>
-                        <div class="event-item">
-                            <div class="event-day">Sexta</div>
-                            <div class="event-time">17:00</div>
-                            <div class="event-title">Intercessão</div>
-                            <div class="event-location">Sede Marracuene</div>
+                        <div>
+                            <div style="font-weight: bold;">Jejum Semanal</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary);"><i class="fas fa-map-marker-alt"></i> Todas as filiais</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary);"><i class="fas fa-clock"></i> 00h - 17h</div>
                         </div>
                     </div>
+                    
+                    <div style="display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="background: var(--gradient); color: white; padding: 0.5rem; border-radius: 6px; text-align: center; min-width: 55px;">
+                            <div style="font-weight: bold; font-size: 1.5rem;">Sex</div>
+                            <div style="font-size: 0.7rem; text-transform: uppercase;">SEMANA</div>
+                        </div>
+                        <div>
+                            <div style="font-weight: bold;">Intercessão</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary);"><i class="fas fa-map-marker-alt"></i> Todas as filiais</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary);"><i class="fas fa-clock"></i> 17h - 18h</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="background: var(--gradient); color: white; padding: 0.5rem; border-radius: 6px; text-align: center; min-width: 55px;">
+                            <div style="font-weight: bold; font-size: 1.5rem;">Ter/Qui</div>
+                            <div style="font-size: 0.7rem; text-transform: uppercase;">SEMANA</div>
+                        </div>
+                        <div>
+                            <div style="font-weight: bold;">Culto de Ensino</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary);"><i class="fas fa-map-marker-alt"></i> Todas as filiais</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary);"><i class="fas fa-clock"></i> 18h - 20h</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="background: var(--gradient); color: white; padding: 0.5rem; border-radius: 6px; text-align: center; min-width: 55px;">
+                            <div style="font-weight: bold; font-size: 1.5rem;">Dom</div>
+                            <div style="font-size: 0.7rem; text-transform: uppercase;">SEMANA</div>
+                        </div>
+                        <div>
+                            <div style="font-weight: bold;">Culto Principal</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary);"><i class="fas fa-map-marker-alt"></i> Todas as filiais</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary);"><i class="fas fa-clock"></i> 8h - 12h</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PÁGINA DE ORAÇÃO E DOAÇÃO -->
+        <div class="page" id="prayer-page">
+            <div class="card">
+                <div class="card-content prayer-form">
+                    <h3>Pedido de Oração</h3>
+                    <form id="prayerRequestForm">
+                        <div class="form-group">
+                            <label for="prayerName">Seu Nome:</label>
+                            <input type="text" id="prayerName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="prayerRequest">Seu Pedido de Oração:</label>
+                            <textarea id="prayerRequest" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="submit-btn">Enviar Pedido</button>
+                    </form>
                 </div>
             </div>
 
             <div class="card">
                 <div class="card-content">
-                    <h3><i class="fas fa-pray"></i> Pedidos de Oração</h3>
-                    <form id="prayerRequestForm">
-                        <input type="text" id="prayerName" placeholder="Seu nome" required>
-                        <textarea id="prayerRequest" placeholder="Seu pedido de oração" required></textarea>
-                        <button type="submit" class="submit-btn">Enviar Pedido</button>
-                    </form>
-                    <div id="prayer-requests-list">
-                        <!-- Pedidos de oração serão carregados aqui -->
+                    <h3>Apoie o Ministério</h3>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; margin: 1rem 0;">
+                        <div style="background-color: var(--background-primary); border-radius: 8px; padding: 1rem; text-align: center; cursor: pointer;">
+                            <div style="font-weight: bold; font-size: 1.2rem;">100</div>
+                            <div style="font-size: 0.7rem;">MZN</div>
+                        </div>
+                        <div style="background-color: var(--background-primary); border-radius: 8px; padding: 1rem; text-align: center; cursor: pointer;">
+                            <div style="font-weight: bold; font-size: 1.2rem;">250</div>
+                            <div style="font-size: 0.7rem;">MZN</div>
+                        </div>
+                        <div style="background-color: var(--background-primary); border-radius: 8px; padding: 1rem; text-align: center; cursor: pointer;">
+                            <div style="font-weight: bold; font-size: 1.2rem;">500</div>
+                            <div style="font-size: 0.7rem;">MZN</div>
+                        </div>
+                        <div style="background-color: var(--background-primary); border-radius: 8px; padding: 1rem; text-align: center; cursor: pointer;">
+                            <div style="font-weight: bold; font-size: 1.2rem;">Outro</div>
+                        </div>
+                    </div>
+                    <button class="submit-btn">Confirmar Doação</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PÁGINA DE LOCALIZAÇÃO -->
+        <div class="page" id="location-page">
+            <div class="card branch-card">
+                <div class="card-content">
+                    <h3><i class="fas fa-church"></i> Sede - Marracuene Mumemo</h3>
+                    <p>Moçambique, Província de Maputo, Distrito de Marracuene, Paragem Dommanhelete</p>
+                    <div class="map-container">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3600.0!2d32.682!3d-25.745!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjXCsDQ0JzI0LjAiUyAzMsKwNDEnMTkuMiJF!5e0!3m2!1spt-BR!2smz" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card branch-card">
+                <div class="card-content">
+                    <h3><i class="fas fa-church"></i> Filial - Matalane</h3>
+                    <p>Moçambique, Província de Maputo, Matalane</p>
+                    <div class="map-container">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3599.9!2d32.5541!3d-25.7264!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjXCsDQzJzMxLjAiUyAzMsKwMzInMTkuNiJF!5e0!3m2!1spt-BR!2smz" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card branch-card">
+                <div class="card-content">
+                    <h3><i class="fas fa-church"></i> Filial - Faftine</h3>
+                    <p>Moçambique, Província de Maputo, Faftine</p>
+                    <div class="map-container">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3600.1!2d32.6112!3d-25.8123!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjXCsDQ4JzI5LjEiUyAzMsKwMzYnMTkuNiJF!5e0!3m2!1spt-BR!2smz" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- PÁGINA DE CÉLULAS -->
+        
+        <!-- PÁGINA DE CÉLULAS/GRUPOS FAMILIARES -->
         <div class="page" id="cells-page">
             <div class="card">
                 <div class="card-content">
-                    <h2><i class="fas fa-home"></i> Células/Grupos Familiares</h2>
-                    <div id="cells-content">
-                        <!-- Células serão carregadas aqui -->
+                    <h2><i class="fas fa-home"></i> Grupos Familiares</h2>
+                    <p>Os grupos familiares são cultos que acontecem nas quartas-feiras nas casas dos membros da mesma zona. Cada grupo tem seu líder responsável.</p>
+                </div>
+            </div>
+            
+            <div id="cells-content">
+                <!-- Células serão carregadas aqui -->
+            </div>
+            
+            <div id="cell-report-section" style="display: none;">
+                <div class="card">
+                    <div class="card-content">
+                        <h3><i class="fas fa-file-alt"></i> Relatório do Grupo Familiar</h3>
+                        <form id="cellReportForm">
+                            <div class="form-group">
+                                <label for="reportDate">Data do Culto:</label>
+                                <input type="date" id="reportDate" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Membros Presentes:</label>
+                                <div id="membersList" class="members-list">
+                                    <!-- Membros serão carregados aqui -->
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="loveSpeaker">Quem falou sobre amor?</label>
+                                <input type="text" id="loveSpeaker" placeholder="Nome do membro">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="financeSpeaker">Quem falou sobre finanças?</label>
+                                <input type="text" id="financeSpeaker" placeholder="Nome do membro">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="mainSpeaker">Quem deu a palavra principal?</label>
+                                <input type="text" id="mainSpeaker" required placeholder="Nome do membro">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="reportNotes">Observações:</label>
+                                <textarea id="reportNotes" rows="3"></textarea>
+                            </div>
+                            
+                            <button type="submit" class="submit-btn">Enviar Relatório</button>
+                        </form>
                     </div>
                 </div>
             </div>
-
-            <div class="card cell-leader-section" style="display: none;">
-                <div class="card-content">
-                    <h3><i class="fas fa-clipboard-list"></i> Relatório de Célula</h3>
-                    <form id="cellReportForm">
-                        <input type="number" id="reportAttendance" placeholder="Número de presentes" required>
-                        <input type="number" id="reportVisitors" placeholder="Número de visitantes" required>
-                        <textarea id="reportNotes" placeholder="Observações da reunião"></textarea>
-                        <button type="submit" class="submit-btn">Enviar Relatório</button>
-                    </form>
-                </div>
-            </div>
         </div>
-
-        <!-- PÁGINA DE LOCALIZAÇÃO -->
-        <div class="page" id="location-page">
-            <div class="card">
-                <div class="card-content">
-                    <h2><i class="fas fa-map-marker-alt"></i> Nossa Localização</h2>
-                    <div class="location-info">
-                        <h3>Sede Principal - Marracuene Mumemo</h3>
-                        <p><i class="fas fa-map-marker-alt"></i> Marracuene, Mumemo, Moçambique</p>
-                        <p><i class="fas fa-phone"></i> +258 84 123 4567</p>
-                        <p><i class="fas fa-envelope"></i> ministerio.554411@gmail.com</p>
-                        
-                        <h4>Filiais:</h4>
-                        <ul>
-                            <li><strong>Matalane:</strong> 60+ membros</li>
-                            <li><strong>Faftine:</strong> 40+ membros</li>
-                        </ul>
-                        
-                        <div class="directions-btn">
-                            <button class="submit-btn" onclick="window.open('https://maps.google.com/?q=Marracuene,Moçambique', '_blank')">
-                                <i class="fas fa-directions"></i> Ver no Google Maps
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+        
         <!-- PÁGINA DE PERFIL -->
         <div class="page" id="profile-page">
-            <div class="card">
-                <div class="card-content">
-                    <h2><i class="fas fa-user"></i> Meu Perfil</h2>
-                    <div class="profile-info">
-                        <div class="profile-avatar">
-                            <img src="logo_igreja.jpeg" alt="Avatar" id="profileAvatar">
-                            <button class="change-avatar-btn" id="changeAvatarBtn">
-                                <i class="fas fa-camera"></i>
-                            </button>
+            <div class="profile-page">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="profile-header">
+                            <div class="profile-avatar">
+                                <img id="profileAvatarImg" src="https://i.ibb.co/rfLWMXK7/FB-IMG-1748755074055.jpg" alt="Foto de perfil">
+                            </div>
+                            <div class="profile-info">
+                                <h2 id="profileName">Carregando...</h2>
+                                <p id="profileRole">Membro</p>
+                            </div>
                         </div>
-                        <div class="profile-details">
-                            <h3 id="profileName">Nome do Usuário</h3>
-                            <p id="profileRole">Membro</p>
+                        
+                        <div class="profile-stats">
+                            <div class="stat-item">
+                                <div class="stat-value" id="prayerCount">0</div>
+                                <div class="stat-label">Orações</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="cellCount">0</div>
+                                <div class="stat-label">Células</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="eventsCount">0</div>
+                                <div class="stat-label">Eventos</div>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="profile-stats">
-                        <div class="stat-item">
-                            <div class="stat-number" id="prayerCount">0</div>
-                            <div class="stat-label">Pedidos de Oração</div>
+                        
+                        <div class="profile-actions">
+                            <a href="#" class="profile-action" id="editProfileBtn">
+                                <i class="fas fa-user-edit"></i> Editar Perfil
+                            </a>
+                            <a href="#" class="profile-action" id="shareAppBtn">
+                                <i class="fas fa-share-alt"></i> Compartilhar App
+                            </a>
+                            <a href="#" class="profile-action" id="changeAvatarBtn">
+                                <i class="fas fa-camera"></i> Alterar Foto
+                            </a>
+                            <a href="#" class="profile-action" id="logoutProfileBtn">
+                                <i class="fas fa-sign-out-alt"></i> Sair
+                            </a>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-number" id="cellCount">0</div>
-                            <div class="stat-label">Células</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number" id="eventsCount">0</div>
-                            <div class="stat-label">Eventos</div>
-                        </div>
-                    </div>
-                    
-                    <div class="profile-actions">
-                        <button class="action-btn" id="editProfileBtn">
-                            <i class="fas fa-edit"></i> Editar Perfil
-                        </button>
-                        <button class="action-btn" id="shareAppBtn">
-                            <i class="fas fa-share"></i> Compartilhar App
-                        </button>
-                        <button class="action-btn logout-btn" id="logoutProfileBtn">
-                            <i class="fas fa-sign-out-alt"></i> Sair
-                        </button>
                     </div>
                 </div>
-            </div>
-
-            <!-- Seção de Analytics para Admin -->
-            <div class="card admin-analytics-section" id="adminAnalyticsSection" style="display: none;">
-                <div class="card-content">
-                    <h3><i class="fas fa-chart-bar"></i> Analytics da Igreja</h3>
-                    <div class="analytics-grid">
-                        <div class="analytics-item">
-                            <div class="analytics-number" id="totalUsers">0</div>
-                            <div class="analytics-label">Total de Usuários</div>
+                
+                <!-- Seção de Analytics (apenas para admin) -->
+                <div id="adminAnalyticsSection" style="display: none; margin-top: 2rem;">
+                    <div class="card">
+                        <div class="card-content">
+                            <h2><i class="fas fa-chart-line"></i> Analytics</h2>
+                            <p>Estatísticas e informações sobre os usuários do app.</p>
+                            
+                            <div class="analytics-grid">
+                                <div class="analytics-card">
+                                    <h3>Total de Usuários</h3>
+                                    <div class="stat-value" id="totalUsers">0</div>
+                                </div>
+                                <div class="analytics-card">
+                                    <h3>Líderes de Célula</h3>
+                                    <div class="stat-value" id="totalLeaders">0</div>
+                                </div>
+                                <div class="analytics-card">
+                                    <h3>Últimos Logins</h3>
+                                    <div class="user-list" id="lastLoginsList">
+                                        <!-- Lista de usuários será carregada aqui -->
+                                    </div>
+                                </div>
+                                <div class="analytics-card">
+                                    <h3>Pedidos de Oração</h3>
+                                    <div class="stat-value" id="totalPrayers">0</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="analytics-item">
-                            <div class="analytics-number" id="totalLeaders">0</div>
-                            <div class="analytics-label">Líderes</div>
-                        </div>
-                        <div class="analytics-item">
-                            <div class="analytics-number" id="totalPrayers">0</div>
-                            <div class="analytics-label">Pedidos de Oração</div>
-                        </div>
-                    </div>
-                    
-                    <h4>Últimos Logins</h4>
-                    <div id="lastLoginsList">
-                        <!-- Lista de últimos logins -->
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    
+    <!-- NAVEGAÇÃO INFERIOR (apenas para mobile) -->
+    <div class="bottom-nav">
+        <a href="#" class="nav-btn active" data-page="home-page"><i class="fas fa-home"></i><span>Início</span></a>
+        <a href="#" class="nav-btn" data-page="bible-page"><i class="fas fa-bible"></i><span>Bíblia</span></a>
+        <a href="#" class="nav-btn" data-page="events-page"><i class="fas fa-calendar-check"></i><span>Eventos</span></a>
+        <a href="#" class="nav-btn" data-page="cells-page"><i class="fas fa-home"></i><span>Células</span></a>
+        <a href="#" class="nav-btn" data-page="location-page"><i class="fas fa-map-marker-alt"></i><span>Local</span></a>
+    </div>
+    
+    <!-- BOTÕES FLUTUANTES (apenas para mobile) -->
+    <button class="floating-btn" id="adminBtn" title="Painel Administrativo"><i class="fas fa-lock"></i></button>
+    <button class="floating-btn" id="theme-toggle" title="Mudar Tema"><i class="fas fa-sun"></i></button>
+    
+    <!-- Botão flutuante do Assistente Cristão -->
+    <div id="assistenteCristaoBtn" class="floating-btn floating-btn-assistente" style="display:none;">
+      <button onclick="abrirAssistenteCristao()" style="background: transparent; border: none; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="40" height="40">
+          <defs>
+            <radialGradient id="grad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" style="stop-color:#60A5FA;" />
+              <stop offset="100%" style="stop-color:#1E3A8A;" />
+            </radialGradient>
+          </defs>
+          <circle cx="50" cy="50" r="48" fill="url(#grad)" />
+          <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-size="38" fill="#fff" font-family="Verdana">✝️</text>
+        </svg>
+      </button>
+    </div>
 
-    <!-- Modal de Edição de Perfil -->
-    <div class="modal" id="editProfileModal">
-        <div class="modal-content">
-            <span class="close" id="closeEditProfile">&times;</span>
+    <!-- Janela de chat -->
+    <div id="assistenteCristaoJanela">
+      <div style="font-weight: bold; margin-bottom: 0.5rem;">✝️ Assistente Cristão</div>
+      <div id="chatMensagens"></div>
+      <input id="chatInput" type="text" placeholder="Pergunte algo bíblico..." onkeydown="if(event.key==='Enter'){enviarPergunta()}">
+    </div>
+    
+    <!-- MODAL DE LOGIN -->
+    <div class="login-modal" id="loginModal">
+        <div class="login-content">
+            <span class="close-login" id="closeLogin">&times;</span>
+            <h2>Login</h2>
+            <form id="userLoginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email:</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Senha:</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="submit-btn">Entrar</button>
+            </form>
+            
+            <div class="social-login">
+                <button class="social-btn google-btn" id="googleLogin">
+                    <i class="fab fa-google"></i> Entrar com Google
+                </button>
+                <button class="social-btn email-btn" id="emailLogin">
+                    <i class="fas fa-envelope"></i> Entrar com Email
+                </button>
+            </div>
+            
+            <p style="text-align: center; margin-top: 1rem;">Não tem conta? <a href="#" id="showRegister">Registre-se</a></p>
+        </div>
+    </div>
+    
+    <!-- MODAL DE REGISTRO -->
+    <div class="login-modal" id="registerModal">
+        <div class="login-content">
+            <span class="close-login" id="closeRegister">&times;</span>
+            <h2>Registro</h2>
+            <form id="userRegisterForm">
+                <div class="form-group full-width">
+                    <label for="registerName">Nome Completo:</label>
+                    <input type="text" id="registerName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="registerEmail">Email:</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Senha:</label>
+                    <input type="password" id="registerPassword" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="registerCell">Grupo Familiar (se aplicável):</label>
+                    <select id="registerCell">
+                        <option value="">Nenhum</option>
+                        <!-- Opções serão preenchidas dinamicamente -->
+                    </select>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="registerRole">Função:</label>
+                    <select id="registerRole">
+                        <option value="member">Membro</option>
+                        <option value="leader">Líder de Célula</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="submit-btn full-width">Registrar</button>
+            </form>
+            
+            <div class="social-login">
+                <button class="social-btn google-btn" id="googleRegister">
+                    <i class="fab fa-google"></i> Registrar com Google
+                </button>
+            </div>
+            
+            <p style="text-align: center; margin-top: 1rem;">Já tem conta? <a href="#" id="showLogin">Faça login</a></p>
+        </div>
+    </div>
+    
+    <!-- MODAL DE EDIÇÃO DE PERFIL -->
+    <div class="login-modal" id="editProfileModal">
+        <div class="login-content">
+            <span class="close-login" id="closeEditProfile">&times;</span>
             <h2>Editar Perfil</h2>
             <form id="editProfileForm">
-                <input type="text" id="editName" placeholder="Nome completo" required>
-                <input type="email" id="editEmail" placeholder="Email" required>
-                <input type="password" id="editPassword" placeholder="Nova senha (opcional)">
-                <select id="editRole">
-                    <option value="member">Membro</option>
-                    <option value="leader">Líder de Célula</option>
-                </select>
-                <select id="editCell">
-                    <option value="">Selecione sua célula</option>
-                </select>
-                <button type="submit" class="submit-btn">Salvar Alterações</button>
+                <div class="form-group full-width">
+                    <label for="editName">Nome Completo:</label>
+                    <input type="text" id="editName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editEmail">Email:</label>
+                    <input type="email" id="editEmail" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editPassword">Nova Senha (deixe em branco para não alterar):</label>
+                    <input type="password" id="editPassword">
+                </div>
+                
+                <div class="form-group">
+                    <label for="editCell">Grupo Familiar:</label>
+                    <select id="editCell">
+                        <option value="">Nenhum</option>
+                        <!-- Opções serão preenchidas dinamicamente -->
+                    </select>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="editRole">Função:</label>
+                    <select id="editRole" disabled>
+                        <option value="member">Membro</option>
+                        <option value="leader">Líder de Célula</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="submit-btn full-width">Salvar Alterações</button>
             </form>
         </div>
     </div>
-
-    <!-- Painel Administrativo -->
+    
+    <!-- PAINEL ADMIN -->
     <div class="admin-panel" id="adminPanel">
         <div class="admin-content">
-            <span class="close" id="closeAdmin">&times;</span>
-            <h2>Painel Administrativo</h2>
-            
-            <div class="admin-tabs">
-                <button class="tab-btn active" data-tab="posts">Posts</button>
-                <button class="tab-btn" data-tab="cells">Células</button>
-                <button class="tab-btn" data-tab="users">Usuários</button>
-            </div>
-            
-            <!-- Aba de Posts -->
-            <div class="tab-content active" id="posts-tab">
-                <h3>Criar Novo Post</h3>
-                <form id="postForm">
-                    <input type="text" id="postTitle" placeholder="Título do post" required>
-                    <select id="postType" required>
-                        <option value="">Tipo de conteúdo</option>
-                        <option value="text">Texto</option>
-                        <option value="image">Imagem</option>
-                        <option value="video">Vídeo</option>
-                        <option value="youtube">YouTube</option>
-                    </select>
-                    <textarea id="postContent" placeholder="Conteúdo do post" required></textarea>
-                    <button type="submit" class="submit-btn">Publicar Post</button>
-                </form>
-            </div>
-            
-            <!-- Aba de Células -->
-            <div class="tab-content" id="cells-tab">
-                <h3>Gerenciar Células</h3>
-                <form id="cellForm">
-                    <input type="text" id="cellName" placeholder="Nome da célula" required>
-                    <input type="text" id="cellLocation" placeholder="Localização" required>
-                    <input type="text" id="cellLeaders" placeholder="Líderes (separados por vírgula)" required>
-                    <button type="submit" class="submit-btn">Criar Célula</button>
-                </form>
-                <div id="admin-cells-list">
-                    <!-- Lista de células para administração -->
+            <span class="close-admin" id="closeAdmin" style="float: right; font-size: 1.5rem; cursor: pointer;">&times;</span>
+            <div id="loginForm">
+                <h2>Acesso Restrito</h2>
+                <div class="form-group">
+                    <label for="adminCode">Código de Acesso:</label>
+                    <input type="password" id="adminCode">
                 </div>
+                <button id="loginBtn" class="submit-btn">Entrar</button>
             </div>
-            
-            <!-- Aba de Usuários -->
-            <div class="tab-content" id="users-tab">
-                <h3>Usuários Registrados</h3>
-                <div id="admin-users-list">
-                    <!-- Lista de usuários -->
+            <div id="adminDashboard" style="display: none;">
+                <h2>Painel Administrativo</h2>
+                <form id="postForm">
+                    <div class="form-group">
+                        <label for="postType">Tipo de Post:</label>
+                        <select id="postType">
+                            <option value="text">Texto</option>
+                            <option value="image">Imagem</option>
+                            <option value="video">Vídeo</option>
+                            <option value="youtube">YouTube</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="postTitle">Título:</label>
+                        <input type="text" id="postTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="postContent">Conteúdo:</label>
+                        <textarea id="postContent" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group" id="fileUploadGroup" style="display: none;">
+                        <label for="postFile">Upload de Arquivo:</label>
+                        <input type="file" id="postFile">
+                    </div>
+                    <button type="submit" class="submit-btn">Publicar</button>
+                </form>
+                <div style="margin-top: 2rem;">
+                    <h3>Pedidos de Oração Recentes</h3>
+                    <div id="prayerRequestsList"></div>
+                </div>
+                <div style="margin-top: 2rem;">
+                    <h3>Relatórios de Células</h3>
+                    <div id="cellReportsList"></div>
+                </div>
+                <div class="cell-management">
+                    <h3>Gerenciar Grupos Familiares</h3>
+                    <div class="cell-list" id="adminCellsList">
+                        <!-- Células serão carregadas aqui -->
+                    </div>
+                    <button id="addCellBtn" class="submit-btn" style="margin-top: 1rem;">Adicionar Novo Grupo</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Navegação Mobile -->
-    <nav class="mobile-nav">
-        <button class="nav-btn active" data-page="home-page">
-            <i class="fas fa-home"></i>
-            <span>Início</span>
-        </button>
-        <button class="nav-btn" data-page="bible-page">
-            <i class="fas fa-bible"></i>
-            <span>Bíblia</span>
-        </button>
-        <button class="nav-btn" data-page="events-page">
-            <i class="fas fa-calendar-check"></i>
-            <span>Eventos</span>
-        </button>
-        <button class="nav-btn" data-page="cells-page">
-            <i class="fas fa-home"></i>
-            <span>Células</span>
-        </button>
-        <button class="nav-btn" data-page="location-page">
-            <i class="fas fa-map-marker-alt"></i>
-            <span>Local</span>
-        </button>
-        <button class="nav-btn" data-page="profile-page">
-            <i class="fas fa-user"></i>
-            <span>Perfil</span>
-        </button>
-    </nav>
-
-    <!-- Botão de Admin (visível apenas para administradores) -->
-    <button class="admin-btn" id="adminBtn" style="display: none;">
-        <i class="fas fa-cog"></i>
-    </button>
-
-    <!-- Botão de Tema -->
-    <button class="theme-toggle" id="themeToggle">
-        <i class="fas fa-sun"></i>
-    </button>
-
-    <!-- Notificação -->
+    <!-- NOTIFICAÇÃO -->
     <div class="notification" id="notification"></div>
-
+    
+    <!-- Rodapé Legal -->
+    <footer>
+        <a href="politica.html">Política de Privacidade</a> | 
+        <a href="termos.html">Termos de Uso</a>
+    </footer>
+    
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="script.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AlzaSyBgWfoczórpycz3SiJJ39Nfc1gNUd6kafk",
+            authDomain: "imjachurch.firebaseapp.com",
+            projectId: "imjachurch",
+            storageBucket: "imjachurch.appspot.com",
+            messagingSenderId: "145864254479",
+            appId: "1:145864254479:web:3c1e6f5b3b5e5f5b5e5f5b"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const functions = firebase.functions();
+
+        // Elementos DOM
+        const dom = {
+            pages: document.querySelectorAll('.page'),
+            navBtns: document.querySelectorAll('.nav-btn'),
+            feedContent: document.getElementById('feed-content'),
+            adminPanel: document.getElementById('adminPanel'),
+            adminBtn: document.getElementById('adminBtn'),
+            closeAdmin: document.getElementById('closeAdmin'),
+            loginForm: document.getElementById('loginForm'),
+            adminDashboard: document.getElementById('adminDashboard'),
+            loginBtn: document.getElementById('loginBtn'),
+            adminCode: document.getElementById('adminCode'),
+            postForm: document.getElementById('postForm'),
+            postType: document.getElementById('postType'),
+            fileUploadGroup: document.getElementById('fileUploadGroup'),
+            prayerRequestForm: document.getElementById('prayerRequestForm'),
+            prayerRequestsList: document.getElementById('prayerRequestsList'),
+            notification: document.getElementById('notification'),
+            themeToggle: document.getElementById('theme-toggle'),
+            countdownDays: document.getElementById('countdown-days'),
+            countdownHours: document.getElementById('countdown-hours'),
+            countdownMinutes: document.getElementById('countdown-minutes'),
+            countdownSeconds: document.getElementById('countdown-seconds'),
+            nextServiceInfo: document.getElementById('next-service-info'),
+            loginModal: document.getElementById('loginModal'),
+            closeLogin: document.getElementById('closeLogin'),
+            userLoginForm: document.getElementById('userLoginForm'),
+            registerModal: document.getElementById('registerModal'),
+            closeRegister: document.getElementById('closeRegister'),
+            userRegisterForm: document.getElementById('userRegisterForm'),
+            showRegister: document.getElementById('showRegister'),
+            showLogin: document.getElementById('showLogin'),
+            cellsContent: document.getElementById('cells-content'),
+            cellReportSection: document.getElementById('cell-report-section'),
+            cellReportForm: document.getElementById('cellReportForm'),
+            membersList: document.getElementById('membersList'),
+            manageCellsBtn: document.getElementById('addCellBtn'),
+            cellReportsList: document.getElementById('cellReportsList'),
+            registerCell: document.getElementById('registerCell'),
+            googleLogin: document.getElementById('googleLogin'),
+            googleRegister: document.getElementById('googleRegister'),
+            emailLogin: document.getElementById('emailLogin'),
+            adminCellsList: document.getElementById('adminCellsList'),
+            loginOverlay: document.getElementById('loginOverlay'),
+            mainContent: document.getElementById('mainContent'),
+            showRegisterInitial: document.getElementById('showRegisterInitial'),
+            googleLoginInitial: document.getElementById('googleLoginInitial'),
+            emailLoginInitial: document.getElementById('emailLoginInitial'),
+            registerRole: document.getElementById('registerRole'),
+            menuBtn: document.getElementById('menuBtn'),
+            dropdownMenu: document.getElementById('dropdownMenu'),
+            desktopMenuLinks: document.querySelectorAll('.dropdown-menu a'),
+            logoutBtn: document.getElementById('logoutBtn'),
+            visitorLogin: document.getElementById('visitorLogin'),
+            visitorOverlay: document.getElementById('visitorOverlay'),
+            loginFromVisitor: document.getElementById('loginFromVisitor'),
+            profileName: document.getElementById('profileName'),
+            profileRole: document.getElementById('profileRole'),
+            profileAvatarImg: document.getElementById('profileAvatarImg'),
+            prayerCount: document.getElementById('prayerCount'),
+            cellCount: document.getElementById('cellCount'),
+            eventsCount: document.getElementById('eventsCount'),
+            editProfileBtn: document.getElementById('editProfileBtn'),
+            shareAppBtn: document.getElementById('shareAppBtn'),
+            changeAvatarBtn: document.getElementById('changeAvatarBtn'),
+            logoutProfileBtn: document.getElementById('logoutProfileBtn'),
+            adminAnalyticsSection: document.getElementById('adminAnalyticsSection'),
+            totalUsers: document.getElementById('totalUsers'),
+            totalLeaders: document.getElementById('totalLeaders'),
+            lastLoginsList: document.getElementById('lastLoginsList'),
+            totalPrayers: document.getElementById('totalPrayers'),
+            editProfileModal: document.getElementById('editProfileModal'),
+            closeEditProfile: document.getElementById('closeEditProfile'),
+            editProfileForm: document.getElementById('editProfileForm'),
+            editName: document.getElementById('editName'),
+            editEmail: document.getElementById('editEmail'),
+            editPassword: document.getElementById('editPassword'),
+            editCell: document.getElementById('editCell'),
+            editRole: document.getElementById('editRole'),
+            assistenteCristaoBtn: document.getElementById('assistenteCristaoBtn'),
+            assistenteCristaoJanela: document.getElementById('assistenteCristaoJanela'),
+            chatMensagens: document.getElementById('chatMensagens'),
+            chatInput: document.getElementById('chatInput')
+        };
+
+        // Dados da aplicação
+        const appData = {
+            posts: [],
+            prayerRequests: [],
+            adminCode: 'IMJA2025',
+            churchAvatar: 'https://i.ibb.co/rfLWMXK7/FB-IMG-1748755074055.jpg',
+            users: [],
+            currentUser: null,
+            cells: [],
+            reactions: {},
+            isVisitor: false
+        };
+
+        // Inicialização
+        function init() {
+            setupEventListeners();
+            renderFeed();
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+            checkAuthState();
+            renderCells();
+            AOS.init();
+            
+            // Carregar tema salvo
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            dom.themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            
+            // Carregar dados do Firestore
+            loadPosts();
+            loadPrayerRequests();
+            loadCells();
+            loadUsers();
+            
+            // Mostrar overlay de login inicial
+            dom.loginOverlay.style.display = 'flex';
+        }
+
+        // Navegação
+        function navigateTo(pageId) {
+            if (!appData.currentUser && !appData.isVisitor && pageId !== 'home-page') {
+                showNotification('Faça login para acessar esta página', 'warning');
+                dom.loginOverlay.style.display = 'flex';
+                return;
+            }
+            
+            dom.pages.forEach(page => page.classList.remove('active'));
+            dom.navBtns.forEach(btn => btn.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            
+            // Ativar botão correspondente na navegação mobile
+            document.querySelector(`.nav-btn[data-page="${pageId}"]`)?.classList.add('active');
+            
+            // Se for a página de células, verificar se o usuário é líder
+            if (pageId === 'cells-page' && appData.currentUser) {
+                checkCellLeaderStatus();
+            }
+            
+            // Se for a página de perfil, carregar os dados
+            if (pageId === 'profile-page') {
+                loadProfileData();
+            }
+        }
+
+        // Feed de posts
+        function renderFeed() {
+            dom.feedContent.innerHTML = '';
+            appData.posts.forEach((post, index) => {
+                const postEl = document.createElement('div');
+                postEl.className = 'post';
+                postEl.setAttribute('data-aos', 'fade-up');
+                
+                let contentHtml = '';
+                if (post.type === 'image') {
+                    contentHtml = `<img src="${post.content}" style="width:100%; margin-top:1rem; border-radius:8px;" alt="${post.title}">`;
+                } else if (post.type === 'video') {
+                    contentHtml = `
+                        <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; margin-top:1rem; border-radius:8px;">
+                            <video controls style="position:absolute; top:0; left:0; width:100%; height:100%;">
+                                <source src="${post.content}" type="video/mp4">
+                                Seu navegador não suporta vídeos HTML5.
+                            </video>
+                        </div>
+                    `;
+                } else if (post.type === 'youtube') {
+                    const youtubeId = extractYouTubeId(post.content);
+                    if (youtubeId) {
+                        contentHtml = `
+                            <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; margin-top:1rem; border-radius:8px;">
+                                <iframe src="https://www.youtube.com/embed/${youtubeId}" 
+                                        style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        allowfullscreen></iframe>
+                            </div>
+                        `;
+                    } else {
+                        contentHtml = `<p style="color:var(--error-color);">Link do YouTube inválido</p>`;
+                    }
+                } else {
+                    contentHtml = `<p style="margin-top:1rem;">${post.content}</p>`;
+                }
+                
+                postEl.innerHTML = `
+                    <div class="post-header">
+                        <div class="post-avatar">
+                            <img src="${appData.churchAvatar}" alt="Igreja">
+                        </div>
+                        <div>
+                            <div style="font-weight:600;">Ministério dos Justos Aperfeiçoados</div>
+                            <div style="font-size:0.7rem; color:var(--text-secondary);">${new Date(post.date).toLocaleDateString()}</div>
+                        </div>
+                    </div>
+                    <div class="post-content" style="padding-top:0;">
+                        <h3>${post.title}</h3>
+                        ${contentHtml}
+                        <div class="post-actions">
+                            <div class="post-action" data-post="${post.date}" data-action="like">
+                                <i class="fas fa-thumbs-up"></i>
+                                <span>Amém</span>
+                            </div>
+                            <div class="post-action" data-post="${post.date}" data-action="comment">
+                                <i class="fas fa-comment"></i>
+                                <span>Comentar</span>
+                            </div>
+                            <div class="post-action" data-post="${post.date}" data-action="share">
+                                <i class="fas fa-share"></i>
+                                <span>Partilhar</span>
+                            </div>
+                        </div>
+                        <div class="comments-section" data-post-id="${post.date}">
+                            <textarea placeholder="Deixe um comentário..." class="comment-input"></textarea>
+                            <button onclick="enviarComentario(this)" style="margin-top:5px; background:var(--primary-color); color:white; border:none; padding:0.5rem 1rem; border-radius:4px; cursor:pointer;">Enviar</button>
+                            <div class="comments-list"></div>
+                        </div>
+                    </div>
+                `;
+                dom.feedContent.appendChild(postEl);
+                
+                // Carregar comentários para este post
+                carregarComentarios(post.date, postEl.querySelector('.comments-list'));
+            });
+            
+            // Adicionar event listeners para ações
+            document.querySelectorAll('.post-action').forEach(btn => {
+                btn.addEventListener('click', handlePostAction);
+            });
+        }
+
+        // Manipular ações nos posts
+        function handlePostAction(e) {
+            if (!appData.currentUser) {
+                showNotification('Faça login para interagir', 'warning');
+                if (appData.isVisitor) {
+                    dom.visitorOverlay.style.display = 'flex';
+                } else {
+                    dom.loginOverlay.style.display = 'flex';
+                }
+                return;
+            }
+            
+            const action = e.currentTarget.getAttribute('data-action');
+            
+            switch(action) {
+                case 'like':
+                    showNotification('Você disse Amém a esta publicação', 'success');
+                    break;
+                case 'comment':
+                    // Foco automático no campo de comentário
+                    const commentInput = e.currentTarget.closest('.post-content').querySelector('.comment-input');
+                    commentInput.focus();
+                    break;
+                case 'share':
+                    showNotification('Funcionalidade de partilha em desenvolvimento', 'warning');
+                    break;
+            }
+        }
+
+        // Extrair ID do YouTube
+        function extractYouTubeId(url) {
+            // Verifica se já é um ID (11 caracteres)
+            if (url.length === 11 && !url.includes(' ')) {
+                return url;
+            }
+            
+            // Padrões de URLs do YouTube
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            
+            // Retorna o ID se encontrado, caso contrário retorna null
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        // Painel administrativo
+        function setupAdminPanel() {
+            dom.adminBtn.addEventListener('click', () => {
+                if (!appData.currentUser) {
+                    showNotification('Faça login primeiro', 'warning');
+                    return;
+                }
+                dom.adminPanel.style.display = 'block';
+            });
+            
+            dom.closeAdmin.addEventListener('click', () => {
+                dom.adminPanel.style.display = 'none';
+            });
+            
+            dom.loginBtn.addEventListener('click', () => {
+                if (dom.adminCode.value === appData.adminCode) {
+                    dom.loginForm.style.display = 'none';
+                    dom.adminDashboard.style.display = 'block';
+                    loadPrayerRequests();
+                    loadCellReports();
+                    renderAdminCells();
+                } else {
+                    showNotification('Código de acesso incorreto', 'error');
+                }
+            });
+            
+            dom.postType.addEventListener('change', () => {
+                dom.fileUploadGroup.style.display = dom.postType.value === 'image' || dom.postType.value === 'video' ? 'block' : 'none';
+            });
+            
+            dom.postForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const post = {
+                    type: dom.postType.value,
+                    title: document.getElementById('postTitle').value,
+                    content: document.getElementById('postContent').value,
+                    date: new Date().toISOString()
+                };
+                
+                if (post.type === 'image' || post.type === 'video') {
+                    const fileInput = document.getElementById('postFile');
+                    if (fileInput.files.length > 0) {
+                        const file = fileInput.files[0];
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            post.content = e.target.result;
+                            savePostToFirestore(post);
+                        };
+                        reader.readAsDataURL(file);
+                        return;
+                    } else {
+                        showNotification('Selecione um arquivo', 'error');
+                        return;
+                    }
+                }
+                
+                savePostToFirestore(post);
+            });
+            
+            // Gerenciar células
+            dom.manageCellsBtn.addEventListener('click', () => {
+                const cellName = prompt('Nome do novo grupo familiar:');
+                if (cellName) {
+                    const newCell = {
+                        name: cellName,
+                        location: prompt('Localização do grupo:') || '',
+                        leaders: [],
+                        members: [],
+                        reports: []
+                    };
+                    
+                    saveCellToFirestore(newCell);
+                }
+            });
+        }
+
+        function savePostToFirestore(post) {
+            db.collection('posts').add(post)
+                .then(() => {
+                    showNotification('Post publicado com sucesso', 'success');
+                    dom.postForm.reset();
+                    dom.adminPanel.style.display = 'none';
+                    loadPosts();
+                })
+                .catch(error => {
+                    console.error('Erro ao salvar post:', error);
+                    showNotification('Erro ao publicar post', 'error');
+                });
+        }
+
+        function loadPosts() {
+            db.collection('posts').orderBy('date', 'desc').get()
+                .then(querySnapshot => {
+                    appData.posts = [];
+                    querySnapshot.forEach(doc => {
+                        appData.posts.push(doc.data());
+                    });
+                    renderFeed();
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar posts:', error);
+                });
+        }
+
+        // Pedidos de oração
+        function setupPrayerRequests() {
+            dom.prayerRequestForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (!appData.currentUser) {
+                    showNotification('Faça login primeiro', 'warning');
+                    if (appData.isVisitor) {
+                        dom.visitorOverlay.style.display = 'flex';
+                    } else {
+                        dom.loginOverlay.style.display = 'flex';
+                    }
+                    return;
+                }
+                
+                const request = {
+                    name: document.getElementById('prayerName').value,
+                    request: document.getElementById('prayerRequest').value,
+                    date: new Date().toISOString(),
+                    userId: appData.currentUser.id
+                };
+                
+                savePrayerRequestToFirestore(request);
+            });
+        }
+
+        function savePrayerRequestToFirestore(request) {
+            db.collection('prayerRequests').add(request)
+                .then(() => {
+                    showNotification('Pedido de oração enviado', 'success');
+                    dom.prayerRequestForm.reset();
+                    loadPrayerRequests();
+                })
+                .catch(error => {
+                    console.error('Erro ao salvar pedido de oração:', error);
+                    showNotification('Erro ao enviar pedido', 'error');
+                });
+        }
+
+        function loadPrayerRequests() {
+            db.collection('prayerRequests').orderBy('date', 'desc').limit(5).get()
+                .then(querySnapshot => {
+                    dom.prayerRequestsList.innerHTML = '';
+                    querySnapshot.forEach(doc => {
+                        const req = doc.data();
+                        const reqEl = document.createElement('div');
+                        reqEl.style.padding = '1rem';
+                        reqEl.style.marginBottom = '1rem';
+                        reqEl.style.backgroundColor = 'var(--background-primary)';
+                        reqEl.style.borderRadius = '8px';
+                        reqEl.innerHTML = `
+                            <div style="font-weight:bold;">${req.name}</div>
+                            <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:0.5rem;">${new Date(req.date).toLocaleString()}</div>
+                            <p>${req.request}</p>
+                        `;
+                        dom.prayerRequestsList.appendChild(reqEl);
+                    });
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar pedidos de oração:', error);
+                });
+        }
+
+        // Contador para o próximo culto
+        function updateCountdown() {
+            const now = new Date();
+            let nextService = new Date();
+            
+            // Verificar qual é o próximo culto
+            const currentHour = now.getHours();
+            const currentDay = now.getDay(); // 0 = Domingo, 1 = Segunda, etc.
+            
+            // Cultos:
+            // - Domingo 8h
+            // - Terça/Quinta 18h
+            // - Sexta 17h (intercessão)
+            
+            // Se for domingo antes das 8h, próximo culto é hoje às 8h
+            if (currentDay === 0 && currentHour < 8) {
+                nextService.setHours(8, 0, 0, 0);
+                dom.nextServiceInfo.textContent = 'Próximo Culto: Hoje às 8h (Domingo)';
+            } 
+            // Se for terça antes das 18h, próximo culto é hoje às 18h
+            else if (currentDay === 2 && currentHour < 18) {
+                nextService.setHours(18, 0, 0, 0);
+                dom.nextServiceInfo.textContent = 'Próximo Culto: Hoje às 18h (Terça)';
+            }
+            // Se for quinta antes das 18h, próximo culto é hoje às 18h
+            else if (currentDay === 4 && currentHour < 18) {
+                nextService.setHours(18, 0, 0, 0);
+                dom.nextServiceInfo.textContent = 'Próximo Culto: Hoje às 18h (Quinta)';
+            }
+            // Se for sexta antes das 17h, próximo culto é hoje às 17h (intercessão)
+            else if (currentDay === 5 && currentHour < 17) {
+                nextService.setHours(17, 0, 0, 0);
+                dom.nextServiceInfo.textContent = 'Próxima Intercessão: Hoje às 17h (Sexta)';
+            }
+            // Caso contrário, encontrar o próximo culto
+            else {
+                // Dias até o próximo culto (0 = Domingo, 1 = Segunda, etc.)
+                let daysToAdd = 0;
+                
+                // Se for sexta depois das 17h ou sábado, próximo culto é domingo
+                if (currentDay === 5 && currentHour >= 17 || currentDay === 6) {
+                    daysToAdd = (7 - currentDay) % 7; // Domingo
+                    nextService.setDate(now.getDate() + daysToAdd);
+                    nextService.setHours(8, 0, 0, 0);
+                    dom.nextServiceInfo.textContent = `Próximo Culto: Domingo às 8h`;
+                }
+                // Se for domingo depois das 8h ou segunda, próximo culto é terça
+                else if ((currentDay === 0 && currentHour >= 8) || currentDay === 1) {
+                    daysToAdd = 2 - currentDay; // Terça
+                    nextService.setDate(now.getDate() + daysToAdd);
+                    nextService.setHours(18, 0, 0, 0);
+                    dom.nextServiceInfo.textContent = `Próximo Culto: Terça às 18h`;
+                }
+                // Se for terça depois das 18h ou quarta, próximo culto é quinta
+                else if ((currentDay === 2 && currentHour >= 18) || currentDay === 3) {
+                    daysToAdd = 4 - currentDay; // Quinta
+                    nextService.setDate(now.getDate() + daysToAdd);
+                    nextService.setHours(18, 0, 0, 0);
+                    dom.nextServiceInfo.textContent = `Próximo Culto: Quinta às 18h`;
+                }
+                // Se for quinta depois das 18h, próximo culto é sexta (intercessão)
+                else if (currentDay === 4 && currentHour >= 18) {
+                    daysToAdd = 5 - currentDay; // Sexta
+                    nextService.setDate(now.getDate() + daysToAdd);
+                    nextService.setHours(17, 0, 0, 0);
+                    dom.nextServiceInfo.textContent = `Próxima Intercessão: Sexta às 17h`;
+                }
+            }
+            
+            const diff = nextService - now;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            dom.countdownDays.textContent = `${days}d`;
+            dom.countdownHours.textContent = `${hours}h`;
+            dom.countdownMinutes.textContent = `${minutes}m`;
+            dom.countdownSeconds.textContent = `${seconds}s`;
+        }
+
+        // Autenticação do usuário
+        function checkAuthState() {
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    // Usuário está logado
+                    db.collection('users').doc(user.uid).get()
+                        .then(doc => {
+                            if (doc.exists) {
+                                appData.currentUser = doc.data();
+                                appData.isVisitor = false;
+                                localStorage.setItem('currentUser', JSON.stringify(doc.data()));
+                                showNotification(`Bem-vindo, ${doc.data().name}!`, 'success');
+                                dom.loginOverlay.style.display = 'none';
+                                dom.visitorOverlay.style.display = 'none';
+                                dom.mainContent.classList.remove('content-blocked');
+                                
+                                // Verificar se é o administrador
+                                if (user.email === "ministerio.554411@gmail.com") {
+                                    dom.adminBtn.style.display = 'flex';
+                                } else {
+                                    dom.adminBtn.style.display = 'none';
+                                }
+                                
+                                // Atualizar último login
+                                updateLastLogin(user.uid);
+                            } else {
+                                // Criar novo usuário no Firestore
+                                const newUser = {
+                                    id: user.uid,
+                                    name: user.displayName || user.email.split('@')[0],
+                                    email: user.email,
+                                    role: 'member',
+                                    cellId: null,
+                                    lastLogin: new Date().toISOString(),
+                                    createdAt: new Date().toISOString()
+                                };
+                                
+                                db.collection('users').doc(user.uid).set(newUser)
+                                    .then(() => {
+                                        appData.currentUser = newUser;
+                                        appData.isVisitor = false;
+                                        localStorage.setItem('currentUser', JSON.stringify(newUser));
+                                        showNotification(`Bem-vindo, ${newUser.name}!`, 'success');
+                                        dom.loginOverlay.style.display = 'none';
+                                        dom.visitorOverlay.style.display = 'none';
+                                        dom.mainContent.classList.remove('content-blocked');
+                                        
+                                        // Verificar se é o administrador
+                                        if (user.email === "ministerio.554411@gmail.com") {
+                                            dom.adminBtn.style.display = 'flex';
+                                        } else {
+                                            dom.adminBtn.style.display = 'none';
+                                        }
+                                    });
+                            }
+                        });
+                } else {
+                    // Usuário não está logado
+                    appData.currentUser = null;
+                    localStorage.removeItem('currentUser');
+                    
+                    // Verificar se está no modo visitante
+                    const isVisitor = localStorage.getItem('isVisitor') === 'true';
+                    if (isVisitor) {
+                        appData.isVisitor = true;
+                        dom.loginOverlay.style.display = 'none';
+                        dom.visitorOverlay.style.display = 'flex';
+                        dom.mainContent.classList.remove('content-blocked');
+                    } else {
+                        appData.isVisitor = false;
+                        dom.loginOverlay.style.display = 'flex';
+                        dom.mainContent.classList.add('content-blocked');
+                    }
+                    
+                    dom.adminBtn.style.display = 'none';
+                }
+            });
+        }
+        
+        function updateLastLogin(userId) {
+            db.collection('users').doc(userId).update({
+                lastLogin: new Date().toISOString()
+            }).catch(error => {
+                console.error('Erro ao atualizar último login:', error);
+            });
+        }
+
+        function setupUserAuth() {
+            dom.closeLogin.addEventListener('click', () => {
+                dom.loginModal.style.display = 'none';
+            });
+            
+            dom.closeRegister.addEventListener('click', () => {
+                dom.registerModal.style.display = 'none';
+            });
+            
+            dom.showRegister.addEventListener('click', (e) => {
+                e.preventDefault();
+                dom.loginModal.style.display = 'none';
+                dom.registerModal.style.display = 'block';
+            });
+            
+            dom.showLogin.addEventListener('click', (e) => {
+                e.preventDefault();
+                dom.registerModal.style.display = 'none';
+                dom.loginModal.style.display = 'block';
+            });
+            
+            // Login com email/senha
+            dom.userLoginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                
+                // Verificar se é o administrador
+                if (email === "ministerio.554411@gmail.com" && password === "imjachurch") {
+                    auth.signInWithEmailAndPassword(email, password)
+                        .then(() => {
+                            dom.loginModal.style.display = 'none';
+                        })
+                        .catch(error => {
+                            console.error('Erro no login:', error);
+                            showNotification('Email ou senha incorretos', 'error');
+                        });
+                } else {
+                    auth.signInWithEmailAndPassword(email, password)
+                        .then(() => {
+                            dom.loginModal.style.display = 'none';
+                        })
+                        .catch(error => {
+                            console.error('Erro no login:', error);
+                            showNotification('Email ou senha incorretos', 'error');
+                        });
+                }
+            });
+            
+            // Registro com email/senha
+            dom.userRegisterForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+                const name = document.getElementById('registerName').value;
+                const cellId = document.getElementById('registerCell').value;
+                const role = document.getElementById('registerRole').value;
+                
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then(userCredential => {
+                        const user = userCredential.user;
+                        
+                        const newUser = {
+                            id: user.uid,
+                            name,
+                            email,
+                            role,
+                            cellId: cellId || null,
+                            lastLogin: new Date().toISOString(),
+                            createdAt: new Date().toISOString()
+                        };
+                        
+                        return db.collection('users').doc(user.uid).set(newUser);
+                    })
+                    .then(() => {
+                        dom.registerModal.style.display = 'none';
+                        showNotification('Registro concluído com sucesso!', 'success');
+                    })
+                    .catch(error => {
+                        console.error('Erro no registro:', error);
+                        showNotification('Erro ao registrar: ' + error.message, 'error');
+                    });
+            });
+            
+            // Login com Google
+            dom.googleLogin.addEventListener('click', () => {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                auth.signInWithPopup(provider)
+                    .then(() => {
+                        dom.loginModal.style.display = 'none';
+                    })
+                    .catch(error => {
+                        console.error('Erro no login com Google:', error);
+                        showNotification('Erro ao fazer login com Google', 'error');
+                    });
+            });
+            
+            // Registro com Google
+            dom.googleRegister.addEventListener('click', () => {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                auth.signInWithPopup(provider)
+                    .then(() => {
+                        dom.registerModal.style.display = 'none';
+                    })
+                    .catch(error => {
+                        console.error('Erro no registro com Google:', error);
+                        showNotification('Erro ao registrar com Google', 'error');
+                    });
+            });
+            
+            // Login inicial com Google
+            dom.googleLoginInitial.addEventListener('click', () => {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                auth.signInWithPopup(provider)
+                    .catch(error => {
+                        console.error('Erro no login com Google:', error);
+                        showNotification('Erro ao fazer login com Google', 'error');
+                    });
+            });
+            
+            // Mostrar registro inicial
+            dom.showRegisterInitial.addEventListener('click', (e) => {
+                e.preventDefault();
+                dom.registerModal.style.display = 'block';
+            });
+            
+            // Login com email inicial
+            dom.emailLoginInitial.addEventListener('click', () => {
+                dom.loginModal.style.display = 'block';
+            });
+            
+            // Entrar como visitante
+            dom.visitorLogin.addEventListener('click', () => {
+                appData.isVisitor = true;
+                localStorage.setItem('isVisitor', 'true');
+                dom.loginOverlay.style.display = 'none';
+                dom.visitorOverlay.style.display = 'flex';
+                dom.mainContent.classList.remove('content-blocked');
+                showNotification('Modo visitante ativado. Faça login para acessar todas as funcionalidades.', 'warning');
+            });
+            
+            // Fazer login a partir do modo visitante
+            dom.loginFromVisitor.addEventListener('click', () => {
+                dom.visitorOverlay.style.display = 'none';
+                dom.loginOverlay.style.display = 'flex';
+            });
+        }
+        
+        function logout() {
+            auth.signOut()
+                .then(() => {
+                    appData.isVisitor = false;
+                    localStorage.removeItem('isVisitor');
+                    showNotification('Você saiu da sua conta', 'warning');
+                    dom.loginOverlay.style.display = 'flex';
+                    dom.mainContent.classList.add('content-blocked');
+                })
+                .catch(error => {
+                    console.error('Erro ao sair:', error);
+                });
+        }
+
+        // Células/Grupos Familiares
+        function loadCells() {
+            db.collection('cells').get()
+                .then(querySnapshot => {
+                    appData.cells = [];
+                    querySnapshot.forEach(doc => {
+                        const cellData = doc.data();
+                        cellData.id = doc.id;
+                        appData.cells.push(cellData);
+                    });
+                    renderCells();
+                    updateCellOptions();
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar células:', error);
+                });
+        }
+
+        function renderCells() {
+            dom.cellsContent.innerHTML = '';
+            
+            appData.cells.forEach(cell => {
+                const cellEl = document.createElement('div');
+                cellEl.className = 'cell-card';
+                cellEl.innerHTML = `
+                    <h3><i class="fas fa-home"></i> ${cell.name}</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> ${cell.location}</p>
+                    <div class="cell-leaders">
+                        <span class="leader-badge"><i class="fas fa-user-tie"></i> ${cell.leaders ? cell.leaders.join(', ') : 'Nenhum líder'}</span>
+                    </div>
+                    <p><i class="fas fa-users"></i> ${cell.members ? cell.members.length : 0} membros</p>
+                `;
+                
+                dom.cellsContent.appendChild(cellEl);
+            });
+        }
+        
+        function renderAdminCells() {
+            dom.adminCellsList.innerHTML = '';
+            
+            appData.cells.forEach(cell => {
+                const cellEl = document.createElement('div');
+                cellEl.className = 'cell-item';
+                cellEl.innerHTML = `
+                    <h4>${cell.name}</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> ${cell.location}</p>
+                    <p><strong>Líderes:</strong> ${cell.leaders ? cell.leaders.join(', ') : 'Nenhum'}</p>
+                    <p><strong>Membros:</strong> ${cell.members ? cell.members.length : 0}</p>
+                    <button class="submit-btn" style="margin-top: 0.5rem; padding: 0.5rem;" data-cell-id="${cell.id}">Editar</button>
+                `;
+                
+                dom.adminCellsList.appendChild(cellEl);
+            });
+            
+            // Adicionar event listeners para botões de edição
+            document.querySelectorAll('[data-cell-id]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const cellId = e.currentTarget.getAttribute('data-cell-id');
+                    editCell(cellId);
+                });
+            });
+        }
+        
+        function editCell(cellId) {
+            const cell = appData.cells.find(c => c.id === cellId);
+            if (!cell) return;
+            
+            const newName = prompt('Novo nome do grupo:', cell.name);
+            if (newName === null) return;
+            
+            const newLocation = prompt('Nova localização:', cell.location || '');
+            
+            db.collection('cells').doc(cellId).update({
+                name: newName,
+                location: newLocation
+            })
+            .then(() => {
+                showNotification('Grupo atualizado com sucesso', 'success');
+                loadCells();
+                renderAdminCells();
+            })
+            .catch(error => {
+                console.error('Erro ao atualizar grupo:', error);
+                showNotification('Erro ao atualizar grupo', 'error');
+            });
+        }
+        
+        function saveCellToFirestore(cell) {
+            db.collection('cells').add(cell)
+                .then(() => {
+                    showNotification('Grupo familiar adicionado com sucesso', 'success');
+                    loadCells();
+                    renderAdminCells();
+                })
+                .catch(error => {
+                    console.error('Erro ao salvar grupo:', error);
+                    showNotification('Erro ao adicionar grupo', 'error');
+                });
+        }
+        
+        function checkCellLeaderStatus() {
+            if (appData.currentUser && appData.currentUser.role === 'leader') {
+                // Mostrar seção de relatório para líderes
+                dom.cellReportSection.style.display = 'block';
+                
+                // Preencher lista de membros
+                const userCell = appData.cells.find(c => c.id === appData.currentUser.cellId);
+                if (userCell) {
+                    dom.membersList.innerHTML = '';
+                    userCell.members.forEach(member => {
+                        const memberEl = document.createElement('div');
+                        memberEl.className = 'member-item';
+                        memberEl.innerHTML = `
+                            <span>${member}</span>
+                            <input type="checkbox" id="member-${member.replace(/\s+/g, '-')}" value="${member}">
+                        `;
+                        dom.membersList.appendChild(memberEl);
+                    });
+                }
+            } else {
+                dom.cellReportSection.style.display = 'none';
+            }
+        }
+        
+        function setupCellReports() {
+            dom.cellReportForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                if (!appData.currentUser || appData.currentUser.role !== 'leader') {
+                    showNotification('Apenas líderes podem enviar relatórios', 'error');
+                    return;
+                }
+                
+                const cell = appData.cells.find(c => c.id === appData.currentUser.cellId);
+                if (!cell) {
+                    showNotification('Grupo familiar não encontrado', 'error');
+                    return;
+                }
+                
+                // Coletar membros presentes
+                const presentMembers = [];
+                document.querySelectorAll('#membersList input[type="checkbox"]:checked').forEach(checkbox => {
+                    presentMembers.push(checkbox.value);
+                });
+                
+                const report = {
+                    date: document.getElementById('reportDate').value,
+                    leader: appData.currentUser.name,
+                    presentMembers,
+                    loveSpeaker: document.getElementById('loveSpeaker').value,
+                    financeSpeaker: document.getElementById('financeSpeaker').value,
+                    mainSpeaker: document.getElementById('mainSpeaker').value,
+                    notes: document.getElementById('reportNotes').value,
+                    submittedAt: new Date().toISOString()
+                };
+                
+                db.collection('cells').doc(cell.id).update({
+                    reports: firebase.firestore.FieldValue.arrayUnion(report)
+                })
+                .then(() => {
+                    dom.cellReportForm.reset();
+                    showNotification('Relatório enviado com sucesso!', 'success');
+                    loadCellReports();
+                })
+                .catch(error => {
+                    console.error('Erro ao enviar relatório:', error);
+                    showNotification('Erro ao enviar relatório', 'error');
+                });
+            });
+        }
+        
+        function loadCellReports() {
+            db.collection('cells').get()
+                .then(querySnapshot => {
+                    const allReports = [];
+                    
+                    querySnapshot.forEach(doc => {
+                        const cellData = doc.data();
+                        if (cellData.reports) {
+                            cellData.reports.forEach(report => {
+                                allReports.push({
+                                    cell: cellData.name,
+                                    ...report
+                                });
+                            });
+                        }
+                    });
+                    
+                    // Ordenar por data mais recente
+                    allReports.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+                    
+                    // Mostrar os 5 mais recentes
+                    dom.cellReportsList.innerHTML = '';
+                    allReports.slice(0, 5).forEach(report => {
+                        const reportEl = document.createElement('div');
+                        reportEl.style.padding = '1rem';
+                        reportEl.style.marginBottom = '1rem';
+                        reportEl.style.backgroundColor = 'var(--background-primary)';
+                        reportEl.style.borderRadius = '8px';
+                        reportEl.innerHTML = `
+                            <div style="font-weight:bold;">${report.cell} - ${report.date}</div>
+                            <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:0.5rem;">
+                                Enviado por ${report.leader} em ${new Date(report.submittedAt).toLocaleString()}
+                            </div>
+                            <p><strong>Membros presentes:</strong> ${report.presentMembers.join(', ') || 'Nenhum'}</p>
+                            <p><strong>Palavra sobre amor:</strong> ${report.loveSpeaker || 'Nenhum'}</p>
+                            <p><strong>Palavra sobre finanças:</strong> ${report.financeSpeaker || 'Nenhum'}</p>
+                            <p><strong>Palavra principal:</strong> ${report.mainSpeaker}</p>
+                            ${report.notes ? `<p><strong>Observações:</strong> ${report.notes}</p>` : ''}
+                        `;
+                        dom.cellReportsList.appendChild(reportEl);
+                    });
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar relatórios:', error);
+                });
+        }
+        
+        function updateCellOptions() {
+            dom.registerCell.innerHTML = '<option value="">Nenhum</option>';
+            dom.editCell.innerHTML = '<option value="">Nenhum</option>';
+            appData.cells.forEach(cell => {
+                const option = document.createElement('option');
+                option.value = cell.id;
+                option.textContent = cell.name;
+                dom.registerCell.appendChild(option.cloneNode(true));
+                dom.editCell.appendChild(option.cloneNode(true));
+            });
+        }
+
+        // Carregar usuários
+        function loadUsers() {
+            db.collection('users').get()
+                .then(querySnapshot => {
+                    appData.users = [];
+                    querySnapshot.forEach(doc => {
+                        appData.users.push(doc.data());
+                    });
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar usuários:', error);
+                });
+        }
+        
+        // Perfil do usuário
+        function loadProfileData() {
+            if (!appData.currentUser) {
+                dom.profileName.textContent = 'Visitante';
+                dom.profileRole.textContent = 'Convidado';
+                return;
+            }
+            
+            dom.profileName.textContent = appData.currentUser.name;
+            dom.profileRole.textContent = appData.currentUser.role === 'leader' ? 'Líder de Célula' : 'Membro';
+            
+            // Contar pedidos de oração do usuário
+            db.collection('prayerRequests').where('userId', '==', appData.currentUser.id).get()
+                .then(querySnapshot => {
+                    dom.prayerCount.textContent = querySnapshot.size;
+                });
+            
+            // Contar participação em células
+            if (appData.currentUser.cellId) {
+                dom.cellCount.textContent = '1';
+            } else {
+                dom.cellCount.textContent = '0';
+            }
+            
+            // Contar eventos (simulado)
+            dom.eventsCount.textContent = Math.floor(Math.random() * 10);
+            
+            // Mostrar seção de analytics se for admin
+            if (appData.currentUser.email === "ministerio.554411@gmail.com") {
+                dom.adminAnalyticsSection.style.display = 'block';
+                loadAnalyticsData();
+            } else {
+                dom.adminAnalyticsSection.style.display = 'none';
+            }
+            
+            // Preencher formulário de edição
+            if (appData.currentUser) {
+                dom.editName.value = appData.currentUser.name;
+                dom.editEmail.value = appData.currentUser.email;
+                dom.editRole.value = appData.currentUser.role;
+                
+                if (appData.currentUser.cellId) {
+                    dom.editCell.value = appData.currentUser.cellId;
+                }
+            }
+        }
+        
+        function loadAnalyticsData() {
+            // Total de usuários
+            db.collection('users').get()
+                .then(querySnapshot => {
+                    dom.totalUsers.textContent = querySnapshot.size;
+                    
+                    // Contar líderes
+                    let leaders = 0;
+                    querySnapshot.forEach(doc => {
+                        if (doc.data().role === 'leader') leaders++;
+                    });
+                    dom.totalLeaders.textContent = leaders;
+                    
+                    // Últimos logins
+                    const users = [];
+                    querySnapshot.forEach(doc => {
+                        users.push(doc.data());
+                    });
+                    
+                    // Ordenar por último login
+                    users.sort((a, b) => new Date(b.lastLogin || b.createdAt) - new Date(a.lastLogin || a.createdAt));
+                    
+                    // Mostrar os 5 mais recentes
+                    dom.lastLoginsList.innerHTML = '';
+                    users.slice(0, 5).forEach(user => {
+                        const userEl = document.createElement('div');
+                        userEl.className = 'user-item';
+                        userEl.innerHTML = `
+                            <div class="user-avatar">
+                                <img src="${appData.churchAvatar}" alt="${user.name}">
+                            </div>
+                            <div class="user-info">
+                                <h4>${user.name}</h4>
+                                <p>${new Date(user.lastLogin || user.createdAt).toLocaleString()}</p>
+                            </div>
+                        `;
+                        dom.lastLoginsList.appendChild(userEl);
+                    });
+                });
+            
+            // Total de pedidos de oração
+            db.collection('prayerRequests').get()
+                .then(querySnapshot => {
+                    dom.totalPrayers.textContent = querySnapshot.size;
+                });
+        }
+        
+        function setupProfileActions() {
+            // Editar perfil
+            dom.editProfileBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (!appData.currentUser) {
+                    showNotification('Faça login para editar seu perfil', 'warning');
+                    return;
+                }
+                dom.editProfileModal.style.display = 'block';
+            });
+            
+            // Fechar modal de edição
+            dom.closeEditProfile.addEventListener('click', () => {
+                dom.editProfileModal.style.display = 'none';
+            });
+            
+            // Salvar alterações do perfil
+            dom.editProfileForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const updates = {
+                    name: dom.editName.value,
+                    email: dom.editEmail.value
+                };
+                
+                // Atualizar célula se foi alterada
+                if (dom.editCell.value !== appData.currentUser.cellId) {
+                    updates.cellId = dom.editCell.value || null;
+                }
+                
+                // Atualizar no Firestore
+                db.collection('users').doc(appData.currentUser.id).update(updates)
+                    .then(() => {
+                        // Atualizar dados locais
+                        appData.currentUser = {
+                            ...appData.currentUser,
+                            ...updates
+                        };
+                        localStorage.setItem('currentUser', JSON.stringify(appData.currentUser));
+                        
+                        showNotification('Perfil atualizado com sucesso', 'success');
+                        dom.editProfileModal.style.display = 'none';
+                        loadProfileData();
+                    })
+                    .catch(error => {
+                        console.error('Erro ao atualizar perfil:', error);
+                        showNotification('Erro ao atualizar perfil', 'error');
+                    });
+                
+                // Atualizar senha se foi fornecida
+                if (dom.editPassword.value) {
+                    auth.currentUser.updatePassword(dom.editPassword.value)
+                        .then(() => {
+                            showNotification('Senha atualizada com sucesso', 'success');
+                            dom.editPassword.value = '';
+                        })
+                        .catch(error => {
+                            console.error('Erro ao atualizar senha:', error);
+                            showNotification('Erro ao atualizar senha: ' + error.message, 'error');
+                        });
+                }
+            });
+            
+            // Compartilhar app
+            dom.shareAppBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Ministério dos Justos Aperfeiçoados',
+                        text: 'Baixe o app do Ministério dos Justos Aperfeiçoados',
+                        url: window.location.href
+                    }).catch(error => {
+                        console.error('Erro ao compartilhar:', error);
+                    });
+                } else {
+                    showNotification('Copiado para a área de transferência', 'success');
+                    const tempInput = document.createElement('input');
+                    tempInput.value = window.location.href;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                }
+            });
+            
+            // Alterar foto (simulado)
+            dom.changeAvatarBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                showNotification('Funcionalidade em desenvolvimento', 'warning');
+            });
+            
+            // Sair do perfil
+            dom.logoutProfileBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                logout();
+            });
+        }
+
+        // Assistente Cristão
+        function setupAssistenteCristao() {
+            // Exibir botão só para usuários logados
+            auth.onAuthStateChanged(function(user) {
+                if (user) {
+                    dom.assistenteCristaoBtn.style.display = 'block';
+                } else {
+                    dom.assistenteCristaoBtn.style.display = 'none';
+                    dom.assistenteCristaoJanela.style.display = 'none';
+                }
+            });
+
+            // Abrir/fechar chat
+            window.abrirAssistenteCristao = function() {
+                const janela = dom.assistenteCristaoJanela;
+                if (janela.style.display === 'block') {
+                    janela.style.display = 'none';
+                } else {
+                    janela.style.display = 'block';
+                    dom.chatInput.focus();
+                }
+            }
+
+            // Enviar pergunta à IA
+            window.enviarPergunta = async function() {
+                const pergunta = dom.chatInput.value.trim();
+                if (!pergunta) return;
+
+                // Adicionar pergunta do usuário ao chat
+                dom.chatMensagens.innerHTML += `<div style="margin-bottom:10px;"><b>Você:</b> ${pergunta}</div>`;
+                dom.chatInput.value = '';
+                
+                // Mostrar mensagem de "digitando"
+                dom.chatMensagens.innerHTML += `<div style="margin-bottom:10px;color:#aaa;"><i>Assistente está digitando...</i></div>`;
+                dom.chatMensagens.scrollTop = dom.chatMensagens.scrollHeight;
+
+                // Lista de palavras proibidas
+                const moderacao = ["jesus não é deus", "jesus nao e deus", "jesus cristo não é deus", "jesus não é divino"];
+                if (moderacao.some(p => pergunta.toLowerCase().includes(p))) {
+                    setTimeout(() => {
+                        // Remover mensagem de "digitando"
+                        dom.chatMensagens.innerHTML = dom.chatMensagens.innerHTML.replace(
+                            '<div style="margin-bottom:10px;color:#aaa;"><i>Assistente está digitando...</i></div>', 
+                            '<div style="margin-bottom:10px;"><b>IA:</b> ❌ Isso é heresia. João 10:30 — "Eu e o Pai somos um". Jesus é Deus.</div>'
+                        );
+                        dom.chatMensagens.scrollTop = dom.chatMensagens.scrollHeight;
+                    }, 1000);
+                    return;
+                }
+
+                try {
+                    const chamarIA = functions.httpsCallable("chatCristao");
+                    const resposta = await chamarIA({ pergunta });
+                    
+                    // Remover mensagem de "digitando" e mostrar resposta
+                    dom.chatMensagens.innerHTML = dom.chatMensagens.innerHTML.replace(
+                        '<div style="margin-bottom:10px;color:#aaa;"><i>Assistente está digitando...</i></div>', 
+                        `<div style="margin-bottom:10px;"><b>IA:</b> ${resposta.data.resposta}</div>`
+                    );
+                } catch (error) {
+                    console.error("Erro ao chamar a função:", error);
+                    dom.chatMensagens.innerHTML = dom.chatMensagens.innerHTML.replace(
+                        '<div style="margin-bottom:10px;color:#aaa;"><i>Assistente está digitando...</i></div>', 
+                        '<div style="margin-bottom:10px;"><b>IA:</b> Desculpe, ocorreu um erro. Tente novamente mais tarde.</div>'
+                    );
+                }
+                
+                dom.chatMensagens.scrollTop = dom.chatMensagens.scrollHeight;
+            }
+        }
+
+        // Comentários
+        window.enviarComentario = function(botao) {
+            if (!appData.currentUser && !appData.isVisitor) {
+                showNotification('Faça login para comentar', 'warning');
+                dom.loginOverlay.style.display = 'flex';
+                return;
+            }
+            
+            const secao = botao.closest('.comments-section');
+            const postId = secao.getAttribute('data-post-id');
+            const input = secao.querySelector('.comment-input');
+            const texto = input.value.trim();
+            if (!texto) return;
+
+            db.collection("comentarios").add({
+                postId,
+                texto,
+                autor: appData.currentUser ? appData.currentUser.name : "Visitante",
+                userId: appData.currentUser ? appData.currentUser.id : null,
+                data: new Date().toISOString()
+            }).then(() => {
+                input.value = "";
+                carregarComentarios(postId, secao.querySelector('.comments-list'));
+            }).catch(error => {
+                console.error("Erro ao enviar comentário:", error);
+                showNotification('Erro ao enviar comentário', 'error');
+            });
+        }
+
+        function carregarComentarios(postId, container) {
+            container.innerHTML = '<div style="text-align:center;color:#aaa;">Carregando...</div>';
+            
+            db.collection("comentarios")
+                .where("postId", "==", postId)
+                .orderBy("data", "asc") // Mais antigos primeiro
+                .get()
+                .then(querySnapshot => {
+                    container.innerHTML = "";
+                    
+                    if (querySnapshot.empty) {
+                        container.innerHTML = '<div style="text-align:center;color:#aaa;">Nenhum comentário ainda.</div>';
+                        return;
+                    }
+                    
+                    querySnapshot.forEach(doc => {
+                        const c = doc.data();
+                        const div = document.createElement('div');
+                        div.className = 'comment-item';
+                        div.innerHTML = `
+                            <div class="comment-author">${c.autor}:</div>
+                            <div class="comment-text">${c.texto}</div>
+                            <div class="comment-date">${new Date(c.data).toLocaleString()}</div>
+                        `;
+                        container.appendChild(div);
+                    });
+                })
+                .catch(error => {
+                    console.error("Erro ao carregar comentários:", error);
+                    container.innerHTML = '<div style="text-align:center;color:var(--error-color);">Erro ao carregar comentários.</div>';
+                });
+        }
+
+        // Utilitários
+        function showNotification(message, type = '') {
+            dom.notification.textContent = message;
+            dom.notification.className = 'notification';
+            if (type) dom.notification.classList.add(type);
+            dom.notification.classList.add('show');
+            setTimeout(() => {
+                dom.notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Event listeners
+        function setupEventListeners() {
+            // Navegação mobile
+            dom.navBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    navigateTo(btn.dataset.page);
+                });
+            });
+            
+            // Navegação desktop
+            dom.menuBtn.addEventListener('click', () => {
+                dom.dropdownMenu.style.display = dom.dropdownMenu.style.display === 'block' ? 'none' : 'block';
+            });
+            
+            // Fechar menu ao clicar fora
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.desktop-menu')) {
+                    dom.dropdownMenu.style.display = 'none';
+                }
+            });
+            
+            // Links do menu desktop
+            dom.desktopMenuLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (link.id === 'logoutBtn') {
+                        logout();
+                    } else {
+                        navigateTo(link.dataset.page);
+                    }
+                    dom.dropdownMenu.style.display = 'none';
+                });
+            });
+            
+            // Botão de tema
+            dom.themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                dom.themeToggle.innerHTML = newTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            });
+            
+            // Botão de logout
+            dom.logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                logout();
+            });
+            
+            setupAdminPanel();
+            setupPrayerRequests();
+            setupUserAuth();
+            setupCellReports();
+            setupProfileActions();
+            setupAssistenteCristao();
+        }
+
+        // Iniciar aplicação
+        init();
+    });
+    </script>
 </body>
 </html>
-
