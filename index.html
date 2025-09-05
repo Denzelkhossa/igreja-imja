@@ -633,593 +633,374 @@
             </div>
         </div>
     </div>
+<script type="module">
+  // Configuração do Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyAY0NMy-SuHMNwyK4IzeOW3UCOzY_aWrYw",
+    authDomain: "imjachurch.firebaseapp.com",
+    projectId: "imjachurch",
+    storageBucket: "imjachurch.appspot.com",
+    messagingSenderId: "286268737026",
+    appId: "1:286268737026:web:397eb2577a91d4bdf730ed",
+    measurementId: "G-51BL7CLZMH"
+  };
 
-    <script>
-        // Configuração do Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyBgWfocz6rpycz3SiJJ39Nfc1gNUd6kafk",
-            authDomain: "imjachurch.firebaseapp.com",
-            projectId: "imjachurch",
-            storageBucket: "imjachurch.appspot.com",
-            messagingSenderId: "145864254479",
-            appId: "1:145864254479:web:3c1e6f5b3b5e5f5b5e5f5b"
-        };
+  // Inicializar Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-        // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
+  // Variáveis globais
+  const loginScreen = document.getElementById('login-screen');
+  const adminPanel = document.getElementById('admin-panel');
+  const loginForm = document.getElementById('login-form');
+  const loginError = document.getElementById('login-error');
+  const userName = document.getElementById('user-name');
+  const userEmail = document.getElementById('user-email');
+  const userPhoto = document.getElementById('user-photo');
+  const logoutButton = document.getElementById('logout');
+  const menuItems = document.querySelectorAll('.menu-item');
+  const sectionTitle = document.getElementById('section-title');
+  const contentArea = document.getElementById('content-area');
 
-        // Elementos da DOM
-        const loginScreen = document.getElementById('loginScreen');
-        const adminPanel = document.getElementById('adminPanel');
-        const loginForm = document.getElementById('loginForm');
-        const loginEmail = document.getElementById('loginEmail');
-        const loginPassword = document.getElementById('loginPassword');
-        const loginText = document.getElementById('loginText');
-        const loginLoader = document.getElementById('loginLoader');
-        const loginError = document.getElementById('loginError');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const contentArea = document.getElementById('contentArea');
-        const sectionTitle = document.getElementById('sectionTitle');
-        const userName = document.getElementById('userName');
-        const userEmail = document.getElementById('userEmail');
-        const userPhoto = document.getElementById('userPhoto');
-        const menuItems = document.querySelectorAll('.menu-item');
-        
-        // Modal de Eventos
-        const eventModal = document.getElementById('eventModal');
-        const eventForm = document.getElementById('eventForm');
-        const eventModalTitle = document.getElementById('eventModalTitle');
-        const eventId = document.getElementById('eventId');
-        const eventTitle = document.getElementById('eventTitle');
-        const eventDate = document.getElementById('eventDate');
-        const eventLocation = document.getElementById('eventLocation');
-        const eventDescription = document.getElementById('eventDescription');
-        const eventImage = document.getElementById('eventImage');
-        const cancelEventBtn = document.getElementById('cancelEventBtn');
-        const saveEventBtn = document.getElementById('saveEventBtn');
-        const saveEventText = document.getElementById('saveEventText');
-        const saveEventLoader = document.getElementById('saveEventLoader');
+  let currentUser = null;
+  let currentSection = 'dashboard';
+  let isAdmin = false;
 
-        // Dados da aplicação
-        let currentUser = null;
-        let currentSection = 'dashboard';
-        let editingEventId = null;
+  // Templates
+  const templates = {
+    dashboard: `
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="card">
+          <h3 class="text-lg font-bold">Total de Membros</h3>
+          <p class="text-3xl mt-2">1,245</p>
+        </div>
+        <div class="card">
+          <h3 class="text-lg font-bold">Células Ativas</h3>
+          <p class="text-3xl mt-2">48</p>
+        </div>
+        <div class="card">
+          <h3 class="text-lg font-bold">Eventos Próximos</h3>
+          <p class="text-3xl mt-2">5</p>
+        </div>
+      </div>
+    `,
+    events: `
+      <div class="card">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold">Gerenciar Eventos</h3>
+          <button id="addEvent" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors">+ Novo Evento</button>
+        </div>
+        <div id="eventsList">
+          <p>Carregando eventos...</p>
+        </div>
+      </div>
+    `,
+    sermons: `
+      <div class="card">
+        <h3 class="text-xl font-bold mb-4">Mensagens e Sermões</h3>
+        <p>Gerencie os sermões aqui.</p>
+      </div>
+    `,
+    news: `
+      <div class="card">
+        <h3 class="text-xl font-bold mb-4">Notícias e Informativos</h3>
+        <p>Gerencie as notícias da igreja.</p>
+      </div>
+    `,
+    prayers: `
+      <div class="card">
+        <h3 class="text-xl font-bold mb-4">Pedidos de Oração</h3>
+        <div id="prayerList">
+          <p>Carregando pedidos...</p>
+        </div>
+      </div>
+    `,
+    members: `
+      <div class="card">
+        <h3 class="text-xl font-bold mb-4">Gerenciar Membros</h3>
+        <p>Cadastro e lista de membros.</p>
+      </div>
+    `,
+    cells: `
+      <div class="card">
+        <h3 class="text-xl font-bold mb-4">Células</h3>
+        <p>Gerencie as células da igreja.</p>
+      </div>
+    `,
+    settings: `
+      <div class="card">
+        <h3 class="text-xl font-bold mb-4">Configurações do Sistema</h3>
+        <p>Ajuste as configurações da plataforma.</p>
+      </div>
+    `
+  };
 
-        // Templates
-        const templates = {
-            dashboard: `
-                <div class="stats-cards">
-                    <div class="stat-card">
-                        <div class="stat-icon members">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="statsMembers">0</h3>
-                            <p>Total de Membros</p>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon events">
-                            <i class="fas fa-calendar-alt"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="statsEvents">0</h3>
-                            <p>Próximos Eventos</p>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon prayers">
-                            <i class="fas fa-pray"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="statsPrayers">0</h3>
-                            <p>Pedidos de Oração</p>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon cells">
-                            <i class="fas fa-house-user"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="statsCells">0</h3>
-                            <p>Células Ativas</p>
-                        </div>
-                    </div>
-                </div>
+  // Mostrar tela de login
+  function showLoginScreen() {
+    loginScreen.classList.remove('hidden');
+    adminPanel.classList.add('hidden');
+  }
 
-                <div class="content-section">
-                    <div class="section-header">
-                        <h2>Próximos Eventos</h2>
-                        <button class="btn btn-primary" id="addEventBtn">
-                            <i class="fas fa-plus"></i> Novo Evento
-                        </button>
-                    </div>
-                    
-                    <div id="eventsList">
-                        <p>Carregando eventos...</p>
-                    </div>
-                </div>
+  // Mostrar painel
+  function showAdminPanel() {
+    loginScreen.classList.add('hidden');
+    adminPanel.classList.remove('hidden');
+    loadSection(currentSection);
+  }
 
-                <div class="content-section">
-                    <div class="section-header">
-                        <h2>Pedidos de Oração Recentes</h2>
-                        <button class="btn btn-primary" id="viewAllPrayersBtn">
-                            <i class="fas fa-eye"></i> Ver Todos
-                        </button>
-                    </div>
-                    
-                    <div id="prayersList">
-                        <p>Carregando pedidos de oração...</p>
-                    </div>
-                </div>
-            `,
-            events: `
-                <div class="content-section">
-                    <div class="section-header">
-                        <h2>Gerenciar Eventos</h2>
-                        <button class="btn btn-primary" id="addEventBtn">
-                            <i class="fas fa-plus"></i> Novo Evento
-                        </button>
-                    </div>
-                    
-                    <div id="eventsList">
-                        <p>Carregando eventos...</p>
-                    </div>
-                </div>
-            `,
-            prayers: `
-                <div class="content-section">
-                    <div class="section-header">
-                        <h2>Pedidos de Oração</h2>
-                    </div>
-                    
-                    <div id="prayersList">
-                        <p>Carregando pedidos de oração...</p>
-                    </div>
-                </div>
-            `
-        };
+  // Login
+  loginForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
 
-        // Funções de Autenticação
-        function login(email, password) {
-            loginText.style.display = 'none';
-            loginLoader.style.display = 'inline-block';
-            loginError.style.display = 'none';
-            
-            auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    currentUser = userCredential.user;
-                    loadUserData();
-                    showAdminPanel();
-                })
-                .catch((error) => {
-                    loginError.style.display = 'block';
-                    loginText.style.display = 'inline-block';
-                    loginLoader.style.display = 'none';
-                    console.error("Erro de login:", error);
-                });
-        }
+    auth.signInWithEmailAndPassword(email, password)
+      .then(() => {
+        loginError.classList.add('hidden');
+        loginForm.reset();
+      })
+      .catch((error) => {
+        loginError.textContent = error.message;
+        loginError.classList.remove('hidden');
+      });
+  });
 
-        function logout() {
-            auth.signOut().then(() => {
-                currentUser = null;
-                showLoginScreen();
-            });
-        }
+  // Logout
+  logoutButton.addEventListener('click', () => {
+    auth.signOut();
+  });
 
-        function loadUserData() {
-            if (currentUser) {
-                userName.textContent = currentUser.displayName || 'Administrador';
-                userEmail.textContent = currentUser.email;
-                userPhoto.src = currentUser.photoURL || 'https://i.ibb.co/rfLWMXK7/FB-IMG-1748755074055.jpg';
-            }
-        }
+  // Monitorar login
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      currentUser = user;
+      loadUserData();
+      showAdminPanel();
+    } else {
+      currentUser = null;
+      showLoginScreen();
+    }
+  });
 
-        function showLoginScreen() {
-            loginScreen.style.display = 'flex';
-            adminPanel.style.display = 'none';
-            loginForm.reset();
-        }
+  // Dados do usuário
+  function loadUserData() {
+    if (currentUser) {
+      userName.textContent = currentUser.displayName || 'Usuário';
+      userEmail.textContent = currentUser.email;
+      userPhoto.src = currentUser.photoURL || 'https://i.ibb.co/rfLWMXK7/FB-IMG-1748755074055.jpg';
 
-        function showAdminPanel() {
-            loginScreen.style.display = 'none';
-            adminPanel.style.display = 'flex';
-            loadSection('dashboard');
-        }
+      // Verifica se é admin
+      if (currentUser.email === "ministerio.554411@gmail.com") {
+        isAdmin = true;
+      } else {
+        isAdmin = false;
+      }
 
-        // Funções de Navegação
-        function loadSection(section) {
-            currentSection = section;
-            
-            // Atualizar menu ativo
-            menuItems.forEach(item => {
-                if (item.getAttribute('data-section') === section) {
-                    item.classList.add('active');
-                } else {
-                    item.classList.remove('active');
-                }
-            });
-            
-            // Atualizar título da seção
-            sectionTitle.textContent = getSectionTitle(section);
-            
-            // Carregar conteúdo da seção
-            if (templates[section]) {
-                contentArea.innerHTML = templates[section];
-                
-                // Configurar eventos após o carregamento do conteúdo
-                setTimeout(() => {
-                    setupSectionEvents(section);
-                    loadSectionData(section);
-                }, 100);
-            } else {
-                contentArea.innerHTML = `<p>Conteúdo da seção ${section} não disponível.</p>`;
-            }
-        }
+      applyPermissions();
+    }
+  }
 
-        function getSectionTitle(section) {
-            const titles = {
-                dashboard: 'Dashboard',
-                events: 'Eventos',
-                sermons: 'Mensagens',
-                news: 'Notícias',
-                members: 'Membros',
-                cells: 'Células',
-                prayers: 'Pedidos de Oração',
-                settings: 'Configurações'
-            };
-            
-            return titles[section] || 'Dashboard';
-        }
+  // Aplicar permissões
+  function applyPermissions() {
+    const adminSections = ["members", "cells", "settings"];
+    adminSections.forEach(section => {
+      const menuItem = document.querySelector(`.menu-item[data-section="${section}"]`);
+      if (menuItem) {
+        menuItem.style.display = isAdmin ? "flex" : "none";
+      }
+    });
+  }
 
-        function setupSectionEvents(section) {
-            if (section === 'dashboard' || section === 'events') {
-                const addEventBtn = document.getElementById('addEventBtn');
-                if (addEventBtn) {
-                    addEventBtn.addEventListener('click', () => {
-                        openEventModal();
-                    });
-                }
-            }
-        }
+  // Carregar seção
+  function loadSection(section) {
+    currentSection = section;
 
-        // Funções de Carregamento de Dados
-        function loadSectionData(section) {
-            switch(section) {
-                case 'dashboard':
-                    loadDashboardData();
-                    break;
-                case 'events':
-                    loadEventsData();
-                    break;
-                case 'prayers':
-                    loadPrayersData();
-                    break;
-                default:
-                    // Outras seções podem ser implementadas aqui
-                    break;
-            }
-        }
+    const adminOnly = ["members", "cells", "settings"];
+    if (adminOnly.includes(section) && !isAdmin) {
+      contentArea.innerHTML = `<p style="color:red;">Acesso negado: apenas administradores podem visualizar esta seção.</p>`;
+      sectionTitle.textContent = "Acesso Negado";
+      return;
+    }
 
-        function loadDashboardData() {
-            // Carregar estatísticas
-            loadStats();
-            
-            // Carregar eventos
-            loadEvents();
-            
-            // Carregar pedidos de oração
-            loadPrayers();
-        }
+    menuItems.forEach(item => {
+      if (item.getAttribute('data-section') === section) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+    });
 
-        function loadStats() {
-            // Estatísticas de membros
-            db.collection('members').get().then(snapshot => {
-                document.getElementById('statsMembers').textContent = snapshot.size;
-            });
-            
-            // Estatísticas de eventos
-            const now = new Date();
-            db.collection('events')
-                .where('date', '>=', now)
-                .get()
-                .then(snapshot => {
-                    document.getElementById('statsEvents').textContent = snapshot.size;
-                });
-            
-            // Estatísticas de pedidos de oração
-            db.collection('prayers')
-                .where('status', '==', 'pending')
-                .get()
-                .then(snapshot => {
-                    document.getElementById('statsPrayers').textContent = snapshot.size;
-                });
-            
-            // Estatísticas de células
-            db.collection('cells').get().then(snapshot => {
-                document.getElementById('statsCells').textContent = snapshot.size;
-            });
-        }
+    sectionTitle.textContent = getSectionTitle(section);
+    if (templates[section]) {
+      contentArea.innerHTML = templates[section];
+      setTimeout(() => {
+        setupSectionEvents(section);
+        loadSectionData(section);
+      }, 100);
+    } else {
+      contentArea.innerHTML = `<p>Conteúdo da seção ${section} não disponível.</p>`;
+    }
+  }
 
-        function loadEvents() {
-            const now = new Date();
-            const eventsList = document.getElementById('eventsList');
-            
-            eventsList.innerHTML = '<p>Carregando eventos...</p>';
-            
-            db.collection('events')
-                .where('date', '>=', now)
-                .orderBy('date', 'asc')
-                .limit(5)
-                .get()
-                .then(snapshot => {
-                    if (snapshot.empty) {
-                        eventsList.innerHTML = '<p>Não há eventos programados.</p>';
-                        return;
-                    }
-                    
-                    let html = `
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Evento</th>
-                                    <th>Data</th>
-                                    <th>Local</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                    `;
-                    
-                    snapshot.forEach(doc => {
-                        const event = doc.data();
-                        const date = event.date.toDate();
-                        html += `
-                            <tr>
-                                <td>${event.title}</td>
-                                <td>${formatDate(date)}</td>
-                                <td>${event.location}</td>
-                                <td class="action-buttons">
-                                    <button class="btn-primary" data-id="${doc.id}"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-danger" data-id="${doc.id}"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                    
-                    html += `</tbody></table>`;
-                    eventsList.innerHTML = html;
-                    
-                    // Adicionar event listeners para os botões
-                    eventsList.querySelectorAll('.btn-primary').forEach(btn => {
-                        btn.addEventListener('click', () => {
-                            editEvent(btn.getAttribute('data-id'));
-                        });
-                    });
-                    
-                    eventsList.querySelectorAll('.btn-danger').forEach(btn => {
-                        btn.addEventListener('click', () => {
-                            deleteEvent(btn.getAttribute('data-id'));
-                        });
-                    });
-                })
-                .catch(error => {
-                    eventsList.innerHTML = '<p>Erro ao carregar eventos.</p>';
-                    console.error("Erro ao carregar eventos:", error);
-                });
-        }
+  // Títulos
+  function getSectionTitle(section) {
+    const titles = {
+      dashboard: 'Dashboard',
+      events: 'Eventos',
+      sermons: 'Sermões',
+      news: 'Notícias',
+      prayers: 'Pedidos de Oração',
+      members: 'Membros',
+      cells: 'Células',
+      settings: 'Configurações'
+    };
+    return titles[section] || section;
+  }
 
-        function loadPrayers() {
-            const prayersList = document.getElementById('prayersList');
-            
-            prayersList.innerHTML = '<p>Carregando pedidos de oração...</p>';
-            
-            db.collection('prayers')
-                .orderBy('date', 'desc')
-                .limit(5)
-                .get()
-                .then(snapshot => {
-                    if (snapshot.empty) {
-                        prayersList.innerHTML = '<p>Não há pedidos de oração.</p>';
-                        return;
-                    }
-                    
-                    let html = `
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Nome</th>
-                                    <th>Data</th>
-                                    <th>Pedido</th>
-                                    <th>Status</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                    `;
-                    
-                    snapshot.forEach(doc => {
-                        const prayer = doc.data();
-                        const date = prayer.date.toDate();
-                        html += `
-                            <tr>
-                                <td>${prayer.name}</td>
-                                <td>${formatDate(date)}</td>
-                                <td>${prayer.content.substring(0, 50)}...</td>
-                                <td><span class="badge ${prayer.status === 'pending' ? 'badge-warning' : 'badge-success'}">${prayer.status === 'pending' ? 'Pendente' : 'Orando'}</span></td>
-                                <td class="action-buttons">
-                                    <button class="btn-success" data-id="${doc.id}"><i class="fas fa-check"></i></button>
-                                    <button class="btn-primary" data-id="${doc.id}"><i class="fas fa-eye"></i></button>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                    
-                    html += `</tbody></table>`;
-                    prayersList.innerHTML = html;
-                })
-                .catch(error => {
-                    prayersList.innerHTML = '<p>Erro ao carregar pedidos de oração.</p>';
-                    console.error("Erro ao carregar pedidos de oração:", error);
-                });
-        }
+  // Eventos de menu
+  menuItems.forEach(item => {
+    item.addEventListener('click', () => {
+      const section = item.getAttribute('data-section');
+      loadSection(section);
+    });
+  });
 
-        // Funções de Eventos
-        function openEventModal(eventId = null) {
-            editingEventId = eventId;
-            
-            if (eventId) {
-                eventModalTitle.textContent = 'Editar Evento';
-                
-                // Carregar dados do evento
-                db.collection('events').doc(eventId).get()
-                    .then(doc => {
-                        if (doc.exists) {
-                            const event = doc.data();
-                            document.getElementById('eventId').value = doc.id;
-                            document.getElementById('eventTitle').value = event.title;
-                            
-                            // Formatar data para o input datetime-local
-                            const date = event.date.toDate();
-                            const formattedDate = date.toISOString().slice(0, 16);
-                            document.getElementById('eventDate').value = formattedDate;
-                            
-                            document.getElementById('eventLocation').value = event.location;
-                            document.getElementById('eventDescription').value = event.description;
-                            document.getElementById('eventImage').value = event.image || '';
-                        }
-                    });
-            } else {
-                eventModalTitle.textContent = 'Adicionar Novo Evento';
-                eventForm.reset();
-            }
-            
-            eventModal.style.display = 'flex';
-        }
-
-        function saveEvent() {
-            const eventData = {
-                title: eventTitle.value,
-                date: new Date(eventDate.value),
-                location: eventLocation.value,
-                description: eventDescription.value,
-                image: eventImage.value,
-                createdAt: new Date(),
-                updatedAt: new Date()
-            };
-            
-            saveEventText.style.display = 'none';
-            saveEventLoader.style.display = 'inline-block';
-            
-            if (editingEventId) {
-                // Atualizar evento existente
-                db.collection('events').doc(editingEventId).update(eventData)
-                    .then(() => {
-                        alert('Evento atualizado com sucesso!');
-                        closeEventModal();
-                        loadSectionData(currentSection);
-                    })
-                    .catch(error => {
-                        alert('Erro ao atualizar evento: ' + error.message);
-                    })
-                    .finally(() => {
-                        saveEventText.style.display = 'inline-block';
-                        saveEventLoader.style.display = 'none';
-                    });
-            } else {
-                // Adicionar novo evento
-                db.collection('events').add(eventData)
-                    .then(() => {
-                        alert('Evento adicionado com sucesso!');
-                        closeEventModal();
-                        loadSectionData(currentSection);
-                    })
-                    .catch(error => {
-                        alert('Erro ao adicionar evento: ' + error.message);
-                    })
-                    .finally(() => {
-                        saveEventText.style.display = 'inline-block';
-                        saveEventLoader.style.display = 'none';
-                    });
-            }
-        }
-
-        function editEvent(eventId) {
-            openEventModal(eventId);
-        }
-
-        function deleteEvent(eventId) {
-            if (confirm('Tem certeza que deseja excluir este evento?')) {
-                db.collection('events').doc(eventId).delete()
-                    .then(() => {
-                        alert('Evento excluído com sucesso!');
-                        loadSectionData(currentSection);
-                    })
-                    .catch(error => {
-                        alert('Erro ao excluir evento: ' + error.message);
-                    });
-            }
-        }
-
-        function closeEventModal() {
-            eventModal.style.display = 'none';
-            editingEventId = null;
-            eventForm.reset();
-        }
-
-        // Utilitários
-        function formatDate(date) {
-            return new Intl.DateTimeFormat('pt-BR', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            }).format(date);
-        }
-
-        // Event Listeners
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            login(loginEmail.value, loginPassword.value);
+  // Configurar eventos por seção
+  function setupSectionEvents(section) {
+    if (section === 'events') {
+      const addEventBtn = document.getElementById('addEvent');
+      if (addEventBtn) {
+        addEventBtn.addEventListener('click', () => {
+          openEventModal();
         });
+      }
+    }
+  }
 
-        logoutBtn.addEventListener('click', logout);
+  // Carregar dados
+  function loadSectionData(section) {
+    if (section === 'events') loadEvents();
+    if (section === 'prayers') loadPrayers();
+  }
 
-        menuItems.forEach(item => {
-            item.addEventListener('click', () => {
-                if (item.id !== 'logoutBtn') {
-                    const section = item.getAttribute('data-section');
-                    loadSection(section);
-                }
-            });
+  // --- Eventos ---
+  function loadEvents() {
+    const eventsList = document.getElementById('eventsList');
+    if (!eventsList) return;
+    db.collection('events').orderBy('date', 'asc').get().then(snapshot => {
+      if (snapshot.empty) {
+        eventsList.innerHTML = '<p>Nenhum evento cadastrado.</p>';
+        return;
+      }
+      let html = '';
+      snapshot.forEach(doc => {
+        const event = doc.data();
+        html += `
+          <div class="p-4 border rounded mb-2 flex justify-between items-center">
+            <div>
+              <h4 class="font-bold">${event.title}</h4>
+              <p class="text-sm text-gray-600">${new Date(event.date.toDate()).toLocaleDateString()}</p>
+            </div>
+            <button onclick="editEvent('${doc.id}')" class="text-blue-600 hover:underline">Editar</button>
+          </div>
+        `;
+      });
+      eventsList.innerHTML = html;
+    });
+  }
+
+  // Modal de eventos
+  function openEventModal(eventId = null) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center';
+    modal.innerHTML = `
+      <div class="bg-white rounded-lg p-6 w-full max-w-md">
+        <h3 class="text-xl font-bold mb-4">${eventId ? 'Editar' : 'Novo'} Evento</h3>
+        <form id="eventForm" class="space-y-4">
+          <input type="text" id="eventTitle" placeholder="Título do evento" class="w-full p-2 border rounded" required>
+          <input type="date" id="eventDate" class="w-full p-2 border rounded" required>
+          <input type="text" id="eventLocation" placeholder="Local" class="w-full p-2 border rounded">
+          <textarea id="eventDescription" placeholder="Descrição" class="w-full p-2 border rounded"></textarea>
+          <input type="url" id="eventImage" placeholder="URL da imagem" class="w-full p-2 border rounded">
+          <div class="flex justify-end space-x-2">
+            <button type="button" class="px-4 py-2 bg-gray-200 rounded" id="cancelEvent">Cancelar</button>
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">${eventId ? 'Atualizar' : 'Salvar'}</button>
+          </div>
+        </form>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    const cancelBtn = modal.querySelector('#cancelEvent');
+    cancelBtn.addEventListener('click', () => modal.remove());
+
+    const eventForm = modal.querySelector('#eventForm');
+    eventForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const eventData = {
+        title: document.getElementById('eventTitle').value,
+        date: new Date(document.getElementById('eventDate').value),
+        location: document.getElementById('eventLocation').value,
+        description: document.getElementById('eventDescription').value,
+        image: document.getElementById('eventImage').value,
+        updatedAt: new Date()
+      };
+
+      if (eventId) {
+        db.collection('events').doc(eventId).update(eventData).then(() => {
+          modal.remove();
+          loadEvents();
         });
-
-        cancelEventBtn.addEventListener('click', closeEventModal);
-        
-        eventModal.addEventListener('click', (e) => {
-            if (e.target === eventModal) {
-                closeEventModal();
-            }
+      } else {
+        eventData.createdAt = new Date();
+        db.collection('events').add(eventData).then(() => {
+          modal.remove();
+          loadEvents();
         });
+      }
+    });
+  }
 
-        saveEventBtn.addEventListener('click', saveEvent);
+  // Expor para HTML
+  window.editEvent = function(id) {
+    db.collection('events').doc(id).get().then(doc => {
+      if (doc.exists) {
+        openEventModal(doc.id);
+        setTimeout(() => {
+          const data = doc.data();
+          document.getElementById('eventTitle').value = data.title;
+          document.getElementById('eventDate').value = data.date.toDate().toISOString().split('T')[0];
+          document.getElementById('eventLocation').value = data.location;
+          document.getElementById('eventDescription').value = data.description;
+          document.getElementById('eventImage').value = data.image;
+        }, 200);
+      }
+    });
+  }
 
-        // Verificar estado de autenticação ao carregar a página
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                currentUser = user;
-                loadUserData();
-                showAdminPanel();
-            } else {
-                showLoginScreen();
-            }
-        });
-    </script>
+  // --- Pedidos de oração ---
+  function loadPrayers() {
+    const prayerList = document.getElementById('prayerList');
+    if (!prayerList) return;
+    db.collection('prayers').orderBy('createdAt', 'desc').get().then(snapshot => {
+      if (snapshot.empty) {
+        prayerList.innerHTML = '<p>Nenhum pedido de oração.</p>';
+        return;
+      }
+      let html = '';
+      snapshot.forEach(doc => {
+        const prayer = doc.data();
+        html += `
+          <div class="p-4 border rounded mb-2">
+            <p class="font-semibold">${prayer.name}</p>
+            <p class="text-gray-600">${prayer.request}</p>
+          </div>
+        `;
+      });
+      prayerList.innerHTML = html;
+    });
+  }
+</script>
 </body>
 </html>
