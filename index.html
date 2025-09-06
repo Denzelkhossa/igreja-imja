@@ -1,248 +1,54 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>I.M.J.A • Admin (Login + Gerenciador de Posts)</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-
+  <title>Painel Administrativo I.M.J.A — Admin</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
   <style>
-    :root{
-      --primary-color:#3b82f6; --primary-dark:#1e3a8a; --background:#f8fafc; --text:#1e293b;
-      --error:#dc2626; --success:#16a34a; --warning:#d97706; --gray-100:#f1f5f9; --gray-200:#e2e8f0; --gray-500:#64748b;
+    :root {
+      --primary-color: #3b82f6;
+      --primary-dark: #1e3a8a;
+      --background: #f8fafc;
+      --text: #1e293b;
+      --error: #dc2626;
+      --success: #16a34a;
+      --warning: #d97706;
+      --gray-50:#f8fafc;
+      --gray-100:#f1f5f9;
+      --gray-200:#e2e8f0;
+      --gray-300:#cbd5e1;
+      --gray-500:#64748b;
     }
-    *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;}
-    body{background-color:var(--background);color:var(--text);padding:20px;min-height:100vh;}
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+    body{background:var(--background);color:var(--text);padding:20px;min-height:100vh}
+    .container{max-width:1200px;margin:0 auto}
 
-    /* ---------- Auth Card ---------- */
-    .auth-wrapper{max-width:420px;margin:40px auto;}
-    .card{
-      background:#fff;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.08);overflow:hidden;
-    }
-    .card-header{background:var(--primary-dark);color:#fff;padding:20px;display:flex;align-items:center;gap:10px}
-    .card-body{padding:20px}
-    .form-group{margin-bottom:16px}
-    .form-group label{display:block;margin-bottom:8px;font-weight:600}
-    .form-group input{width:100%;padding:12px;border:2px solid var(--gray-200);border-radius:6px;font-size:16px}
-    .form-group input:focus{outline:none;border-color:var(--primary-color)}
-    .btn{padding:12px 16px;border:none;border-radius:6px;font-size:16px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all .2s}
-    .btn-primary{background:var(--primary-color);color:#fff}
-    .btn-primary:hover{background:var(--primary-dark)}
-    .muted{color:var(--gray-500);font-size:14px;margin-top:8px}
-
-    /* ---------- Admin Layout ---------- */
-    .admin-container{max-width:1200px;margin:0 auto;background:#fff;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.1);overflow:hidden;display:none}
-    .admin-header{background:var(--primary-dark);color:#fff;padding:20px;display:flex;justify-content:space-between;align-items:center}
-    .admin-header h1{display:flex;align-items:center;gap:10px}
-    .logout-btn{background:var(--error);color:#fff;padding:8px 16px;border-radius:6px;border:none;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:8px}
-    .admin-nav{background:var(--gray-100);padding:15px 20px;display:flex;gap:10px;border-bottom:1px solid var(--gray-200)}
-    .nav-btn{padding:8px 16px;border-radius:6px;border:none;background:#fff;color:var(--text);cursor:pointer;font-weight:500;transition:all .2s}
-    .nav-btn.active{background:var(--primary-color);color:#fff}
-
-    .admin-content{padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
-    @media (max-width:900px){.admin-content{grid-template-columns:1fr}}
-
-    .form-section,.posts-section{background:#fff;border-radius:8px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
-    .section-title{margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid var(--gray-200);display:flex;align-items:center;gap:10px}
-
-    .form-group textarea{min-height:150px;resize:vertical}
-    .image-preview,.video-preview{margin-top:10px;max-width:100%;max-height:240px;border-radius:6px;display:none}
-    .audio-preview{margin-top:10px;width:100%;display:none}
-
-    .posts-list{max-height:600px;overflow-y:auto}
-    .post-item{padding:15px;border:1px solid var(--gray-200);border-radius:8px;margin-bottom:15px;background:#fff;transition:transform .2s}
-    .post-item:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
-    .post-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-    .post-title{font-weight:700;font-size:18px}
-    .post-date{color:var(--gray-500);font-size:14px}
-    .post-content{margin-bottom:12px;line-height:1.55}
-    .post-type{display:inline-block;padding:4px 8px;border-radius:20px;font-size:12px;font-weight:600;background:var(--gray-100);color:var(--gray-500);margin-right:8px}
-    .post-actions{display:flex;gap:10px;margin-top:10px}
-    .post-action-btn{padding:6px 12px;border:none;border-radius:4px;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
-    .edit-btn{background:var(--warning);color:#fff}
-    .delete-btn{background:var(--error);color:#fff}
-
-    .notification{padding:12px;border-radius:6px;margin:16px 20px;display:none}
-    .notification.success{background:#dcfce7;color:var(--success);border:1px solid #bbf7d0}
-    .notification.error{background:#fee2e2;color:var(--error);border:1px solid #fecaca}
-
-    .loading{display:inline-block;width:20px;height:20px;border:3px solid rgba(255,255,255,.35);border-radius:50%;border-top-color:#fff;animation:spin 1s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
-
-    .empty-state{text-align:center;padding:40px 20px;color:var(--gray-500)}
-    .empty-state i{font-size:48px;margin-bottom:15px;color:var(--gray-200)}
   </style>
 </head>
 <body>
-
-  <!-- ========== LOGIN (Auth) ========== -->
-  <div id="authSection" class="auth-wrapper">
-    <div class="card">
-      <div class="card-header">
-        <i class="fas fa-lock"></i>
-        <div>
-          <div style="font-size:18px;font-weight:700">Acesso Administrativo</div>
-          <small>Faça login para gerenciar os posts</small>
-        </div>
-      </div>
-      <div class="card-body">
-        <div id="authAlert" class="notification error" style="display:none;margin:0 0 12px 0;"></div>
-        <div class="form-group">
-          <label for="email"><i class="fas fa-envelope"></i> E-mail</label>
-          <input id="email" type="email" placeholder="admin@exemplo.com" autocomplete="username" />
-        </div>
-        <div class="form-group">
-          <label for="password"><i class="fas fa-key"></i> Senha</label>
-          <input id="password" type="password" placeholder="••••••••" autocomplete="current-password" />
-        </div>
-        <button id="btnLogin" class="btn btn-primary" onclick="login()">
-          <i class="fas fa-sign-in-alt"></i> Entrar
-        </button>
-        <div class="muted">
-          Dica: crie o usuário pelo Firebase Auth e adicione o UID na coleção <code>admins</code>.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ========== ADMIN ========== -->
-  <div id="adminSection" class="admin-container" aria-hidden="true">
-    <div class="admin-header">
-      <h1><i class="fas fa-feather-alt"></i> Gerenciador de Posts - I.M.J.A</h1>
-      <div style="display:flex;gap:12px;align-items:center">
-        <div id="currentUserName" style="opacity:.9"></div>
-        <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
-      </div>
-    </div>
-
-    <div class="admin-nav">
-      <button class="nav-btn active" onclick="showSection('posts', this)"><i class="fas fa-newspaper"></i> Posts</button>
-      <button class="nav-btn" onclick="showSection('prayers', this)"><i class="fas fa-pray"></i> Orações</button>
-      <button class="nav-btn" onclick="showSection('users', this)"><i class="fas fa-users"></i> Usuários</button>
-      <button class="nav-btn" onclick="showSection('events', this)"><i class="fas fa-calendar-alt"></i> Eventos</button>
-    </div>
-
-    <div id="notification" class="notification"></div>
-
-    <div class="admin-content" id="section-posts">
-      <!-- FORM -->
-      <div class="form-section">
-        <h2 class="section-title"><i class="fas fa-plus-circle"></i> Criar / Editar Post</h2>
-
-        <form id="postForm" onsubmit="return false">
-          <div class="form-group">
-            <label for="postTitle">Título do Post:</label>
-            <input type="text" id="postTitle" placeholder="Digite um título atraente" required>
-          </div>
-
-          <div class="form-group">
-            <label for="postType">Tipo de Post:</label>
-            <select id="postType" onchange="toggleFields()">
-              <option value="text">Texto</option>
-              <option value="image">Imagem</option>
-              <option value="video">Vídeo</option>
-              <option value="audio">Áudio</option>
-              <option value="youtube">YouTube</option>
-            </select>
-          </div>
-
-          <div class="form-group" id="contentField">
-            <label for="postContent">Conteúdo:</label>
-            <textarea id="postContent" placeholder="Digite o conteúdo do post..." required></textarea>
-          </div>
-
-          <div class="form-group" id="imageField" style="display:none">
-            <label for="postImage">Upload de Imagem:</label>
-            <input type="file" id="postImage" accept="image/*">
-            <img id="imagePreview" class="image-preview" alt="Preview da imagem">
-          </div>
-
-          <div class="form-group" id="videoField" style="display:none">
-            <label for="postVideo">Upload de Vídeo:</label>
-            <input type="file" id="postVideo" accept="video/*">
-            <video id="videoPreview" class="video-preview" controls></video>
-          </div>
-
-          <div class="form-group" id="audioField" style="display:none">
-            <label for="postAudio">Upload de Áudio:</label>
-            <input type="file" id="postAudio" accept="audio/*">
-            <audio id="audioPreview" class="audio-preview" controls></audio>
-          </div>
-
-          <div class="form-group" id="youtubeField" style="display:none">
-            <label for="youtubeUrl">URL do YouTube:</label>
-            <input type="url" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=...">
-          </div>
-
-          <div class="form-group">
-            <label for="postCategory">Categoria:</label>
-            <select id="postCategory">
-              <option value="general">Geral</option>
-              <option value="news">Notícias</option>
-              <option value="devotional">Devocional</option>
-              <option value="event">Evento</option>
-              <option value="announcement">Anúncio</option>
-            </select>
-          </div>
-
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button type="button" class="btn btn-primary" onclick="createPost()" id="createPostBtn">
-              <i class="fas fa-paper-plane"></i> Publicar Post
-            </button>
-            <button type="button" class="btn" style="background:var(--warning);color:#fff;display:none" onclick="clearForm()" id="cancelEditBtn">
-              <i class="fas fa-times"></i> Cancelar Edição
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <!-- LIST -->
-      <div class="posts-section">
-        <h2 class="section-title"><i class="fas fa-list"></i> Posts Publicados</h2>
-        <div class="form-group">
-          <input type="text" id="searchPosts" placeholder="Buscar posts..." onkeyup="filterPosts(this.value)">
-        </div>
-        <div class="posts-list" id="postsList">
-          <div class="empty-state">
-            <i class="fas fa-spinner fa-spin"></i>
-            <p>Carregando posts...</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Seções placeholder -->
-    <div class="admin-content" id="section-prayers" style="display:none">
-      <div class="empty-state">
-        <i class="fas fa-hand-holding-heart"></i>
-        <p>Seção de Orações — em breve.</p>
-      </div>
-    </div>
-
-    <div class="admin-content" id="section-users" style="display:none">
-      <div class="empty-state">
-        <i class="fas fa-user-shield"></i>
-        <p>Seção de Usuários — em breve.</p>
-      </div>
-    </div>
-
-    <div class="admin-content" id="section-events" style="display:none">
-      <div class="empty-state">
-        <i class="fas fa-calendar-check"></i>
-        <p>Seção de Eventos — em breve.</p>
-      </div>
-    </div>
+  <div class="container">
+    <!-- LOGIN -->
+    <section id="loginSection" class="card login-wrap">
+      <div class="login-card">
+        <div class="login-title"><i class="fa-solid fa-lock"></i> Acesso Administrativo</div>
+        <p class="muted" style="margin-bottom:16px">Entre com as credenciais do administrador para gerenciar os posts.</p>
 
   </div>
 
-  <!-- =================== Firebase SDKs v8 =================== -->
+  <!-- Firebase SDK v8 -->
+
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 
   <script>
-    // ---------- Config Firebase (mesma do seu projeto) ----------
+    // =========================
+    // CONFIG FIREBASE (do usuário)
+    // =========================
     const firebaseConfig = {
       apiKey: "AIzaSyBgWfocz6rpycz3SiJJ39Nfc1gNUd6kafk",
       authDomain: "imjachurch.firebaseapp.com",
@@ -252,439 +58,375 @@
       appId: "1:145864254479:web:3c1e6f5b3b5e5f5b5e5f5b"
     };
     firebase.initializeApp(firebaseConfig);
-
-    const auth = firebase.auth();
     const db = firebase.firestore();
     const storage = firebase.storage();
 
-    // ---------- Estado global ----------
+    // =========================
+    // ESTADO GLOBAL
+    // =========================
     let posts = [];
     let currentEditPostId = null;
-    let currentUser = null; // { uid, email, displayName, name }
+    let currentUser = null;
 
-    // ---------- UI helpers ----------
-    function show(el){ el.style.display = '' }
-    function hide(el){ el.style.display = 'none' }
+    // =========================
+    // LOGIN SIMPLES (LOCAL)
+    // =========================
+    const ADMIN_EMAIL = "ministerio.554411@gmail.com";
+    const ADMIN_PASS  = "imjachurch";
 
-    function showNotification(message, type){
-      const notification = document.getElementById('notification');
-      notification.textContent = message;
-      notification.className = `notification ${type}`;
-      notification.style.display = 'block';
-      setTimeout(()=>{ notification.style.display='none' }, 5000);
-    }
-
-    function showAuthError(message){
-      const box = document.getElementById('authAlert');
-      box.textContent = message;
-      box.style.display = 'block';
-    }
-
-    // ---------- Navegação entre seções ----------
-    function showSection(section, btn){
-      document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-      if(btn) btn.classList.add('active');
-
-      // Esconde todas
-      ['posts','prayers','users','events'].forEach(id=>{
-        hide(document.getElementById(`section-${id}`));
-      });
-      // Mostra a escolhida
-      show(document.getElementById(`section-${section}`));
-    }
-
-    // ---------- Auth ----------
-    auth.onAuthStateChanged(async (user)=>{
-      const authSection = document.getElementById('authSection');
+    function setView(loggedIn){
+      const loginSection = document.getElementById('loginSection');
       const adminSection = document.getElementById('adminSection');
-
-      if(user){
-        try{
-          // Checa se é admin no Firestore: coleção "admins" com doc {uid}
-          const adminDoc = await db.collection('admins').doc(user.uid).get();
-          if(!adminDoc.exists || adminDoc.data()?.active !== true){
-            await auth.signOut();
-            showAuthError('Acesso negado: sua conta não está autorizada como admin.');
-            show(authSection); hide(adminSection);
-            return;
-          }
-
-          currentUser = {
-            uid: user.uid,
-            email: user.email,
-            name: adminDoc.data()?.name || user.displayName || 'Administrador'
-          };
-          document.getElementById('currentUserName').textContent = `Olá, ${currentUser.name}`;
-          hide(authSection); show(adminSection);
-          loadPosts();
-        }catch(err){
-          console.error(err);
-          showAuthError('Erro ao verificar permissão de admin: ' + err.message);
-          show(authSection); hide(adminSection);
-        }
+      if(loggedIn){
+        loginSection.style.display = 'none';
+        adminSection.style.display = 'block';
       }else{
-        show(authSection); hide(adminSection);
+        adminSection.style.display = 'none';
+        loginSection.style.display = 'block';
       }
+    }
+
+    function showLoginNote(msg,type='error'){
+      const n = document.getElementById('loginNote');
+      n.textContent = msg;
+      n.className = 'note ' + (type === 'success' ? 'success' : 'error');
+      n.style.display = 'block';
+      setTimeout(()=>{ n.style.display = 'none'; }, 5000);
+    }
+
+    function doLogin(){
+      const email = document.getElementById('adminEmail').value.trim();
+      const pass  = document.getElementById('adminPass').value;
+      if(!email || !pass){ return showLoginNote('Preencha e-mail e senha.','error'); }
+      if(email === ADMIN_EMAIL && pass === ADMIN_PASS){
+        const user = { id: 'local-admin', name: 'Administrador', email };
+        localStorage.setItem('adminUser', JSON.stringify(user));
+        currentUser = user;
+        setView(true);
+        loadPosts();
+      }else{
+        showLoginNote('Credenciais inválidas.','error');
+      }
+    }
+
+    function logout(){
+      if(confirm('Tem certeza que deseja sair do painel administrativo?')){
+        localStorage.removeItem('adminUser');
+        currentUser = null;
+        setView(false);
+      }
+    }
+
+    // =========================
+    // INICIALIZAÇÃO
+    // =========================
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = localStorage.getItem('adminUser');
+      if(user){
+        currentUser = JSON.parse(user);
+        setView(true);
+        loadPosts();
+      }else{
+        setView(false);
+      }
+      bindImagePreview();
     });
 
-    async function login(){
-      const btn = document.getElementById('btnLogin');
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-
-      document.getElementById('authAlert').style.display = 'none';
-
-      if(!email || !password){
-        showAuthError('Informe e-mail e senha.');
-        return;
-      }
-      const original = btn.innerHTML;
-      btn.innerHTML = '<span class="loading"></span> Entrando...';
-      btn.disabled = true;
-      try{
-        await auth.signInWithEmailAndPassword(email, password);
-      }catch(err){
-        showAuthError('Falha no login: ' + err.message);
-      }finally{
-        btn.innerHTML = original;
-        btn.disabled = false;
-      }
+    // =========================
+    // UI HELPERS
+    // =========================
+    function showSection(section, ev){
+      // nav active
+      document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+      if(ev && ev.target) ev.target.classList.add('active');
+      notify(`Acessando seção: ${section}`,'success');
     }
 
-    async function logout(){
-      await auth.signOut();
+    function notify(message, type='success'){
+      const n = document.getElementById('notify');
+      n.textContent = message;
+      n.className = 'note ' + (type === 'success' ? 'success' : 'error');
+      n.style.display = 'block';
+      setTimeout(()=>{ n.style.display = 'none'; }, 5000);
     }
 
-    // ---------- Alternar campos por tipo ----------
     function toggleFields(){
-      const type = document.getElementById('postType').value;
-      // esconde tudo
-      hide(document.getElementById('contentField'));
-      hide(document.getElementById('imageField'));
-      hide(document.getElementById('videoField'));
-      hide(document.getElementById('audioField'));
-      hide(document.getElementById('youtubeField'));
-
-      // mostra conforme tipo
-      if(type === 'text'){ show(document.getElementById('contentField')) }
-      if(type === 'image'){ show(document.getElementById('contentField')); show(document.getElementById('imageField')) }
-      if(type === 'video'){ show(document.getElementById('contentField')); show(document.getElementById('videoField')) }
-      if(type === 'audio'){ show(document.getElementById('contentField')); show(document.getElementById('audioField')) }
-      if(type === 'youtube'){ show(document.getElementById('contentField')); show(document.getElementById('youtubeField')) }
+      const t = document.getElementById('postType').value;
+      const show = id => document.getElementById(id).style.display = 'block';
+      const hide = id => document.getElementById(id).style.display = 'none';
+      // hide all
+      hide('contentField'); hide('imageField'); hide('videoField'); hide('audioField'); hide('youtubeField');
+      if(t === 'text'){ show('contentField'); }
+      if(t === 'image'){ show('contentField'); show('imageField'); }
+      if(t === 'video'){ show('contentField'); show('videoField'); }
+      if(t === 'audio'){ show('contentField'); show('audioField'); }
+      if(t === 'youtube'){ show('contentField'); show('youtubeField'); }
     }
 
-    // ---------- Previews ----------
-    document.getElementById('postImage').addEventListener('change', e=>{
-      const file = e.target.files?.[0];
-      const img = document.getElementById('imagePreview');
-      if(file){
+    function bindImagePreview(){
+      const input = document.getElementById('postImage');
+      if(!input) return;
+      input.addEventListener('change', e=>{
+        const file = e.target.files[0];
+        if(!file) return;
         const reader = new FileReader();
-        reader.onload = ev => { img.src = ev.target.result; img.style.display='block' }
+        reader.onload = evt=>{
+          const img = document.getElementById('imagePreview');
+          img.src = evt.target.result;
+          img.style.display = 'block';
+        };
         reader.readAsDataURL(file);
-      }else{ img.style.display='none' }
-    });
-
-    document.getElementById('postVideo').addEventListener('change', e=>{
-      const file = e.target.files?.[0];
-      const vid = document.getElementById('videoPreview');
-      if(file){
-        const url = URL.createObjectURL(file);
-        vid.src = url; vid.style.display='block';
-      }else{ vid.style.display='none' }
-    });
-
-    document.getElementById('postAudio').addEventListener('change', e=>{
-      const file = e.target.files?.[0];
-      const aud = document.getElementById('audioPreview');
-      if(file){
-        const url = URL.createObjectURL(file);
-        aud.src = url; aud.style.display='block';
-      }else{ aud.style.display='none' }
-    });
-
-    // ---------- Upload genérico ----------
-    async function uploadFile(file, folder){
-      const ref = storage.ref().child(`${folder}/${Date.now()}_${file.name}`);
-      await ref.put(file);
-      const url = await ref.getDownloadURL();
-      return { url, fullPath: ref.fullPath };
+      });
     }
 
-    // ---------- Criar/Atualizar Post ----------
-    async function createPost(){
+    // =========================
+    // CRUD POSTS
+    // =========================
+    async function createOrUpdatePost(){
       const title = document.getElementById('postTitle').value.trim();
-      const type = document.getElementById('postType').value;
+      const type  = document.getElementById('postType').value;
       const content = document.getElementById('postContent').value.trim();
       const category = document.getElementById('postCategory').value;
 
       if(!title || !content){
-        showNotification('Preencha título e conteúdo.', 'error');
-        return;
+        return notify('Preencha todos os campos obrigatórios.', 'error');
       }
 
       const btn = document.getElementById('createPostBtn');
-      const original = btn.innerHTML;
-      btn.innerHTML = '<span class="loading"></span> Salvando...';
+      const old = btn.innerHTML;
+      btn.innerHTML = '<span class="loading-dot"></span> Salvando...';
       btn.disabled = true;
 
       try{
         let mediaUrl = '';
-        let mediaPath = ''; // para exclusão futura no Storage
 
         if(type === 'image'){
-          const file = document.getElementById('postImage').files[0];
-          if(file){ const up = await uploadFile(file, 'images'); mediaUrl = up.url; mediaPath = up.fullPath; }
+          const f = document.getElementById('postImage').files[0];
+          if(f){ mediaUrl = await uploadFile(f, 'images'); }
         }else if(type === 'video'){
-          const file = document.getElementById('postVideo').files[0];
-          if(file){ const up = await uploadFile(file, 'videos'); mediaUrl = up.url; mediaPath = up.fullPath; }
+          const f = document.getElementById('postVideo').files[0];
+          if(f){ mediaUrl = await uploadFile(f, 'videos'); }
         }else if(type === 'audio'){
-          const file = document.getElementById('postAudio').files[0];
-          if(file){ const up = await uploadFile(file, 'audios'); mediaUrl = up.url; mediaPath = up.fullPath; }
+          const f = document.getElementById('postAudio').files[0];
+          if(f){ mediaUrl = await uploadFile(f, 'audios'); }
         }else if(type === 'youtube'){
           mediaUrl = document.getElementById('youtubeUrl').value.trim();
         }
 
-        const data = {
-          title, content, type, category,
-          mediaUrl: mediaUrl || '',
-          mediaPath: mediaPath || '', // caminho no Storage (se houver)
-          authorName: currentUser?.name || 'Administrador',
-          authorId: currentUser?.uid || '',
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        const base = {
+          title, content, type, category, mediaUrl,
+          author: currentUser?.name || 'Administrador',
+          authorId: currentUser?.id || 'local-admin',
         };
 
         if(currentEditPostId){
-          // Atualização: não sobrescreva createdAt
-          const updateData = { ...data };
-          delete updateData.createdAt;
-          await db.collection('posts').doc(currentEditPostId).update(updateData);
-          showNotification('Post atualizado com sucesso!', 'success');
+          await db.collection('posts').doc(currentEditPostId).update({
+            ...base,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          notify('Post atualizado com sucesso!','success');
         }else{
-          await db.collection('posts').add(data);
-          showNotification('Post publicado com sucesso!', 'success');
+          await db.collection('posts').add({
+            ...base,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          notify('Post publicado com sucesso!','success');
         }
 
         clearForm();
-        loadPosts();
+        await loadPosts();
+
       }catch(err){
         console.error(err);
-        showNotification('Erro ao salvar post: ' + err.message, 'error');
+        notify('Erro ao salvar post: ' + err.message, 'error');
       }finally{
-        btn.innerHTML = original; btn.disabled = false;
+        btn.innerHTML = old;
+        btn.disabled = false;
       }
     }
 
-    // ---------- Carregar Posts ----------
-    async function loadPosts(){
+    async function uploadFile(file, folder){
+      const ref = storage.ref().child(`${folder}/${Date.now()}_${file.name}`);
+      await ref.put(file);
+      return await ref.getDownloadURL();
+    }
+
+    function loadPosts(){
       const list = document.getElementById('postsList');
-      list.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando posts...</p></div>';
+      list.innerHTML = '<div class="empty"><i class="fas fa-spinner fa-spin"></i> Carregando posts...</div>';
 
-      try{
-        const snap = await db.collection('posts').orderBy('createdAt','desc').get();
-        posts = [];
-        if(snap.empty){
+      return db.collection('posts').orderBy('createdAt','desc').get()
+        .then(snap=>{
+          posts = [];
+          if(snap.empty){
+            list.innerHTML = `
+              <div class="empty">
+                <i class="fas fa-newspaper"></i><br/>
+                Nenhum post publicado ainda.<br/>
+                <small>Crie seu primeiro post usando o formulário ao lado.</small>
+              </div>`;
+            return;
+          }
+          list.innerHTML = '';
+          snap.forEach(doc=>{
+            const data = doc.data();
+            const post = {
+              id: doc.id,
+              ...data,
+              date: data.createdAt ? data.createdAt.toDate().toLocaleDateString('pt-BR') : 'Data não disponível'
+            };
+            posts.push(post);
+            list.appendChild(renderPost(post));
+          });
+        })
+        .catch(err=>{
+          console.error(err);
           list.innerHTML = `
-            <div class="empty-state">
-              <i class="fas fa-newspaper"></i>
-              <p>Nenhum post publicado ainda.</p>
-              <small>Crie seu primeiro post usando o formulário ao lado.</small>
-            </div>
-          `;
-          return;
-        }
-
-        list.innerHTML = '';
-        snap.forEach(doc=>{
-          const d = doc.data();
-          const post = {
-            id: doc.id,
-            ...d,
-            date: d.createdAt ? d.createdAt.toDate().toLocaleDateString('pt-BR') : 'Data não disponível'
-          };
-          posts.push(post);
-          list.appendChild(createPostElement(post));
+            <div class="empty"><i class="fas fa-exclamation-triangle"></i><br/>
+            Erro ao carregar posts.<br/>
+            <small>${err.message}</small></div>`;
         });
-      }catch(err){
-        console.error(err);
-        list.innerHTML = `
-          <div class="empty-state">
-            <i class="fas fa-exclamation-triangle"></i>
-            <p>Erro ao carregar posts.</p>
-            <small>${err.message}</small>
-          </div>
-        `;
-      }
     }
 
-    // ---------- Item de Post ----------
-    function createPostElement(post){
-      const div = document.createElement('div');
-      div.className = 'post-item';
+    function renderPost(post){
+      const wrap = document.createElement('div');
+      wrap.className = 'post';
 
-      // bloco de mídia
-      let mediaContent = '';
+      let media = '';
       if(post.type === 'image' && post.mediaUrl){
-        mediaContent = `<img src="${post.mediaUrl}" alt="Imagem do post" style="max-width:100%;border-radius:6px;margin-top:10px">`;
+        media = `<div class="media"><img src="${post.mediaUrl}" alt="Imagem do post"/></div>`;
       }else if(post.type === 'video' && post.mediaUrl){
-        mediaContent = `<video src="${post.mediaUrl}" controls style="width:100%;border-radius:6px;margin-top:10px"></video>`;
+        media = `<div class="media"><video src="${post.mediaUrl}" controls></video></div>`;
       }else if(post.type === 'audio' && post.mediaUrl){
-        mediaContent = `<audio src="${post.mediaUrl}" controls style="width:100%;margin-top:10px"></audio>`;
+        media = `<div class="media"><audio src="${post.mediaUrl}" controls></audio></div>`;
       }else if(post.type === 'youtube' && post.mediaUrl){
-        const vid = extractYouTubeId(post.mediaUrl);
-        if(vid){
-          mediaContent = `
-            <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;margin-top:10px;border-radius:8px">
-              <iframe src="https://www.youtube.com/embed/${vid}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allowfullscreen></iframe>
-            </div>
-          `;
+        const id = extractYouTubeId(post.mediaUrl);
+        if(id){
+          media = `
+            <div class="iframe-wrap">
+              <iframe src="https://www.youtube.com/embed/${id}" allowfullscreen></iframe>
+            </div>`;
         }
       }
 
-      div.innerHTML = `
+      wrap.innerHTML = `
         <div class="post-header">
-          <div class="post-title">${escapeHTML(post.title)}</div>
+          <div>
+            <div class="post-title">${escapeHtml(post.title)}</div>
+            <div class="muted" style="font-size:12px">por ${escapeHtml(post.author || 'Administrador')}</div>
+          </div>
           <div class="post-date">${post.date}</div>
         </div>
-        <div class="post-content">${nl2br(escapeHTML(post.content))}</div>
-        ${mediaContent}
-        <div style="margin-top:8px">
-          <span class="post-type">${getCategoryName(post.category)}</span>
-          <span class="post-type">${getTypeName(post.type)}</span>
-          ${post.mediaUrl ? '<span class="post-type">Com Mídia</span>' : ''}
+        <div class="post-content">${nl2br(escapeHtml(post.content))}</div>
+        ${media}
+        <div class="tags">
+          <span class="tag">${getCategoryName(post.category)}</span>
+          <span class="tag">${getTypeName(post.type)}</span>
+          ${post.mediaUrl ? '<span class="tag">Com mídia</span>' : ''}
         </div>
-        <div class="post-actions">
-          <button class="post-action-btn edit-btn" onclick="editPost('${post.id}')"><i class="fas fa-edit"></i> Editar</button>
-          <button class="post-action-btn delete-btn" onclick="deletePost('${post.id}')"><i class="fas fa-trash"></i> Excluir</button>
+        <div class="actions">
+          <button class="btn btn-warning" onclick="editPost('${post.id}')"><i class="fas fa-edit"></i> Editar</button>
+          <button class="btn btn-danger" onclick="deletePost('${post.id}')"><i class="fas fa-trash"></i> Excluir</button>
         </div>
       `;
-      return div;
+      return wrap;
     }
 
-    // ---------- Util YouTube ----------
-    function extractYouTubeId(url){
-      const reg=/^.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\\?v=|&v=)([^#&?]*).*/;
-      const m = url.match(reg);
-      return (m && m[1] && m[1].length===11) ? m[1] : null;
-    }
-
-    // ---------- Filtro ----------
     function filterPosts(term){
       const list = document.getElementById('postsList');
       term = (term||'').toLowerCase();
       if(!term){
         list.innerHTML = '';
-        posts.forEach(p=> list.appendChild(createPostElement(p)));
+        posts.forEach(p=> list.appendChild(renderPost(p)));
         return;
       }
-      const filtered = posts.filter(p =>
+      const subset = posts.filter(p =>
         (p.title||'').toLowerCase().includes(term) ||
         (p.content||'').toLowerCase().includes(term)
       );
       list.innerHTML = '';
-      if(filtered.length===0){
+      if(subset.length === 0){
         list.innerHTML = `
-          <div class="empty-state">
-            <i class="fas fa-search"></i>
-            <p>Nenhum post encontrado.</p>
-            <small>Tente outros termos.</small>
-          </div>
-        `;
+          <div class="empty"><i class="fas fa-search"></i><br/>
+          Nenhum post encontrado.<br/>
+          <small>Tente outros termos.</small></div>`;
         return;
       }
-      filtered.forEach(p=> list.appendChild(createPostElement(p)));
+      subset.forEach(p=> list.appendChild(renderPost(p)));
     }
 
-    // ---------- Editar ----------
     function editPost(id){
-      const post = posts.find(p => p.id === id);
+      const post = posts.find(p=>p.id === id);
       if(!post) return;
 
-      document.getElementById('postTitle').value = post.title || '';
-      document.getElementById('postType').value = post.type || 'text';
+      document.getElementById('postTitle').value   = post.title || '';
+      document.getElementById('postType').value    = post.type || 'text';
       document.getElementById('postContent').value = post.content || '';
       document.getElementById('postCategory').value = post.category || 'general';
 
-      // mídia
-      if(post.type === 'youtube'){
-        document.getElementById('youtubeUrl').value = post.mediaUrl || '';
+      // específicos
+      if(post.type === 'youtube' && post.mediaUrl){
+        document.getElementById('youtubeUrl').value = post.mediaUrl;
       }else if(post.type === 'image' && post.mediaUrl){
-        const img = document.getElementById('imagePreview');
-        img.src = post.mediaUrl; img.style.display='block';
-      }else if(post.type === 'video' && post.mediaUrl){
-        const vid = document.getElementById('videoPreview');
-        vid.src = post.mediaUrl; vid.style.display='block';
-      }else if(post.type === 'audio' && post.mediaUrl){
-        const aud = document.getElementById('audioPreview');
-        aud.src = post.mediaUrl; aud.style.display='block';
+        const prev = document.getElementById('imagePreview');
+        prev.src = post.mediaUrl; prev.style.display = 'block';
       }
 
       toggleFields();
       currentEditPostId = id;
       document.getElementById('createPostBtn').innerHTML = '<i class="fas fa-save"></i> Atualizar Post';
       document.getElementById('cancelEditBtn').style.display = 'inline-flex';
+      notify(`Editando: ${post.title}`, 'success');
       document.getElementById('postTitle').focus();
-      showNotification(`Modo edição: ${post.title}`, 'success');
     }
 
-    // ---------- Excluir ----------
-    async function deletePost(id){
+    function deletePost(id){
       if(!confirm('Tem certeza que deseja excluir este post? Esta ação não pode ser desfeita.')) return;
-
-      try{
-        // tentar apagar mídia do Storage se existir caminho salvo
-        const p = posts.find(x=>x.id===id);
-        if(p?.mediaPath){
-          try{ await storage.ref(p.mediaPath).delete(); }catch(e){ /* ignora se não achar */ }
-        }else if(p?.mediaUrl && p.type!=='youtube'){
-          // tentar via refFromURL (quando caminho não salvo)
-          try{ await storage.refFromURL(p.mediaUrl).delete(); }catch(e){ /* pode falhar se URL não for do bucket */ }
-        }
-
-        await db.collection('posts').doc(id).delete();
-        showNotification('Post excluído com sucesso!', 'success');
-        loadPosts();
-      }catch(err){
-        console.error(err);
-        showNotification('Erro ao excluir post: ' + err.message, 'error');
-      }
+      db.collection('posts').doc(id).delete()
+        .then(()=>{ notify('Post excluído com sucesso!','success'); loadPosts(); })
+        .catch(err=>{ console.error(err); notify('Erro ao excluir: ' + err.message,'error'); });
     }
 
-    // ---------- Limpar formulário ----------
     function clearForm(){
       document.getElementById('postForm').reset();
-      ['imagePreview','videoPreview','audioPreview'].forEach(id=>{
-        const el = document.getElementById(id);
-        el.removeAttribute('src'); el.style.display='none';
-      });
+      document.getElementById('imagePreview').style.display = 'none';
       currentEditPostId = null;
       document.getElementById('createPostBtn').innerHTML = '<i class="fas fa-paper-plane"></i> Publicar Post';
       document.getElementById('cancelEditBtn').style.display = 'none';
       toggleFields();
     }
 
-    // ---------- Mapeamentos ----------
+    // =========================
+    // UTILITÁRIOS
+    // =========================
     function getCategoryName(category){
-      const map = {general:'Geral',news:'Notícias',devotional:'Devocional',event:'Evento',announcement:'Anúncio'};
-      return map[category] || category;
+      const map = {
+        general:'Geral', news:'Notícias', devotional:'Devocional',
+        event:'Evento', announcement:'Anúncio'
+      };
+      return map[category] || category || 'Geral';
     }
     function getTypeName(type){
-      const map = {text:'Texto',image:'Imagem',video:'Vídeo',audio:'Áudio',youtube:'YouTube'};
-      return map[type] || type;
+      const map = {
+        text:'Texto', image:'Imagem', video:'Vídeo', audio:'Áudio', youtube:'YouTube'
+      };
+      return map[type] || type || 'Texto';
     }
-
-    // ---------- Sanitize helpers ----------
-    function escapeHTML(str=''){
-      return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+    function extractYouTubeId(url){
+      const re=/^.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\\?v=|\\&v=)([^#&?]*).*/;
+      const m=url.match(re); return (m && m[1] && m[1].length===11) ? m[1] : null;
     }
-    function nl2br(str=''){
-      return str.replace(/\n/g,'<br>');
+    function nl2br(str){ return (str||'').replace(/\n/g,'<br/>'); }
+    function escapeHtml(s){
+      return (s||'').replace(/[&<>"']/g, m => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+      }[m]));
     }
-
-    // ---------- Inicial ----------
-    document.addEventListener('DOMContentLoaded', ()=>{
-      toggleFields(); // estado inicial do form
-    });
   </script>
+
 </body>
 </html>
+
+oque esse código faz
+
