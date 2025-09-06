@@ -109,7 +109,7 @@
   </div>
 
   <!-- APP -->
-  <div class="admin-container" id="app" class="hidden" style="display:none">
+  <div class="admin-container" id="app" style="display:none">
     <!-- Sidebar -->
     <div class="admin-sidebar">
       <div class="admin-sidebar-header">
@@ -433,6 +433,9 @@
           showLoginNote('Acesso negado: e-mail não autorizado.');
           return;
         }
+        // Login bem-sucedido
+        gate(true);
+        await Promise.all([loadPosts(), loadEvents(), loadPrayers(), refreshStats()]);
       }catch(err){
         console.error(err);
         showLoginNote('Falha ao autenticar: ' + err.message);
@@ -444,12 +447,18 @@
       await auth.signOut();
     });
 
+    // Verificar se já está logado ao carregar a página
     auth.onAuthStateChanged(async (user)=>{
-      if(user && ALLOWED_EMAILS.has((user.email||'').toLowerCase())){
-        gate(true);
-        // carregar dados iniciais
-        await Promise.all([loadPosts(), loadEvents(), loadPrayers(), refreshStats()]);
-      }else{
+      if(user){
+        const email = (user.email||'').toLowerCase();
+        if(ALLOWED_EMAILS.has(email)){
+          gate(true);
+          await Promise.all([loadPosts(), loadEvents(), loadPrayers(), refreshStats()]);
+        } else {
+          await auth.signOut();
+          gate(false);
+        }
+      } else {
         gate(false);
       }
     });
