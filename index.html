@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -7,47 +6,78 @@
   <title>Painel Administrativo I.M.J.A — Admin</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
   <style>
-    :root {
-      --primary-color: #3b82f6;
-      --primary-dark: #1e3a8a;
-      --background: #f8fafc;
-      --text: #1e293b;
-      --error: #dc2626;
-      --success: #16a34a;
-      --warning: #d97706;
-      --gray-50:#f8fafc;
-      --gray-100:#f1f5f9;
-      --gray-200:#e2e8f0;
-      --gray-300:#cbd5e1;
-      --gray-500:#64748b;
-    }
-    *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
-    body{background:var(--background);color:var(--text);padding:20px;min-height:100vh}
-    .container{max-width:1200px;margin:0 auto}
-
+    body{background:#f8fafc;color:#1e293b;font-family:'Segoe UI',sans-serif;padding:20px;min-height:100vh}
+    .container{max-width:800px;margin:0 auto}
+    .card{background:#fff;padding:20px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.1)}
+    .login-title{font-size:20px;font-weight:bold;margin-bottom:10px}
+    .muted{color:#64748b}
+    input,select,textarea{width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;margin-bottom:12px}
+    button{background:#3b82f6;color:#fff;padding:10px 15px;border:none;border-radius:6px;cursor:pointer}
+    button:hover{background:#1e3a8a}
+    #adminSection{display:none}
+    .note{margin-top:10px;padding:10px;border-radius:6px}
+    .note.error{background:#fee2e2;color:#dc2626}
+    .note.success{background:#dcfce7;color:#16a34a}
   </style>
 </head>
 <body>
   <div class="container">
+
     <!-- LOGIN -->
-    <section id="loginSection" class="card login-wrap">
-      <div class="login-card">
-        <div class="login-title"><i class="fa-solid fa-lock"></i> Acesso Administrativo</div>
-        <p class="muted" style="margin-bottom:16px">Entre com as credenciais do administrador para gerenciar os posts.</p>
+    <section id="loginSection" class="card">
+      <div class="login-title"><i class="fa-solid fa-lock"></i> Acesso Administrativo</div>
+      <p class="muted">Entre com as credenciais do administrador para gerenciar os posts.</p>
+
+      <form onsubmit="doLogin(); return false;">
+        <input type="email" id="adminEmail" placeholder="E-mail"/>
+        <input type="password" id="adminPass" placeholder="Senha"/>
+        <button type="submit">Entrar</button>
+      </form>
+      <div id="loginNote" class="note error" style="display:none"></div>
+    </section>
+
+    <!-- ADMIN PANEL -->
+    <section id="adminSection" class="card">
+      <h2>Painel Administrativo</h2>
+      <button onclick="logout()">Sair</button>
+      <hr/><br/>
+
+      <!-- Formulário de criação de post -->
+      <form id="postForm" onsubmit="createOrUpdatePost(); return false;">
+        <input type="text" id="postTitle" placeholder="Título do post"/>
+        <textarea id="postContent" placeholder="Conteúdo"></textarea>
+        <select id="postType" onchange="toggleFields()">
+          <option value="text">Texto</option>
+          <option value="image">Imagem</option>
+          <option value="video">Vídeo</option>
+          <option value="audio">Áudio</option>
+          <option value="youtube">YouTube</option>
+        </select>
+        <input type="file" id="postImage" accept="image/*" style="display:none"/>
+        <input type="file" id="postVideo" accept="video/*" style="display:none"/>
+        <input type="file" id="postAudio" accept="audio/*" style="display:none"/>
+        <input type="url" id="youtubeUrl" placeholder="URL do YouTube" style="display:none"/>
+        <img id="imagePreview" style="max-width:100%;display:none;margin-top:10px"/>
+        <button id="createPostBtn" type="submit"><i class="fas fa-paper-plane"></i> Publicar Post</button>
+        <button type="button" id="cancelEditBtn" onclick="clearForm()" style="display:none">Cancelar edição</button>
+      </form>
+
+      <hr/><br/>
+      <h3>Posts publicados</h3>
+      <div id="postsList"></div>
+      <div id="notify" class="note" style="display:none"></div>
+    </section>
 
   </div>
 
   <!-- Firebase SDK v8 -->
-
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 
   <script>
     // =========================
-    // CONFIG FIREBASE (do usuário)
+    // CONFIG FIREBASE
     // =========================
     const firebaseConfig = {
       apiKey: "AIzaSyBgWfocz6rpycz3SiJJ39Nfc1gNUd6kafk",
@@ -62,46 +92,29 @@
     const storage = firebase.storage();
 
     // =========================
-    // ESTADO GLOBAL
-    // =========================
-    let posts = [];
-    let currentEditPostId = null;
-    let currentUser = null;
-
-    // =========================
-    // LOGIN SIMPLES (LOCAL)
+    // LOGIN LOCAL
     // =========================
     const ADMIN_EMAIL = "ministerio.554411@gmail.com";
     const ADMIN_PASS  = "imjachurch";
 
     function setView(loggedIn){
-      const loginSection = document.getElementById('loginSection');
-      const adminSection = document.getElementById('adminSection');
-      if(loggedIn){
-        loginSection.style.display = 'none';
-        adminSection.style.display = 'block';
-      }else{
-        adminSection.style.display = 'none';
-        loginSection.style.display = 'block';
-      }
+      document.getElementById('loginSection').style.display = loggedIn ? 'none':'block';
+      document.getElementById('adminSection').style.display = loggedIn ? 'block':'none';
     }
 
     function showLoginNote(msg,type='error'){
       const n = document.getElementById('loginNote');
       n.textContent = msg;
-      n.className = 'note ' + (type === 'success' ? 'success' : 'error');
+      n.className = 'note ' + (type==='success'?'success':'error');
       n.style.display = 'block';
-      setTimeout(()=>{ n.style.display = 'none'; }, 5000);
+      setTimeout(()=>{ n.style.display = 'none'; },4000);
     }
 
     function doLogin(){
       const email = document.getElementById('adminEmail').value.trim();
       const pass  = document.getElementById('adminPass').value;
-      if(!email || !pass){ return showLoginNote('Preencha e-mail e senha.','error'); }
-      if(email === ADMIN_EMAIL && pass === ADMIN_PASS){
-        const user = { id: 'local-admin', name: 'Administrador', email };
-        localStorage.setItem('adminUser', JSON.stringify(user));
-        currentUser = user;
+      if(email===ADMIN_EMAIL && pass===ADMIN_PASS){
+        localStorage.setItem('adminUser', email);
         setView(true);
         loadPosts();
       }else{
@@ -110,320 +123,98 @@
     }
 
     function logout(){
-      if(confirm('Tem certeza que deseja sair do painel administrativo?')){
-        localStorage.removeItem('adminUser');
-        currentUser = null;
-        setView(false);
-      }
+      localStorage.removeItem('adminUser');
+      setView(false);
     }
 
-    // =========================
-    // INICIALIZAÇÃO
-    // =========================
-    document.addEventListener('DOMContentLoaded', () => {
-      const user = localStorage.getItem('adminUser');
-      if(user){
-        currentUser = JSON.parse(user);
-        setView(true);
-        loadPosts();
-      }else{
-        setView(false);
-      }
-      bindImagePreview();
+    document.addEventListener('DOMContentLoaded',()=>{
+      if(localStorage.getItem('adminUser')){ setView(true); loadPosts(); }
+      else{ setView(false); }
     });
 
     // =========================
-    // UI HELPERS
+    // CRUD POSTS (simplificado)
     // =========================
-    function showSection(section, ev){
-      // nav active
-      document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-      if(ev && ev.target) ev.target.classList.add('active');
-      notify(`Acessando seção: ${section}`,'success');
-    }
-
-    function notify(message, type='success'){
-      const n = document.getElementById('notify');
-      n.textContent = message;
-      n.className = 'note ' + (type === 'success' ? 'success' : 'error');
-      n.style.display = 'block';
-      setTimeout(()=>{ n.style.display = 'none'; }, 5000);
-    }
+    let posts=[], currentEditPostId=null;
 
     function toggleFields(){
-      const t = document.getElementById('postType').value;
-      const show = id => document.getElementById(id).style.display = 'block';
-      const hide = id => document.getElementById(id).style.display = 'none';
-      // hide all
-      hide('contentField'); hide('imageField'); hide('videoField'); hide('audioField'); hide('youtubeField');
-      if(t === 'text'){ show('contentField'); }
-      if(t === 'image'){ show('contentField'); show('imageField'); }
-      if(t === 'video'){ show('contentField'); show('videoField'); }
-      if(t === 'audio'){ show('contentField'); show('audioField'); }
-      if(t === 'youtube'){ show('contentField'); show('youtubeField'); }
+      document.getElementById('postImage').style.display='none';
+      document.getElementById('postVideo').style.display='none';
+      document.getElementById('postAudio').style.display='none';
+      document.getElementById('youtubeUrl').style.display='none';
+      const t=document.getElementById('postType').value;
+      if(t==='image') document.getElementById('postImage').style.display='block';
+      if(t==='video') document.getElementById('postVideo').style.display='block';
+      if(t==='audio') document.getElementById('postAudio').style.display='block';
+      if(t==='youtube') document.getElementById('youtubeUrl').style.display='block';
     }
 
-    function bindImagePreview(){
-      const input = document.getElementById('postImage');
-      if(!input) return;
-      input.addEventListener('change', e=>{
-        const file = e.target.files[0];
-        if(!file) return;
-        const reader = new FileReader();
-        reader.onload = evt=>{
-          const img = document.getElementById('imagePreview');
-          img.src = evt.target.result;
-          img.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    // =========================
-    // CRUD POSTS
-    // =========================
     async function createOrUpdatePost(){
-      const title = document.getElementById('postTitle').value.trim();
-      const type  = document.getElementById('postType').value;
-      const content = document.getElementById('postContent').value.trim();
-      const category = document.getElementById('postCategory').value;
-
-      if(!title || !content){
-        return notify('Preencha todos os campos obrigatórios.', 'error');
-      }
-
-      const btn = document.getElementById('createPostBtn');
-      const old = btn.innerHTML;
-      btn.innerHTML = '<span class="loading-dot"></span> Salvando...';
-      btn.disabled = true;
-
+      const title=document.getElementById('postTitle').value.trim();
+      const content=document.getElementById('postContent').value.trim();
+      const type=document.getElementById('postType').value;
+      let mediaUrl='';
       try{
-        let mediaUrl = '';
-
-        if(type === 'image'){
-          const f = document.getElementById('postImage').files[0];
-          if(f){ mediaUrl = await uploadFile(f, 'images'); }
-        }else if(type === 'video'){
-          const f = document.getElementById('postVideo').files[0];
-          if(f){ mediaUrl = await uploadFile(f, 'videos'); }
-        }else if(type === 'audio'){
-          const f = document.getElementById('postAudio').files[0];
-          if(f){ mediaUrl = await uploadFile(f, 'audios'); }
-        }else if(type === 'youtube'){
-          mediaUrl = document.getElementById('youtubeUrl').value.trim();
+        if(type==='image'){
+          const f=document.getElementById('postImage').files[0];
+          if(f){ mediaUrl=await uploadFile(f,'images'); }
+        }
+        if(type==='video'){
+          const f=document.getElementById('postVideo').files[0];
+          if(f){ mediaUrl=await uploadFile(f,'videos'); }
+        }
+        if(type==='audio'){
+          const f=document.getElementById('postAudio').files[0];
+          if(f){ mediaUrl=await uploadFile(f,'audios'); }
+        }
+        if(type==='youtube'){
+          mediaUrl=document.getElementById('youtubeUrl').value.trim();
         }
 
-        const base = {
-          title, content, type, category, mediaUrl,
-          author: currentUser?.name || 'Administrador',
-          authorId: currentUser?.id || 'local-admin',
-        };
+        const base={title,content,type,mediaUrl,createdAt:firebase.firestore.FieldValue.serverTimestamp()};
 
         if(currentEditPostId){
-          await db.collection('posts').doc(currentEditPostId).update({
-            ...base,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          notify('Post atualizado com sucesso!','success');
+          await db.collection('posts').doc(currentEditPostId).update(base);
         }else{
-          await db.collection('posts').add({
-            ...base,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          notify('Post publicado com sucesso!','success');
+          await db.collection('posts').add(base);
         }
-
-        clearForm();
-        await loadPosts();
-
-      }catch(err){
-        console.error(err);
-        notify('Erro ao salvar post: ' + err.message, 'error');
-      }finally{
-        btn.innerHTML = old;
-        btn.disabled = false;
-      }
+        clearForm(); loadPosts();
+      }catch(err){ alert('Erro: '+err.message); }
     }
 
-    async function uploadFile(file, folder){
-      const ref = storage.ref().child(`${folder}/${Date.now()}_${file.name}`);
+    async function uploadFile(file,folder){
+      const ref=storage.ref().child(folder+'/'+Date.now()+'_'+file.name);
       await ref.put(file);
       return await ref.getDownloadURL();
     }
 
     function loadPosts(){
-      const list = document.getElementById('postsList');
-      list.innerHTML = '<div class="empty"><i class="fas fa-spinner fa-spin"></i> Carregando posts...</div>';
-
-      return db.collection('posts').orderBy('createdAt','desc').get()
-        .then(snap=>{
-          posts = [];
-          if(snap.empty){
-            list.innerHTML = `
-              <div class="empty">
-                <i class="fas fa-newspaper"></i><br/>
-                Nenhum post publicado ainda.<br/>
-                <small>Crie seu primeiro post usando o formulário ao lado.</small>
-              </div>`;
-            return;
-          }
-          list.innerHTML = '';
-          snap.forEach(doc=>{
-            const data = doc.data();
-            const post = {
-              id: doc.id,
-              ...data,
-              date: data.createdAt ? data.createdAt.toDate().toLocaleDateString('pt-BR') : 'Data não disponível'
-            };
-            posts.push(post);
-            list.appendChild(renderPost(post));
-          });
-        })
-        .catch(err=>{
-          console.error(err);
-          list.innerHTML = `
-            <div class="empty"><i class="fas fa-exclamation-triangle"></i><br/>
-            Erro ao carregar posts.<br/>
-            <small>${err.message}</small></div>`;
+      const list=document.getElementById('postsList');
+      list.innerHTML='Carregando...';
+      db.collection('posts').orderBy('createdAt','desc').get().then(snap=>{
+        list.innerHTML='';
+        snap.forEach(doc=>{
+          const data=doc.data();
+          const div=document.createElement('div');
+          div.style.border='1px solid #ccc';div.style.padding='10px';div.style.margin='10px 0';
+          div.innerHTML=`<b>${data.title}</b><br/>${data.content||''}<br/>
+            ${data.mediaUrl?('<a href="'+data.mediaUrl+'" target="_blank">[mídia]</a>'):""}
+            <br/><button onclick="deletePost('${doc.id}')">Excluir</button>`;
+          list.appendChild(div);
         });
-    }
-
-    function renderPost(post){
-      const wrap = document.createElement('div');
-      wrap.className = 'post';
-
-      let media = '';
-      if(post.type === 'image' && post.mediaUrl){
-        media = `<div class="media"><img src="${post.mediaUrl}" alt="Imagem do post"/></div>`;
-      }else if(post.type === 'video' && post.mediaUrl){
-        media = `<div class="media"><video src="${post.mediaUrl}" controls></video></div>`;
-      }else if(post.type === 'audio' && post.mediaUrl){
-        media = `<div class="media"><audio src="${post.mediaUrl}" controls></audio></div>`;
-      }else if(post.type === 'youtube' && post.mediaUrl){
-        const id = extractYouTubeId(post.mediaUrl);
-        if(id){
-          media = `
-            <div class="iframe-wrap">
-              <iframe src="https://www.youtube.com/embed/${id}" allowfullscreen></iframe>
-            </div>`;
-        }
-      }
-
-      wrap.innerHTML = `
-        <div class="post-header">
-          <div>
-            <div class="post-title">${escapeHtml(post.title)}</div>
-            <div class="muted" style="font-size:12px">por ${escapeHtml(post.author || 'Administrador')}</div>
-          </div>
-          <div class="post-date">${post.date}</div>
-        </div>
-        <div class="post-content">${nl2br(escapeHtml(post.content))}</div>
-        ${media}
-        <div class="tags">
-          <span class="tag">${getCategoryName(post.category)}</span>
-          <span class="tag">${getTypeName(post.type)}</span>
-          ${post.mediaUrl ? '<span class="tag">Com mídia</span>' : ''}
-        </div>
-        <div class="actions">
-          <button class="btn btn-warning" onclick="editPost('${post.id}')"><i class="fas fa-edit"></i> Editar</button>
-          <button class="btn btn-danger" onclick="deletePost('${post.id}')"><i class="fas fa-trash"></i> Excluir</button>
-        </div>
-      `;
-      return wrap;
-    }
-
-    function filterPosts(term){
-      const list = document.getElementById('postsList');
-      term = (term||'').toLowerCase();
-      if(!term){
-        list.innerHTML = '';
-        posts.forEach(p=> list.appendChild(renderPost(p)));
-        return;
-      }
-      const subset = posts.filter(p =>
-        (p.title||'').toLowerCase().includes(term) ||
-        (p.content||'').toLowerCase().includes(term)
-      );
-      list.innerHTML = '';
-      if(subset.length === 0){
-        list.innerHTML = `
-          <div class="empty"><i class="fas fa-search"></i><br/>
-          Nenhum post encontrado.<br/>
-          <small>Tente outros termos.</small></div>`;
-        return;
-      }
-      subset.forEach(p=> list.appendChild(renderPost(p)));
-    }
-
-    function editPost(id){
-      const post = posts.find(p=>p.id === id);
-      if(!post) return;
-
-      document.getElementById('postTitle').value   = post.title || '';
-      document.getElementById('postType').value    = post.type || 'text';
-      document.getElementById('postContent').value = post.content || '';
-      document.getElementById('postCategory').value = post.category || 'general';
-
-      // específicos
-      if(post.type === 'youtube' && post.mediaUrl){
-        document.getElementById('youtubeUrl').value = post.mediaUrl;
-      }else if(post.type === 'image' && post.mediaUrl){
-        const prev = document.getElementById('imagePreview');
-        prev.src = post.mediaUrl; prev.style.display = 'block';
-      }
-
-      toggleFields();
-      currentEditPostId = id;
-      document.getElementById('createPostBtn').innerHTML = '<i class="fas fa-save"></i> Atualizar Post';
-      document.getElementById('cancelEditBtn').style.display = 'inline-flex';
-      notify(`Editando: ${post.title}`, 'success');
-      document.getElementById('postTitle').focus();
+      });
     }
 
     function deletePost(id){
-      if(!confirm('Tem certeza que deseja excluir este post? Esta ação não pode ser desfeita.')) return;
-      db.collection('posts').doc(id).delete()
-        .then(()=>{ notify('Post excluído com sucesso!','success'); loadPosts(); })
-        .catch(err=>{ console.error(err); notify('Erro ao excluir: ' + err.message,'error'); });
+      if(confirm('Excluir post?')){
+        db.collection('posts').doc(id).delete().then(loadPosts);
+      }
     }
 
     function clearForm(){
       document.getElementById('postForm').reset();
-      document.getElementById('imagePreview').style.display = 'none';
-      currentEditPostId = null;
-      document.getElementById('createPostBtn').innerHTML = '<i class="fas fa-paper-plane"></i> Publicar Post';
-      document.getElementById('cancelEditBtn').style.display = 'none';
-      toggleFields();
-    }
-
-    // =========================
-    // UTILITÁRIOS
-    // =========================
-    function getCategoryName(category){
-      const map = {
-        general:'Geral', news:'Notícias', devotional:'Devocional',
-        event:'Evento', announcement:'Anúncio'
-      };
-      return map[category] || category || 'Geral';
-    }
-    function getTypeName(type){
-      const map = {
-        text:'Texto', image:'Imagem', video:'Vídeo', audio:'Áudio', youtube:'YouTube'
-      };
-      return map[type] || type || 'Texto';
-    }
-    function extractYouTubeId(url){
-      const re=/^.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\\?v=|\\&v=)([^#&?]*).*/;
-      const m=url.match(re); return (m && m[1] && m[1].length===11) ? m[1] : null;
-    }
-    function nl2br(str){ return (str||'').replace(/\n/g,'<br/>'); }
-    function escapeHtml(s){
-      return (s||'').replace(/[&<>"']/g, m => ({
-        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
-      }[m]));
+      currentEditPostId=null;
     }
   </script>
-
 </body>
 </html>
