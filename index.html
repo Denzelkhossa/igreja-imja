@@ -66,7 +66,6 @@
     .badge{display:inline-block;padding:.25rem .55rem;border-radius:20px;font-size:.75rem;font-weight:700}
     .badge-success{background:#e8f5e9;color:var(--success-color)} .badge-warning{background:#fff3e0;color:var(--warning-color)}
     .badge-info{background:#e3f2fd;color:var(--primary-color)}
-    .badge-secondary{background:#f5f5f5;color:#666}
     .hidden{display:none}
 
     /* Forms */
@@ -76,7 +75,6 @@
     .form-control{width:100%;padding:.7rem;border:1px solid var(--border-color);border-radius:var(--radius);background:var(--background-primary);color:var(--text-primary)}
     .form-control:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 3px rgba(0,86,179,.15)}
     textarea.form-control{min-height:110px;resize:vertical}
-    select.form-control{appearance:none;background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .7rem center;background-size:16px;padding-right:2.5rem}
 
     /* Media preview */
     .media-preview{margin-top:.5rem;max-width:100%;max-height:220px;border-radius:6px;display:none}
@@ -89,18 +87,6 @@
     .modal-body{padding:1rem 1.25rem}
     .modal-footer{padding:1rem 1.25rem;border-top:1px solid var(--border-color);display:flex;justify-content:flex-end;gap:.6rem}
 
-    /* Cards para grupos e relatórios */
-    .card-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));gap:1rem;margin-bottom:1.5rem}
-    .group-card,.report-card{background:var(--background-primary);border-radius:var(--radius);box-shadow:var(--shadow);padding:1rem;position:relative}
-    .group-card h3,.report-card h3{margin-bottom:.5rem;color:var(--primary-color)}
-    .group-details,.report-details{display:flex;flex-direction:column;gap:.4rem;margin-bottom:.8rem}
-    .group-detail,.report-detail{display:flex;align-items:center;gap:.5rem;font-size:.9rem;color:var(--text-secondary)}
-    .group-detail i,.report-detail i{width:16px;color:var(--primary-color)}
-    .group-actions,.report-actions{display:flex;gap:.5rem;margin-top:.8rem}
-    .member-list{margin-top:.8rem;border-top:1px solid var(--border-color);padding-top:.8rem}
-    .member-item{display:flex;align-items:center;gap:.5rem;padding:.4rem 0;font-size:.9rem}
-    .member-role{font-size:.7rem;padding:.2rem .4rem;background:var(--primary-color-light);color:var(--primary-color);border-radius:4px}
-
     /* Responsive sidebar */
     @media (max-width: 992px){
       .admin-sidebar{width:70px}
@@ -109,12 +95,6 @@
       .nav-item{justify-content:center;padding:.9rem}
     }
   </style>
-  
-  <!-- Firebase SDK v8 -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 </head>
 <body>
 
@@ -145,10 +125,6 @@
         <a href="#" class="nav-item" data-tab="events"><i class="fas fa-calendar-alt"></i><span>Eventos</span></a>
         <a href="#" class="nav-item" data-tab="prayers"><i class="fas fa-pray"></i><span>Pedidos de Oração</span></a>
 
-        <div class="nav-section">Grupos Familiares</div>
-        <a href="#" class="nav-item" data-tab="groups"><i class="fas fa-home"></i><span>Grupos/Células</span></a>
-        <a href="#" class="nav-item" data-tab="reports"><i class="fas fa-chart-line"></i><span>Relatórios</span></a>
-
         <div class="nav-section">Sessão</div>
         <a href="#" class="nav-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span>Sair</span></a>
       </nav>
@@ -170,7 +146,6 @@
           <div class="stat-card"><div class="stat-icon"><i class="fas fa-newspaper"></i></div><div><div class="stat-value" id="statPosts">0</div><div class="stat-label">Total de Posts</div></div></div>
           <div class="stat-card"><div class="stat-icon"><i class="fas fa-calendar-alt"></i></div><div><div class="stat-value" id="statEvents">0</div><div class="stat-label">Próximos Eventos</div></div></div>
           <div class="stat-card"><div class="stat-icon"><i class="fas fa-pray"></i></div><div><div class="stat-value" id="statPrayers">0</div><div class="stat-label">Pedidos de Oração</div></div></div>
-          <div class="stat-card"><div class="stat-icon"><i class="fas fa-home"></i></div><div><div class="stat-value" id="statGroups">0</div><div class="stat-label">Grupos Ativos</div></div></div>
         </div>
 
         <!-- Últimos posts -->
@@ -187,49 +162,130 @@
         </div>
       </div>
 
-      <!-- Grupos Familiares -->
-      <div class="admin-content-section hidden" id="groups">
+      <!-- Posts -->
+      <div class="admin-content-section hidden" id="posts">
         <div class="admin-header">
-          <h1 class="admin-title">Gerenciar Grupos Familiares</h1>
-          <button class="btn btn-success" onclick="openModal('groupModal')"><i class="fas fa-plus"></i> Novo Grupo</button>
+          <h1 class="admin-title">Gerenciar Posts</h1>
+        </div>
+        <div class="admin-card">
+          <div class="card-header">
+            <h3 class="card-title">Novo Post</h3>
+          </div>
+          <div class="card-content">
+            <form id="postForm">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label" for="postTitle">Título</label>
+                  <input id="postTitle" class="form-control" type="text" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="postType">Tipo</label>
+                  <select id="postType" class="form-control" onchange="togglePostFields()">
+                    <option value="text">Texto</option>
+                    <option value="image">Imagem</option>
+                    <option value="video">Vídeo</option>
+                    <option value="audio">Áudio</option>
+                    <option value="youtube">YouTube</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="postCategory">Categoria</label>
+                  <select id="postCategory" class="form-control">
+                    <option value="general">Geral</option>
+                    <option value="news">Notícias</option>
+                    <option value="devotional">Devocional</option>
+                    <option value="event">Evento</option>
+                    <option value="announcement">Anúncio</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group" id="postContentField">
+                <label class="form-label" for="postContent">Conteúdo</label>
+                <textarea id="postContent" class="form-control" placeholder="Digite o conteúdo..."></textarea>
+              </div>
+
+              <div class="form-group hidden" id="imageField">
+                <label class="form-label" for="postImage">Imagem</label>
+                <input id="postImage" class="form-control" type="file" accept="image/*">
+                <img id="imagePreview" class="media-preview" alt="Preview"/>
+              </div>
+
+              <div class="form-group hidden" id="videoField">
+                <label class="form-label" for="postVideo">Vídeo</label>
+                <input id="postVideo" class="form-control" type="file" accept="video/*">
+              </div>
+
+              <div class="form-group hidden" id="audioField">
+                <label class="form-label" for="postAudio">Áudio</label>
+                <input id="postAudio" class="form-control" type="file" accept="audio/*">
+              </div>
+
+              <div class="form-group hidden" id="youtubeField">
+                <label class="form-label" for="youtubeUrl">URL do YouTube</label>
+                <input id="youtubeUrl" class="form-control" type="url" placeholder="https://www.youtube.com/watch?v=...">
+              </div>
+
+              <div class="form-group" style="display:flex;gap:.6rem">
+                <button type="button" class="btn btn-success" id="createPostBtn" onclick="createOrUpdatePost()">
+                  <i class="fas fa-paper-plane"></i> Publicar Post
+                </button>
+                <button type="button" class="btn btn-outline hidden" id="cancelEditBtn" onclick="clearPostForm()">
+                  Cancelar Edição
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
 
         <div class="admin-card">
           <div class="card-header">
-            <h3 class="card-title">Todos os Grupos</h3>
+            <h3 class="card-title">Posts Publicados</h3>
             <div class="card-actions" style="display:flex;gap:.5rem;align-items:center">
-              <input id="searchGroups" class="form-control" placeholder="Buscar grupos..." oninput="filterGroups(this.value)" style="max-width:240px">
+              <input id="searchPosts" class="form-control" placeholder="Buscar posts..." oninput="filterPosts(this.value)" style="max-width:240px">
             </div>
           </div>
           <div class="card-content">
-            <div id="groupsList">
-              <div class="text-center" style="color:var(--text-secondary)">Carregando grupos...</div>
+            <div id="postsList">
+              <div class="text-center" style="color:var(--text-secondary)">Carregando posts...</div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Relatórios -->
-      <div class="admin-content-section hidden" id="reports">
+      <!-- Eventos -->
+      <div class="admin-content-section hidden" id="events">
         <div class="admin-header">
-          <h1 class="admin-title">Relatórios de Grupos</h1>
-          <button class="btn btn-success" onclick="openModal('reportModal')"><i class="fas fa-plus"></i> Novo Relatório</button>
+          <h1 class="admin-title">Gerenciar Eventos</h1>
+          <button class="btn btn-success" onclick="openModal('eventModal')"><i class="fas fa-plus"></i> Novo Evento</button>
         </div>
-
         <div class="admin-card">
           <div class="card-header">
-            <h3 class="card-title">Relatórios Recentes</h3>
-            <div class="card-actions" style="display:flex;gap:.5rem;align-items:center">
-              <select id="filterGroup" class="form-control" onchange="filterReportsByGroup(this.value)" style="max-width:200px">
-                <option value="">Todos os grupos</option>
-              </select>
-              <input id="searchReports" class="form-control" placeholder="Buscar relatórios..." oninput="filterReports(this.value)" style="max-width:240px">
-            </div>
+            <h3 class="card-title">Todos os Eventos</h3>
           </div>
           <div class="card-content">
-            <div id="reportsList">
-              <div class="text-center" style="color:var(--text-secondary)">Carregando relatórios...</div>
-            </div>
+            <table class="admin-table" id="eventsTable">
+              <thead><tr><th>Título</th><th>Data</th><th>Local</th><th>Status</th><th>Ações</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pedidos de Oração -->
+      <div class="admin-content-section hidden" id="prayers">
+        <div class="admin-header">
+          <h1 class="admin-title">Pedidos de Oração</h1>
+        </div>
+        <div class="admin-card">
+          <div class="card-header">
+            <h3 class="card-title">Todos os Pedidos</h3>
+          </div>
+          <div class="card-content">
+            <table class="admin-table" id="prayersTable">
+              <thead><tr><th>Nome</th><th>Data</th><th>Pedido</th><th>Status</th><th>Ações</th></tr></thead>
+              <tbody></tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -237,146 +293,72 @@
     </div>
   </div>
 
-  <!-- Modal Grupo -->
-  <div class="modal-overlay" id="groupModal">
+  <!-- Modal Evento -->
+  <div class="modal-overlay" id="eventModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 class="modal-title" id="groupModalTitle">Adicionar Novo Grupo</h2>
-        <button class="btn btn-outline btn-sm" onclick="closeModal('groupModal')">&times;</button>
+        <h2 class="modal-title" id="eventModalTitle">Adicionar Novo Evento</h2>
+        <button class="btn btn-outline btn-sm" onclick="closeModal('eventModal')">&times;</button>
       </div>
       <div class="modal-body">
-        <form id="groupForm">
-          <input type="hidden" id="groupId">
+        <form id="eventForm">
+          <input type="hidden" id="eventId">
           <div class="form-grid">
             <div class="form-group">
-              <label class="form-label" for="groupName">Nome do Grupo</label>
-              <input type="text" id="groupName" class="form-control" required>
+              <label class="form-label" for="eventTitle">Título do Evento</label>
+              <input type="text" id="eventTitle" class="form-control" required>
             </div>
             <div class="form-group">
-              <label class="form-label" for="groupDay">Dia da Reunião</label>
-              <select id="groupDay" class="form-control" required>
-                <option value="">Selecione</option>
-                <option value="domingo">Domingo</option>
-                <option value="segunda">Segunda-feira</option>
-                <option value="terca">Terça-feira</option>
-                <option value="quarta">Quarta-feira</option>
-                <option value="quinta">Quinta-feira</option>
-                <option value="sexta">Sexta-feira</option>
-                <option value="sabado">Sábado</option>
-              </select>
+              <label class="form-label" for="eventDate">Data do Evento</label>
+              <input type="datetime-local" id="eventDate" class="form-control" required>
             </div>
           </div>
           <div class="form-grid">
             <div class="form-group">
-              <label class="form-label" for="groupTime">Horário</label>
-              <input type="time" id="groupTime" class="form-control" required>
+              <label class="form-label" for="eventLocation">Local</label>
+              <input type="text" id="eventLocation" class="form-control" required>
             </div>
             <div class="form-group">
-              <label class="form-label" for="groupZone">Zona/Região</label>
-              <select id="groupZone" class="form-control" required>
+              <label class="form-label" for="eventCategory">Categoria</label>
+              <select id="eventCategory" class="form-control" required>
                 <option value="">Selecione</option>
-                <option value="central">Zona Central</option>
-                <option value="norte">Zona Norte</option>
-                <option value="sul">Zona Sul</option>
-                <option value="leste">Zona Leste</option>
-                <option value="oeste">Zona Oeste</option>
+                <option value="culto">Culto</option>
+                <option value="estudo">Estudo Bíblico</option>
+                <option value="retiro">Retiro</option>
+                <option value="conferencia">Conferência</option>
+                <option value="outro">Outro</option>
               </select>
             </div>
           </div>
           <div class="form-group">
-            <label class="form-label" for="groupAddress">Endereço</label>
-            <textarea id="groupAddress" class="form-control" rows="2" required></textarea>
+            <label class="form-label" for="eventDescription">Descrição</label>
+            <textarea id="eventDescription" class="form-control" rows="4" required></textarea>
           </div>
           <div class="form-group">
-            <label class="form-label" for="groupLeader">Líder do Grupo</label>
-            <input type="text" id="groupLeader" class="form-control" required>
+            <label class="form-label" for="eventImage">Imagem (URL)</label>
+            <input type="url" id="eventImage" class="form-control">
           </div>
           <div class="form-group">
-            <label class="form-label" for="groupLeaderPhone">Telefone do Líder</label>
-            <input type="tel" id="groupLeaderPhone" class="form-control" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="groupCapacity">Capacidade (máx. participantes)</label>
-            <input type="number" id="groupCapacity" class="form-control" min="1" value="15">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="groupStatus">Status</label>
-            <select id="groupStatus" class="form-control" required>
-              <option value="active">Ativo</option>
-              <option value="inactive">Inativo</option>
-              <option value="pending">Pendente</option>
-            </select>
+            <label class="form-label" for="eventMaxAttendees">Máximo de Participantes (opcional)</label>
+            <input type="number" id="eventMaxAttendees" class="form-control" min="0">
           </div>
         </form>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline" onclick="closeModal('groupModal')">Cancelar</button>
-        <button class="btn btn-success" type="submit" form="groupForm">Salvar</button>
+        <button class="btn btn-outline" onclick="closeModal('eventModal')">Cancelar</button>
+        <button class="btn btn-success" type="submit" form="eventForm">Salvar</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal Relatório -->
-  <div class="modal-overlay" id="reportModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 class="modal-title" id="reportModalTitle">Adicionar Novo Relatório</h2>
-        <button class="btn btn-outline btn-sm" onclick="closeModal('reportModal')">&times;</button>
-      </div>
-      <div class="modal-body">
-        <form id="reportForm">
-          <input type="hidden" id="reportId">
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label" for="reportGroup">Grupo</label>
-              <select id="reportGroup" class="form-control" required>
-                <option value="">Selecione um grupo</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="reportDate">Data do Encontro</label>
-              <input type="date" id="reportDate" class="form-control" required>
-            </div>
-          </div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label" for="reportAttendance">Número de Participantes</label>
-              <input type="number" id="reportAttendance" class="form-control" min="0" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="reportNewMembers">Novos Membros</label>
-              <input type="number" id="reportNewMembers" class="form-control" min="0" value="0">
-            </div>
-          </div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label" for="reportOffering">Oferta Coletada (MT)</label>
-              <input type="number" id="reportOffering" class="form-control" min="0" step="0.01" value="0">
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="reportStudy">Estudo Realizado</label>
-              <input type="text" id="reportStudy" class="form-control" placeholder="Tema do estudo">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="reportNotes">Observações</label>
-            <textarea id="reportNotes" class="form-control" rows="3" placeholder="Detalhes do encontro, necessidades, testemunhos..."></textarea>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="reportChallenges">Desafios/Dificuldades</label>
-            <textarea id="reportChallenges" class="form-control" rows="2" placeholder="Desafios enfrentados pelo grupo"></textarea>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-outline" onclick="closeModal('reportModal')">Cancelar</button>
-        <button class="btn btn-success" type="submit" form="reportForm">Salvar</button>
-      </div>
-    </div>
-  </div>
+  <!-- Firebase SDK v8 -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 
   <script>
-    // ====== CONFIGURAÇÃO DO FIREBASE ======
+    // ====== CONFIG FIREBASE ======
     const firebaseConfig = {
       apiKey: "AIzaSyBgWfocz6rpycz3SiJJ39Nfc1gNUd6kafk",
       authDomain: "imjachurch.firebaseapp.com",
@@ -385,626 +367,455 @@
       messagingSenderId: "145864254479",
       appId: "1:145864254479:web:3c1e6f5b3b5e5f5b5e5f5b"
     };
-    
-    // Inicializar Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
     const storage = firebase.storage();
-    
-    // ====== LISTA DE ADMINISTRADORES AUTORIZADOS ======
+
+    // ====== ALLOWLIST DE ADMINS (Google) ======
     const ALLOWED_EMAILS = new Set([
       "denzelkhossa@gmail.com",
       "ministerio.554411@gmail.com",
       "calvinocossa6@gmail.com",
       "hjsdesousa@gmail.com"
+      // adicione mais aqui se quiser
     ]);
-    
-    // ====== VARIÁVEIS GLOBAIS ======
-    let groups = [];
-    let reports = [];
-    
-    // ====== FUNÇÕES DE INICIALIZAÇÃO ======
-    document.addEventListener('DOMContentLoaded', function() {
-      // Configurar listeners
-      document.getElementById('googleSignInBtn').addEventListener('click', loginWithGoogle);
-      document.getElementById('logoutBtn').addEventListener('click', logout);
-      
-      // Configurar navegação
-      document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
-        item.addEventListener('click', function() {
-          const tabName = this.getAttribute('data-tab');
-          showTab(tabName);
-        });
-      });
-      
-      // Configurar formulários
-      document.getElementById('groupForm').addEventListener('submit', function(e) {
+
+    // ====== UI HELPERS ======
+    function showLoginNote(msg, type='error'){
+      const n = document.getElementById('loginNote');
+      n.textContent = msg;
+      n.className = 'note ' + (type==='success' ? 'success':'error');
+      n.style.display = 'block';
+      setTimeout(()=>{ n.style.display = 'none'; }, 5000);
+    }
+    function gate(open){
+      document.getElementById('loginOverlay').style.display = open ? 'none' : 'flex';
+      document.getElementById('app').style.display = open ? 'block' : 'none';
+    }
+    function openModal(id){ document.getElementById(id).style.display='flex'; }
+    function closeModal(id){ document.getElementById(id).style.display='none'; }
+    function formatDate(ts){
+      try{
+        if(!ts) return '-';
+        if (ts.toDate) return ts.toDate().toLocaleString('pt-BR');
+        return new Date(ts).toLocaleString('pt-BR');
+      }catch(e){ return '-'; }
+    }
+    function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+    function nl2br(s){ return (s||'').replace(/\n/g, '<br/>'); }
+    function extractYouTubeId(url){
+      const re=/^.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+      const m = (url||'').match(re);
+      return (m && m[1] && m[1].length===11) ? m[1] : null;
+    }
+
+    // ====== NAV TABS ======
+    document.querySelectorAll('.nav-item[data-tab]').forEach(a=>{
+      a.addEventListener('click', e=>{
         e.preventDefault();
-        saveGroup();
-      });
-      
-      document.getElementById('reportForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        saveReport();
-      });
-      
-      // Verificar se já está logado
-      auth.onAuthStateChanged(user => {
-        if (user) {
-          const email = user.email.toLowerCase();
-          if (ALLOWED_EMAILS.has(email)) {
-            showApp();
-            loadGroups();
-            loadReports();
-            populateGroupDropdown();
-          } else {
-            auth.signOut();
-            showLoginNote('Acesso negado: e-mail não autorizado.');
-          }
-        } else {
-          document.getElementById('loginOverlay').style.display = 'flex';
-          document.getElementById('app').style.display = 'none';
-        }
+        document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+        a.classList.add('active');
+        const tab = a.getAttribute('data-tab');
+        document.querySelectorAll('.admin-content-section').forEach(s=>s.classList.add('hidden'));
+        document.getElementById(tab).classList.remove('hidden');
       });
     });
-    
-    // ====== AUTENTICAÇÃO ======
-    function loginWithGoogle() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider)
-        .then(result => {
-          const email = result.user.email.toLowerCase();
-          if (!ALLOWED_EMAILS.has(email)) {
-            auth.signOut();
-            showLoginNote('Acesso negado: e-mail não autorizado.');
-          }
-        })
-        .catch(error => {
-          console.error('Erro no login:', error);
-          showLoginNote('Erro ao fazer login: ' + error.message);
-        });
-    }
-    
-    function logout() {
-      auth.signOut()
-        .then(() => {
-          document.getElementById('loginOverlay').style.display = 'flex';
-          document.getElementById('app').style.display = 'none';
-        })
-        .catch(error => {
-          console.error('Erro no logout:', error);
-        });
-    }
-    
-    function showLoginNote(message, type = 'error') {
-      const note = document.getElementById('loginNote');
-      note.textContent = message;
-      note.className = `note ${type}`;
-      note.style.display = 'block';
-      
-      setTimeout(() => {
-        note.style.display = 'none';
-      }, 5000);
-    }
-    
-    function showApp() {
-      document.getElementById('loginOverlay').style.display = 'none';
-      document.getElementById('app').style.display = 'flex';
-    }
-    
-    // ====== NAVEGAÇÃO ======
-    function showTab(tabName) {
-      // Esconder todas as abas
-      document.querySelectorAll('.admin-content-section').forEach(tab => {
-        tab.classList.add('hidden');
-      });
-      
-      // Mostrar a aba selecionada
-      document.getElementById(tabName).classList.remove('hidden');
-      
-      // Atualizar navegação ativa
-      document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-      });
-      document.querySelector(`.nav-item[data-tab="${tabName}"]`).classList.add('active');
-    }
-    
-    // ====== GRUPOS FAMILIARES ======
-    function loadGroups() {
-      const groupsList = document.getElementById('groupsList');
-      groupsList.innerHTML = '<div class="text-center" style="color:var(--text-secondary)">Carregando grupos...</div>';
-      
-      db.collection('groups').orderBy('name').get()
-        .then(snapshot => {
-          groups = [];
-          groupsList.innerHTML = '<div class="card-grid" id="groupsGrid"></div>';
-          const groupsGrid = document.getElementById('groupsGrid');
-          
-          if (snapshot.empty) {
-            groupsGrid.innerHTML = '<div class="text-center" style="color:var(--text-secondary);grid-column:1/-1">Nenhum grupo cadastrado ainda.</div>';
-            return;
-          }
-          
-          snapshot.forEach(doc => {
-            const group = { id: doc.id, ...doc.data() };
-            groups.push(group);
-            
-            const groupCard = document.createElement('div');
-            groupCard.className = 'group-card';
-            
-            let statusBadge = '';
-            if (group.status === 'active') {
-              statusBadge = '<span class="badge badge-success" style="position:absolute;top:1rem;right:1rem">Ativo</span>';
-            } else if (group.status === 'inactive') {
-              statusBadge = '<span class="badge badge-secondary" style="position:absolute;top:1rem;right:1rem">Inativo</span>';
-            } else {
-              statusBadge = '<span class="badge badge-warning" style="position:absolute;top:1rem;right:1rem">Pendente</span>';
-            }
-            
-            groupCard.innerHTML = `
-              ${statusBadge}
-              <h3>${escapeHtml(group.name)}</h3>
-              <div class="group-details">
-                <div class="group-detail"><i class="fas fa-user"></i> <span>Líder: ${escapeHtml(group.leader)}</span></div>
-                <div class="group-detail"><i class="fas fa-map-marker-alt"></i> <span>${escapeHtml(group.address)}</span></div>
-                <div class="group-detail"><i class="fas fa-calendar-day"></i> <span>${capitalizeFirstLetter(group.day)} às ${group.time}</span></div>
-                <div class="group-detail"><i class="fas fa-users"></i> <span>Capacidade: ${group.capacity} pessoas</span></div>
-                <div class="group-detail"><i class="fas fa-map"></i> <span>Zona: ${capitalizeFirstLetter(group.zone)}</span></div>
-              </div>
-              <div class="group-actions">
-                <button class="btn btn-sm" onclick="editGroup('${group.id}')"><i class="fas fa-edit"></i> Editar</button>
-                <button class="btn btn-sm btn-danger" onclick="deleteGroup('${group.id}')"><i class="fas fa-trash"></i> Excluir</button>
-              </div>
-            `;
-            
-            groupsGrid.appendChild(groupCard);
-          });
-          
-          // Atualizar estatísticas
-          document.getElementById('statGroups').textContent = groups.filter(g => g.status === 'active').length;
-        })
-        .catch(error => {
-          console.error('Erro ao carregar grupos:', error);
-          groupsList.innerHTML = '<div class="text-center" style="color:var(--error-color)">Erro ao carregar grupos.</div>';
-        });
-    }
-    
-    function saveGroup() {
-      const groupId = document.getElementById('groupId').value;
-      const groupData = {
-        name: document.getElementById('groupName').value,
-        day: document.getElementById('groupDay').value,
-        time: document.getElementById('groupTime').value,
-        zone: document.getElementById('groupZone').value,
-        address: document.getElementById('groupAddress').value,
-        leader: document.getElementById('groupLeader').value,
-        leaderPhone: document.getElementById('groupLeaderPhone').value,
-        capacity: parseInt(document.getElementById('groupCapacity').value),
-        status: document.getElementById('groupStatus').value,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
-      
-      if (groupId) {
-        // Atualizar grupo existente
-        db.collection('groups').doc(groupId).update(groupData)
-          .then(() => {
-            showNotification('Grupo atualizado com sucesso!', 'success');
-            closeModal('groupModal');
-            loadGroups();
-          })
-          .catch(error => {
-            console.error('Erro ao atualizar grupo:', error);
-            showNotification('Erro ao atualizar grupo: ' + error.message, 'error');
-          });
-      } else {
-        // Criar novo grupo
-        groupData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-        
-        db.collection('groups').add(groupData)
-          .then(() => {
-            showNotification('Grupo criado com sucesso!', 'success');
-            closeModal('groupModal');
-            loadGroups();
-            populateGroupDropdown();
-          })
-          .catch(error => {
-            console.error('Erro ao criar grupo:', error);
-            showNotification('Erro ao criar grupo: ' + error.message, 'error');
-          });
+
+    // ====== AUTH (GOOGLE) ======
+    document.getElementById('googleSignInBtn').addEventListener('click', async ()=>{
+      try{
+        const provider = new firebase.auth.GoogleAuthProvider();
+        const result = await auth.signInWithPopup(provider);
+        const email = result.user.email?.toLowerCase();
+        if(!ALLOWED_EMAILS.has(email)){
+          await auth.signOut();
+          showLoginNote('Acesso negado: e-mail não autorizado.');
+          return;
+        }
+        // Login bem-sucedido
+        gate(true);
+        await Promise.all([loadPosts(), loadEvents(), loadPrayers(), refreshStats()]);
+      }catch(err){
+        console.error(err);
+        showLoginNote('Falha ao autenticar: ' + err.message);
       }
-    }
-    
-    function editGroup(id) {
-      const group = groups.find(g => g.id === id);
-      if (!group) return;
-      
-      document.getElementById('groupId').value = group.id;
-      document.getElementById('groupName').value = group.name;
-      document.getElementById('groupDay').value = group.day;
-      document.getElementById('groupTime').value = group.time;
-      document.getElementById('groupZone').value = group.zone;
-      document.getElementById('groupAddress').value = group.address;
-      document.getElementById('groupLeader').value = group.leader;
-      document.getElementById('groupLeaderPhone').value = group.leaderPhone;
-      document.getElementById('groupCapacity').value = group.capacity;
-      document.getElementById('groupStatus').value = group.status;
-      
-      document.getElementById('groupModalTitle').textContent = 'Editar Grupo';
-      openModal('groupModal');
-    }
-    
-    function deleteGroup(id) {
-      if (!confirm('Tem certeza que deseja excluir este grupo?')) return;
-      
-      db.collection('groups').doc(id).delete()
-        .then(() => {
-          showNotification('Grupo excluído com sucesso!', 'success');
-          loadGroups();
-          populateGroupDropdown();
-        })
-        .catch(error => {
-          console.error('Erro ao excluir grupo:', error);
-          showNotification('Erro ao excluir grupo: ' + error.message, 'error');
-        });
-    }
-    
-    function filterGroups(query) {
-      const filteredGroups = groups.filter(group => 
-        group.name.toLowerCase().includes(query.toLowerCase()) ||
-        group.leader.toLowerCase().includes(query.toLowerCase()) ||
-        group.address.toLowerCase().includes(query.toLowerCase()) ||
-        group.zone.toLowerCase().includes(query.toLowerCase())
-      );
-      
-      const groupsGrid = document.getElementById('groupsGrid');
-      groupsGrid.innerHTML = '';
-      
-      if (filteredGroups.length === 0) {
-        groupsGrid.innerHTML = '<div class="text-center" style="color:var(--text-secondary);grid-column:1/-1">Nenhum grupo encontrado.</div>';
-        return;
-      }
-      
-      filteredGroups.forEach(group => {
-        const groupCard = document.createElement('div');
-        groupCard.className = 'group-card';
-        
-        let statusBadge = '';
-        if (group.status === 'active') {
-          statusBadge = '<span class="badge badge-success" style="position:absolute;top:1rem;right:1rem">Ativo</span>';
-        } else if (group.status === 'inactive') {
-          statusBadge = '<span class="badge badge-secondary" style="position:absolute;top:1rem;right:1rem">Inativo</span>';
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async (e)=>{
+      e.preventDefault();
+      await auth.signOut();
+    });
+
+    // Verificar se já está logado ao carregar a página
+    auth.onAuthStateChanged(async (user)=>{
+      if(user){
+        const email = (user.email||'').toLowerCase();
+        if(ALLOWED_EMAILS.has(email)){
+          gate(true);
+          await Promise.all([loadPosts(), loadEvents(), loadPrayers(), refreshStats()]);
         } else {
-          statusBadge = '<span class="badge badge-warning" style="position:absolute;top:1rem;right:1rem">Pendente</span>';
+          await auth.signOut();
+          gate(false);
         }
-        
-        groupCard.innerHTML = `
-          ${statusBadge}
-          <h3>${escapeHtml(group.name)}</h3>
-          <div class="group-details">
-            <div class="group-detail"><i class="fas fa-user"></i> <span>Líder: ${escapeHtml(group.leader)}</span></div>
-            <div class="group-detail"><i class="fas fa-map-marker-alt"></i> <span>${escapeHtml(group.address)}</span></div>
-            <div class="group-detail"><i class="fas fa-calendar-day"></i> <span>${capitalizeFirstLetter(group.day)} às ${group.time}</span></div>
-            <div class="group-detail"><i class="fas fa-users"></i> <span>Capacidade: ${group.capacity} pessoas</span></div>
-            <div class="group-detail"><i class="fas fa-map"></i> <span>Zona: ${capitalizeFirstLetter(group.zone)}</span></div>
-          </div>
-          <div class="group-actions">
-            <button class="btn btn-sm" onclick="editGroup('${group.id}')"><i class="fas fa-edit"></i> Editar</button>
-            <button class="btn btn-sm btn-danger" onclick="deleteGroup('${group.id}')"><i class="fas fa-trash"></i> Excluir</button>
-          </div>
-        `;
-        
-        groupsGrid.appendChild(groupCard);
-      });
-    }
-    
-    // ====== RELATÓRIOS ======
-    function loadReports() {
-      const reportsList = document.getElementById('reportsList');
-      reportsList.innerHTML = '<div class="text-center" style="color:var(--text-secondary)">Carregando relatórios...</div>';
-      
-      db.collection('reports').orderBy('date', 'desc').get()
-        .then(snapshot => {
-          reports = [];
-          reportsList.innerHTML = '<div class="card-grid" id="reportsGrid"></div>';
-          const reportsGrid = document.getElementById('reportsGrid');
-          
-          if (snapshot.empty) {
-            reportsGrid.innerHTML = '<div class="text-center" style="color:var(--text-secondary);grid-column:1/-1">Nenhum relatório cadastrado ainda.</div>';
-            return;
-          }
-          
-          // Primeiro, carregar todos os relatórios
-          const reportPromises = [];
-          snapshot.forEach(doc => {
-            const report = { id: doc.id, ...doc.data() };
-            reports.push(report);
-            
-            // Buscar informações do grupo para este relatório
-            const promise = db.collection('groups').doc(report.groupId).get()
-              .then(groupDoc => {
-                if (groupDoc.exists) {
-                  report.groupName = groupDoc.data().name;
-                } else {
-                  report.groupName = 'Grupo não encontrado';
-                }
-                return report;
-              })
-              .catch(error => {
-                console.error('Erro ao carregar grupo:', error);
-                report.groupName = 'Erro ao carregar grupo';
-                return report;
-              });
-              
-            reportPromises.push(promise);
-          });
-          
-          // Quando todas as informações de grupo estiverem carregadas, renderizar os relatórios
-          Promise.all(reportPromises).then(reportsWithGroups => {
-            reportsWithGroups.forEach(report => {
-              const reportCard = document.createElement('div');
-              reportCard.className = 'report-card';
-              
-              reportCard.innerHTML = `
-                <h3>${escapeHtml(report.groupName)}</h3>
-                <div class="report-details">
-                  <div class="report-detail"><i class="fas fa-calendar"></i> <span>${formatDate(report.date)}</span></div>
-                  <div class="report-detail"><i class="fas fa-users"></i> <span>Participantes: ${report.attendance}</span></div>
-                  <div class="report-detail"><i class="fas fa-user-plus"></i> <span>Novos membros: ${report.newMembers}</span></div>
-                  <div class="report-detail"><i class="fas fa-money-bill-wave"></i> <span>Oferta: ${report.offering} MT</span></div>
-                  ${report.study ? `<div class="report-detail"><i class="fas fa-book"></i> <span>Estudo: ${escapeHtml(report.study)}</span></div>` : ''}
-                </div>
-                ${report.notes ? `<p><strong>Observações:</strong> ${escapeHtml(report.notes)}</p>` : ''}
-                ${report.challenges ? `<p><strong>Desafios:</strong> ${escapeHtml(report.challenges)}</p>` : ''}
-                <div class="report-actions">
-                  <button class="btn btn-sm" onclick="editReport('${report.id}')"><i class="fas fa-edit"></i> Editar</button>
-                  <button class="btn btn-sm btn-danger" onclick="deleteReport('${report.id}')"><i class="fas fa-trash"></i> Excluir</button>
-                </div>
-              `;
-              
-              reportsGrid.appendChild(reportCard);
-            });
-          });
-        })
-        .catch(error => {
-          console.error('Erro ao carregar relatórios:', error);
-          reportsList.innerHTML = '<div class="text-center" style="color:var(--error-color)">Erro ao carregar relatórios.</div>';
-        });
-    }
-    
-    function saveReport() {
-      const reportId = document.getElementById('reportId').value;
-      const reportData = {
-        groupId: document.getElementById('reportGroup').value,
-        date: document.getElementById('reportDate').value,
-        attendance: parseInt(document.getElementById('reportAttendance').value),
-        newMembers: parseInt(document.getElementById('reportNewMembers').value),
-        offering: parseFloat(document.getElementById('reportOffering').value),
-        study: document.getElementById('reportStudy').value,
-        notes: document.getElementById('reportNotes').value,
-        challenges: document.getElementById('reportChallenges').value,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
-      
-      if (reportId) {
-        // Atualizar relatório existente
-        db.collection('reports').doc(reportId).update(reportData)
-          .then(() => {
-            showNotification('Relatório atualizado com sucesso!', 'success');
-            closeModal('reportModal');
-            loadReports();
-          })
-          .catch(error => {
-            console.error('Erro ao atualizar relatório:', error);
-            showNotification('Erro ao atualizar relatório: ' + error.message, 'error');
-          });
       } else {
-        // Criar novo relatório
-        reportData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-        
-        db.collection('reports').add(reportData)
-          .then(() => {
-            showNotification('Relatório criado com sucesso!', 'success');
-            closeModal('reportModal');
-            loadReports();
-          })
-          .catch(error => {
-            console.error('Erro ao criar relatório:', error);
-            showNotification('Erro ao criar relatório: ' + error.message, 'error');
-          });
+        gate(false);
       }
-    }
-    
-    function editReport(id) {
-      const report = reports.find(r => r.id === id);
-      if (!report) return;
-      
-      document.getElementById('reportId').value = report.id;
-      document.getElementById('reportGroup').value = report.groupId;
-      document.getElementById('reportDate').value = report.date;
-      document.getElementById('reportAttendance').value = report.attendance;
-      document.getElementById('reportNewMembers').value = report.newMembers;
-      document.getElementById('reportOffering').value = report.offering;
-      document.getElementById('reportStudy').value = report.study || '';
-      document.getElementById('reportNotes').value = report.notes || '';
-      document.getElementById('reportChallenges').value = report.challenges || '';
-      
-      document.getElementById('reportModalTitle').textContent = 'Editar Relatório';
-      openModal('reportModal');
-    }
-    
-    function deleteReport(id) {
-      if (!confirm('Tem certeza que deseja excluir este relatório?')) return;
-      
-      db.collection('reports').doc(id).delete()
-        .then(() => {
-          showNotification('Relatório excluído com sucesso!', 'success');
-          loadReports();
-        })
-        .catch(error => {
-          console.error('Erro ao excluir relatório:', error);
-          showNotification('Erro ao excluir relatório: ' + error.message, 'error');
+    });
+
+    // ====== DASHBOARD ======
+    async function refreshStats(){
+      try{
+        const [p,e,pr] = await Promise.all([
+          db.collection('posts').get(),
+          db.collection('events').get(),
+          db.collection('prayers').get()
+        ]);
+        document.getElementById('statPosts').textContent  = p.size;
+        document.getElementById('statEvents').textContent = e.size;
+        document.getElementById('statPrayers').textContent= pr.size;
+
+        // últimos posts
+        const latest = await db.collection('posts').orderBy('createdAt','desc').limit(5).get();
+        const tbody = document.querySelector('#latestPostsTable tbody');
+        tbody.innerHTML = '';
+        latest.forEach(doc=>{
+          const d = doc.data();
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${escapeHtml(d.title||'-')}</td>
+                          <td>${escapeHtml(d.type||'-')}</td>
+                          <td>${escapeHtml(d.category||'-')}</td>
+                          <td>${formatDate(d.createdAt)}</td>`;
+          tbody.appendChild(tr);
         });
+      }catch(e){ console.error(e); }
     }
-    
-    function filterReports(query) {
-      const filteredReports = reports.filter(report => {
-        const group = groups.find(g => g.id === report.groupId);
-        const groupName = group ? group.name : '';
-        
-        return (
-          groupName.toLowerCase().includes(query.toLowerCase()) ||
-          (report.study && report.study.toLowerCase().includes(query.toLowerCase())) ||
-          (report.notes && report.notes.toLowerCase().includes(query.toLowerCase()))
-        );
-      });
-      
-      const reportsGrid = document.getElementById('reportsGrid');
-      reportsGrid.innerHTML = '';
-      
-      if (filteredReports.length === 0) {
-        reportsGrid.innerHTML = '<div class="text-center" style="color:var(--text-secondary);grid-column:1/-1">Nenhum relatório encontrado.</div>';
-        return;
-      }
-      
-      // Renderizar relatórios filtrados
-      filteredReports.forEach(report => {
-        const group = groups.find(g => g.id === report.groupId);
-        const groupName = group ? group.name : 'Grupo não encontrado';
-        
-        const reportCard = document.createElement('div');
-        reportCard.className = 'report-card';
-        
-        reportCard.innerHTML = `
-          <h3>${escapeHtml(groupName)}</h3>
-          <div class="report-details">
-            <div class="report-detail"><i class="fas fa-calendar"></i> <span>${formatDate(report.date)}</span></div>
-            <div class="report-detail"><i class="fas fa-users"></i> <span>Participantes: ${report.attendance}</span></div>
-            <div class="report-detail"><i class="fas fa-user-plus"></i> <span>Novos membros: ${report.newMembers}</span></div>
-            <div class="report-detail"><i class="fas fa-money-bill-wave"></i> <span>Oferta: ${report.offering} MT</span></div>
-            ${report.study ? `<div class="report-detail"><i class="fas fa-book"></i> <span>Estudo: ${escapeHtml(report.study)}</span></div>` : ''}
-          </div>
-          ${report.notes ? `<p><strong>Observações:</strong> ${escapeHtml(report.notes)}</p>` : ''}
-          ${report.challenges ? `<p><strong>Desafios:</strong> ${escapeHtml(report.challenges)}</p>` : ''}
-          <div class="report-actions">
-            <button class="btn btn-sm" onclick="editReport('${report.id}')"><i class="fas fa-edit"></i> Editar</button>
-            <button class="btn btn-sm btn-danger" onclick="deleteReport('${report.id}')"><i class="fas fa-trash"></i> Excluir</button>
-          </div>
-        `;
-        
-        reportsGrid.appendChild(reportCard);
-      });
+    document.getElementById('refreshBtn').addEventListener('click', refreshStats);
+
+    // ====== POSTS (CRUD) ======
+    let postsCache = [];
+    let currentEditPostId = null;
+
+    function togglePostFields(){
+      const t = document.getElementById('postType').value;
+      const show = id => document.getElementById(id).classList.remove('hidden');
+      const hide = id => document.getElementById(id).classList.add('hidden');
+      hide('imageField'); hide('videoField'); hide('audioField'); hide('youtubeField');
+      show('postContentField');
+      if(t==='image') show('imageField');
+      if(t==='video') show('videoField');
+      if(t==='audio') show('audioField');
+      if(t==='youtube') show('youtubeField');
     }
-    
-    function filterReportsByGroup(groupId) {
-      if (!groupId) {
-        loadReports();
-        return;
-      }
-      
-      const filteredReports = reports.filter(report => report.groupId === groupId);
-      
-      const reportsGrid = document.getElementById('reportsGrid');
-      reportsGrid.innerHTML = '';
-      
-      if (filteredReports.length === 0) {
-        reportsGrid.innerHTML = '<div class="text-center" style="color:var(--text-secondary);grid-column:1/-1">Nenhum relatório encontrado para este grupo.</div>';
-        return;
-      }
-      
-      // Renderizar relatórios filtrados
-      filteredReports.forEach(report => {
-        const group = groups.find(g => g.id === report.groupId);
-        const groupName = group ? group.name : 'Grupo não encontrado';
-        
-        const reportCard = document.createElement('div');
-        reportCard.className = 'report-card';
-        
-        reportCard.innerHTML = `
-          <h3>${escapeHtml(groupName)}</h3>
-          <div class="report-details">
-            <div class="report-detail"><i class="fas fa-calendar"></i> <span>${formatDate(report.date)}</span></div>
-            <div class="report-detail"><i class="fas fa-users"></i> <span>Participantes: ${report.attendance}</span></div>
-            <div class="report-detail"><i class="fas fa-user-plus"></i> <span>Novos membros: ${report.newMembers}</span></div>
-            <div class="report-detail"><i class="fas fa-money-bill-wave"></i> <span>Oferta: ${report.offering} MT</span></div>
-            ${report.study ? `<div class="report-detail"><i class="fas fa-book"></i> <span>Estudo: ${escapeHtml(report.study)}</span></div>` : ''}
-          </div>
-          ${report.notes ? `<p><strong>Observações:</strong> ${escapeHtml(report.notes)}</p>` : ''}
-          ${report.challenges ? `<p><strong>Desafios:</strong> ${escapeHtml(report.challenges)}</p>` : ''}
-          <div class="report-actions">
-            <button class="btn btn-sm" onclick="editReport('${report.id}')"><i class="fas fa-edit"></i> Editar</button>
-            <button class="btn btn-sm btn-danger" onclick="deleteReport('${report.id}')"><i class="fas fa-trash"></i> Excluir</button>
-          </div>
-        `;
-        
-        reportsGrid.appendChild(reportCard);
-      });
+    document.getElementById('postImage').addEventListener('change', (e)=>{
+      const f = e.target.files[0]; if(!f) return;
+      const r = new FileReader();
+      r.onload = ev => { const img = document.getElementById('imagePreview'); img.src = ev.target.result; img.style.display='block'; };
+      r.readAsDataURL(f);
+    });
+
+    async function uploadFile(file, folder){
+      const ref = storage.ref().child(`${folder}/${Date.now()}_${file.name}`);
+      await ref.put(file);
+      return await ref.getDownloadURL();
     }
-    
-    function populateGroupDropdown() {
-      const groupDropdown = document.getElementById('reportGroup');
-      const filterDropdown = document.getElementById('filterGroup');
-      
-      // Limpar dropdowns
-      groupDropdown.innerHTML = '<option value="">Selecione um grupo</option>';
-      filterDropdown.innerHTML = '<option value="">Todos os grupos</option>';
-      
-      // Adicionar grupos ativos
-      const activeGroups = groups.filter(g => g.status === 'active');
-      activeGroups.forEach(group => {
-        groupDropdown.innerHTML += `<option value="${group.id}">${group.name}</option>`;
-        filterDropdown.innerHTML += `<option value="${group.id}">${group.name}</option>`;
-      });
-    }
-    
-    // ====== FUNÇÕES UTILITÁRIAS ======
-    function openModal(modalId) {
-      document.getElementById(modalId).style.display = 'flex';
-    }
-    
-    function closeModal(modalId) {
-      document.getElementById(modalId).style.display = 'none';
-      
-      // Limpar formulários ao fechar
-      if (modalId === 'groupModal') {
-        document.getElementById('groupForm').reset();
-        document.getElementById('groupId').value = '';
-        document.getElementById('groupModalTitle').textContent = 'Adicionar Novo Grupo';
-      } else if (modalId === 'reportModal') {
-        document.getElementById('reportForm').reset();
-        document.getElementById('reportId').value = '';
-        document.getElementById('reportModalTitle').textContent = 'Adicionar Novo Relatório';
-      }
-    }
-    
-    function formatDate(dateString) {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('pt-BR');
-    }
-    
-    function capitalizeFirstLetter(string) {
-      return string.charAt(0).toUpperCase() + string.slice(1);
-    }
-    
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-    
-    function showNotification(message, type = 'info') {
-      // Implementar um sistema de notificação simples
-      alert(`${type.toUpperCase()}: ${message}`);
-    }
-    
-    // Fechar modais ao clicar fora deles
-    window.addEventListener('click', function(event) {
-      const modals = document.querySelectorAll('.modal-overlay');
-      modals.forEach(modal => {
-        if (event.target === modal) {
-          closeModal(modal.id);
+
+    async function createOrUpdatePost(){
+      const title = document.getElementById('postTitle').value.trim();
+      const type  = document.getElementById('postType').value;
+      const content = document.getElementById('postContent').value.trim();
+      const category = document.getElementById('postCategory').value;
+
+      if(!title || !content){ alert('Preencha título e conteúdo.'); return; }
+
+      const btn = document.getElementById('createPostBtn');
+      const old = btn.innerHTML; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...'; btn.disabled = true;
+      try{
+        let mediaUrl = '';
+        if(type==='image'){
+          const f = document.getElementById('postImage').files[0];
+          if(f) mediaUrl = await uploadFile(f,'images');
+        }else if(type==='video'){
+          const f = document.getElementById('postVideo').files[0];
+          if(f) mediaUrl = await uploadFile(f,'videos');
+        }else if(type==='audio'){
+          const f = document.getElementById('postAudio').files[0];
+          if(f) mediaUrl = await uploadFile(f,'audios');
+        }else if(type==='youtube'){
+          mediaUrl = document.getElementById('youtubeUrl').value.trim();
         }
+
+        const user = auth.currentUser;
+        const base = {
+          title, content, type, category, mediaUrl,
+          author: user?.displayName || 'Administrador',
+          authorId: user?.uid || 'admin',
+        };
+
+        if(currentEditPostId){
+          await db.collection('posts').doc(currentEditPostId).update({
+            ...base,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          alert('Post atualizado com sucesso!');
+        }else{
+          await db.collection('posts').add({
+            ...base,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          alert('Post publicado com sucesso!');
+        }
+        clearPostForm();
+        await loadPosts();
+        await refreshStats();
+      }catch(err){
+        console.error(err); alert('Erro ao salvar post: ' + err.message);
+      }finally{
+        btn.innerHTML = old; btn.disabled = false;
+      }
+    }
+
+    function clearPostForm(){
+      document.getElementById('postForm').reset();
+      document.getElementById('imagePreview').style.display = 'none';
+      currentEditPostId = null;
+      document.getElementById('createPostBtn').innerHTML = '<i class="fas fa-paper-plane"></i> Publicar Post';
+      document.getElementById('cancelEditBtn').classList.add('hidden');
+      togglePostFields();
+    }
+
+    function renderPostItem(p){
+      let media = '';
+      if(p.type==='image' && p.mediaUrl){
+        media = `<div style="margin-top:.5rem"><img src="${p.mediaUrl}" style="max-width:100%;border-radius:6px"/></div>`;
+      }else if(p.type==='video' && p.mediaUrl){
+        media = `<div style="margin-top:.5rem"><video src="${p.mediaUrl}" controls style="max-width:100%;border-radius:6px"></video></div>`;
+      }else if(p.type==='audio' && p.mediaUrl){
+        media = `<div style="margin-top:.5rem"><audio src="${p.mediaUrl}" controls></audio></div>`;
+      }else if(p.type==='youtube' && p.mediaUrl){
+        const id = extractYouTubeId(p.mediaUrl);
+        if(id){
+          media = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;margin-top:.7rem;border-radius:8px">
+                    <iframe src="https://www.youtube.com/embed/${id}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allowfullscreen></iframe>
+                  </div>`;
+        }
+      }
+      const div = document.createElement('div');
+      div.className = 'admin-card';
+      div.innerHTML = `
+        <div class="card-content">
+          <div style="display:flex;justify-content:space-between;gap:.75rem;align-items:center">
+            <div>
+              <div style="font-weight:700">${escapeHtml(p.title||'')}</div>
+              <div style="color:var(--text-secondary);font-size:.85rem">por ${escapeHtml(p.author||'')} • ${p.date}</div>
+            </div>
+            <div>
+              <span class="badge badge-info">${escapeHtml(p.category||'')}</span>
+              <span class="badge badge-success">${escapeHtml(p.type||'')}</span>
+            </div>
+          </div>
+          <div style="margin-top:.5rem">${nl2br(escapeHtml(p.content||''))}</div>
+          ${media}
+          <div style="display:flex;gap:.5rem;margin-top:.75rem">
+            <button class="btn btn-warning btn-sm" onclick="editPost('${p.id}')"><i class="fas fa-edit"></i> Editar</button>
+            <button class="btn btn-danger btn-sm" onclick="deletePost('${p.id}')"><i class="fas fa-trash"></i> Excluir</button>
+          </div>
+        </div>`;
+      return div;
+    }
+
+    async function loadPosts(){
+      const container = document.getElementById('postsList');
+      container.innerHTML = '<div class="text-center" style="color:var(--text-secondary)">Carregando posts...</div>';
+      const snap = await db.collection('posts').orderBy('createdAt','desc').get();
+      postsCache = [];
+      container.innerHTML = '';
+      if(snap.empty){
+        container.innerHTML = '<div class="text-center" style="color:var(--text-secondary)">Nenhum post publicado ainda.</div>';
+        return;
+      }
+      snap.forEach(doc=>{
+        const d = doc.data();
+        const p = {
+          id: doc.id, ...d,
+          date: d.createdAt ? d.createdAt.toDate().toLocaleDateString('pt-BR') : '-'
+        };
+        postsCache.push(p);
+        container.appendChild(renderPostItem(p));
       });
+    }
+
+    function filterPosts(term){
+      term = (term||'').toLowerCase();
+      const container = document.getElementById('postsList');
+      container.innerHTML = '';
+      const list = term
+        ? postsCache.filter(p => (p.title||'').toLowerCase().includes(term) || (p.content||'').toLowerCase().includes(term))
+        : postsCache;
+      if(list.length===0){
+        container.innerHTML = '<div class="text-center" style="color:var(--text-secondary)">Nenhum post encontrado.</div>';
+        return;
+      }
+      list.forEach(p => container.appendChild(renderPostItem(p)));
+    }
+
+    function editPost(id){
+      const p = postsCache.find(x=>x.id===id);
+      if(!p) return;
+      document.getElementById('postTitle').value = p.title||'';
+      document.getElementById('postType').value  = p.type||'text';
+      document.getElementById('postCategory').value = p.category||'general';
+      document.getElementById('postContent').value = p.content||'';
+      if(p.type==='youtube') document.getElementById('youtubeUrl').value = p.mediaUrl||'';
+      if(p.type==='image' && p.mediaUrl){
+        const img = document.getElementById('imagePreview'); img.src = p.mediaUrl; img.style.display='block';
+      }
+      togglePostFields();
+      currentEditPostId = id;
+      document.getElementById('createPostBtn').innerHTML = '<i class="fas fa-save"></i> Atualizar Post';
+      document.getElementById('cancelEditBtn').classList.remove('hidden');
+      // vai para a aba posts
+      document.querySelector(".nav-item[data-tab='posts']").click();
+      document.getElementById('postTitle').focus();
+    }
+
+    async function deletePost(id){
+      if(!confirm('Tem certeza que deseja excluir este post?')) return;
+      await db.collection('posts').doc(id).delete();
+      await loadPosts(); await refreshStats();
+      alert('Post excluído com sucesso!');
+    }
+
+    // ====== EVENTOS (CRUD) ======
+    let editingEventId = null;
+
+    async function loadEvents(){
+      const tbody = document.querySelector('#eventsTable tbody');
+      tbody.innerHTML = '<tr><td colspan="5">Carregando...</td></tr>';
+      const snap = await db.collection('events').orderBy('date','asc').get();
+      tbody.innerHTML = '';
+      if(snap.empty){
+        tbody.innerHTML = '<tr><td colspan="5">Nenhum evento cadastrado.</td></tr>';
+        return;
+      }
+      snap.forEach(doc=>{
+        const d = doc.data();
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHtml(d.title||'-')}</td>
+          <td>${d.date ? formatDate(d.date) : '-'}</td>
+          <td>${escapeHtml(d.location||'-')}</td>
+          <td><span class="badge badge-success">${(d.active===false)?'Inativo':'Ativo'}</span></td>
+          <td>
+            <button class="btn btn-sm btn-outline" onclick='openEditEvent(${JSON.stringify({id:doc.id,...d}).replace(/"/g,"&quot;")})'><i class="fas fa-edit"></i></button>
+            <button class="btn btn-sm btn-danger" onclick="deleteEvent('${doc.id}')"><i class="fas fa-trash"></i></button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openEditEvent(ev){
+      editingEventId = ev.id;
+      document.getElementById('eventModalTitle').textContent = 'Editar Evento';
+      document.getElementById('eventId').value = ev.id;
+      document.getElementById('eventTitle').value = ev.title||'';
+      document.getElementById('eventLocation').value = ev.location||'';
+      document.getElementById('eventCategory').value = ev.category||'';
+      document.getElementById('eventDescription').value = ev.description||'';
+      document.getElementById('eventImage').value = ev.imageUrl||'';
+      document.getElementById('eventMaxAttendees').value = ev.maxAttendees||'';
+      // data
+      try{
+        const date = ev.date?.toDate ? ev.date.toDate() : (ev.date? new Date(ev.date): null);
+        if(date){
+          const iso = new Date(date.getTime() - (date.getTimezoneOffset()*60000)).toISOString().slice(0,16);
+          document.getElementById('eventDate').value = iso;
+        }
+      }catch(e){}
+      openModal('eventModal');
+    }
+
+    document.getElementById('eventForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const payload = {
+        title: document.getElementById('eventTitle').value.trim(),
+        location: document.getElementById('eventLocation').value.trim(),
+        category: document.getElementById('eventCategory').value,
+        description: document.getElementById('eventDescription').value.trim(),
+        imageUrl: document.getElementById('eventImage').value.trim() || '',
+        maxAttendees: Number(document.getElementById('eventMaxAttendees').value)||null,
+        active: true
+      };
+      const dateStr = document.getElementById('eventDate').value;
+      if(dateStr) payload.date = firebase.firestore.Timestamp.fromDate(new Date(dateStr));
+
+      try{
+        if(editingEventId){
+          await db.collection('events').doc(editingEventId).update({
+            ...payload, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          alert('Evento atualizado!');
+        }else{
+          await db.collection('events').add({
+            ...payload,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          alert('Evento criado!');
+        }
+        closeModal('eventModal'); editingEventId = null;
+        (e.target).reset();
+        await loadEvents(); await refreshStats();
+      }catch(err){ console.error(err); alert('Erro ao salvar evento: ' + err.message); }
+    });
+
+    async function deleteEvent(id){
+      if(!confirm('Excluir este evento?')) return;
+      await db.collection('events').doc(id).delete();
+      await loadEvents(); await refreshStats();
+      alert('Evento excluído.');
+    }
+
+    // ====== PRAYERS (LISTAR + EXCLUIR) ======
+    async function loadPrayers(){
+      const tbody = document.querySelector('#prayersTable tbody');
+      tbody.innerHTML = '<tr><td colspan="5">Carregando...</td></tr>';
+      const snap = await db.collection('prayers').orderBy('createdAt','desc').get();
+      tbody.innerHTML = '';
+      if(snap.empty){
+        tbody.innerHTML = '<tr><td colspan="5">Nenhum pedido encontrado.</td></tr>';
+        return;
+      }
+      snap.forEach(doc=>{
+        const d = doc.data();
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHtml(d.name||'-')}</td>
+          <td>${formatDate(d.createdAt)}</td>
+          <td>${escapeHtml(d.request||'-')}</td>
+          <td><span class="badge ${d.status==='Pendente'?'badge-warning':'badge-success'}">${escapeHtml(d.status||'Pendente')}</span></td>
+          <td>
+            <button class="btn btn-sm btn-danger" onclick="deletePrayer('${doc.id}')"><i class="fas fa-trash"></i></button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    async function deletePrayer(id){
+      if(!confirm('Excluir este pedido de oração?')) return;
+      await db.collection('prayers').doc(id).delete();
+      await loadPrayers(); await refreshStats();
+      alert('Pedido excluído.');
+    }
+
+    // ====== INIT ======
+    document.addEventListener('DOMContentLoaded', ()=>{
+      // fecha modal clicando fora
+      document.querySelectorAll('.modal-overlay').forEach(ov=>{
+        ov.addEventListener('click', (e)=>{ if(e.target===ov) closeModal(ov.id); });
+      });
+      // campos dinâmicos de post
+      togglePostFields();
     });
   </script>
 </body>
