@@ -9,4 +9,1640 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- QR Code Generator -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    
+    <!-- PDF Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-blue: #2563eb;
+            --light-gray: #f3f4f6;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-2px);
+        }
+        
+        .course-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e5e7eb;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary-blue);
+            transition: width 0.5s ease;
+        }
+        
+        .star-rating {
+            color: #fbbf24;
+        }
+        
+        .admin-badge {
+            background-color: #ef4444;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        
+        .gemini-chat {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .gemini-message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+        
+        .user-message {
+            background-color: var(--primary-blue);
+            color: white;
+            margin-left: auto;
+        }
+        
+        .ai-message {
+            background-color: var(--light-gray);
+            color: #333;
+        }
+        
+        /* Animações */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Barra de Navegação -->
+    <nav class="bg-white shadow-md py-4 px-6 flex justify-between items-center">
+        <div class="flex items-center">
+            <button id="mobileMenuBtn" class="text-blue-600 text-xl mr-4 md:hidden">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="text-2xl font-bold text-blue-600">Aprende Moçambique</h1>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+            <div id="userSection" class="hidden">
+                <span id="userName" class="mr-2"></span>
+                <span id="userStars" class="text-yellow-500"></span>
+                <button id="logoutBtn" class="ml-4 text-blue-600 hover:text-blue-800">Sair</button>
+            </div>
+            <div id="authSection">
+                <button id="loginBtn" class="btn-primary">Entrar</button>
+                <button id="registerBtn" class="ml-2 border border-blue-600 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50">Registar</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar bg-white w-64 min-h-screen shadow-md p-6 md:block">
+            <nav>
+                <ul class="space-y-2">
+                    <li><a href="#" class="nav-link active" data-page="home"><i class="fas fa-home mr-2"></i> Página Inicial</a></li>
+                    <li><a href="#" class="nav-link" data-page="courses"><i class="fas fa-book mr-2"></i> Meus Cursos</a></li>
+                    <li><a href="#" class="nav-link" data-page="certificates"><i class="fas fa-certificate mr-2"></i> Certificados</a></li>
+                    <li><a href="#" class="nav-link" data-page="profile"><i class="fas fa-user mr-2"></i> Perfil</a></li>
+                    <li><a href="#" class="nav-link" data-page="gemini"><i class="fas fa-robot mr-2"></i> Assistente IA</a></li>
+                    <li id="adminNav" class="hidden"><a href="#" class="nav-link" data-page="admin"><i class="fas fa-cog mr-2"></i> Painel Admin</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Conteúdo Dinâmico -->
+        <main class="flex-1 p-6">
+            <!-- Página Inicial -->
+            <div id="homePage" class="page active">
+                <h2 class="text-2xl font-bold mb-6">Cursos Disponíveis</h2>
+                
+                <!-- Filtros por Categoria -->
+                <div class="mb-6">
+                    <div class="flex flex-wrap gap-2">
+                        <button class="category-filter active" data-category="all">Todos</button>
+                        <button class="category-filter" data-category="empreendedorismo">Empreendedorismo</button>
+                        <button class="category-filter" data-category="agricultura">Agricultura</button>
+                        <button class="category-filter" data-category="programacao">Programação</button>
+                        <button class="category-filter" data-category="idiomas">Idiomas</button>
+                        <button class="category-filter" data-category="saude">Saúde</button>
+                        <button class="category-filter" data-category="religiao">Religião</button>
+                    </div>
+                </div>
+                
+                <!-- Lista de Cursos -->
+                <div id="coursesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Os cursos serão carregados dinamicamente aqui -->
+                </div>
+            </div>
+
+            <!-- Página de Cursos do Usuário -->
+            <div id="coursesPage" class="page hidden">
+                <h2 class="text-2xl font-bold mb-6">Meus Cursos</h2>
+                <div id="userCoursesList" class="space-y-6">
+                    <!-- Cursos do usuário serão carregados aqui -->
+                </div>
+            </div>
+
+            <!-- Página de Certificados -->
+            <div id="certificatesPage" class="page hidden">
+                <h2 class="text-2xl font-bold mb-6">Meus Certificados</h2>
+                <div id="certificatesList" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Certificados serão carregados aqui -->
+                </div>
+            </div>
+
+            <!-- Página de Perfil -->
+            <div id="profilePage" class="page hidden">
+                <h2 class="text-2xl font-bold mb-6">Meu Perfil</h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="flex items-center mb-6">
+                        <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-2xl">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 id="profileName" class="text-xl font-bold"></h3>
+                            <p id="profileEmail" class="text-gray-600"></p>
+                            <div id="profileStars" class="mt-1"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h4 class="font-semibold mb-2">Progresso Geral</h4>
+                        <div class="progress-bar">
+                            <div id="overallProgress" class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <p id="progressText" class="text-sm text-gray-600 mt-1">0% completo</p>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-semibold mb-2">Cursos Iniciados</h4>
+                        <div id="startedCourses" class="space-y-2">
+                            <!-- Cursos iniciados serão listados aqui -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Página do Assistente IA -->
+            <div id="geminiPage" class="page hidden">
+                <h2 class="text-2xl font-bold mb-6">Assistente IA - Gemini</h2>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="mb-4">
+                        <p class="text-gray-600 mb-4">Faça perguntas sobre os cursos, peça recomendações ou feedback personalizado.</p>
+                        
+                        <div class="gemini-chat mb-4 p-4 border rounded-lg">
+                            <div class="ai-message">
+                                <strong>Gemini:</strong> Olá! Sou o assistente IA do Aprende Moçambique. Como posso ajudá-lo hoje?
+                            </div>
+                        </div>
+                        
+                        <div class="flex">
+                            <input type="text" id="geminiQuestion" placeholder="Digite sua pergunta..." class="flex-1 border rounded-l-lg p-2">
+                            <button id="askGemini" class="btn-primary rounded-l-none">Enviar</button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-semibold mb-2">Sugestões de Cursos</h4>
+                        <div id="geminiSuggestions" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Sugestões da IA serão carregadas aqui -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Página de Administração -->
+            <div id="adminPage" class="page hidden">
+                <h2 class="text-2xl font-bold mb-6">Painel de Administração</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <h3 class="font-semibold mb-2">Estatísticas</h3>
+                        <div id="adminStats">
+                            <p>Total de Usuários: <span id="totalUsers">0</span></p>
+                            <p>Total de Cursos: <span id="totalCourses">0</span></p>
+                            <p>Cursos Concluídos: <span id="completedCourses">0</span></p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <h3 class="font-semibold mb-2">Ações Rápidas</h3>
+                        <button id="addCourseBtn" class="btn-primary w-full mb-2">Adicionar Curso</button>
+                        <button id="manageUsersBtn" class="btn-primary w-full">Gerenciar Usuários</button>
+                    </div>
+                </div>
+                
+                <!-- Formulário para Adicionar Curso -->
+                <div id="addCourseForm" class="bg-white p-6 rounded-lg shadow-md hidden">
+                    <h3 class="font-semibold mb-4">Adicionar Novo Curso</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block mb-1">Título do Curso</label>
+                            <input type="text" id="courseTitle" class="w-full border rounded p-2">
+                        </div>
+                        
+                        <div>
+                            <label class="block mb-1">Professor</label>
+                            <input type="text" id="courseInstructor" class="w-full border rounded p-2">
+                        </div>
+                        
+                        <div>
+                            <label class="block mb-1">Categoria</label>
+                            <select id="courseCategory" class="w-full border rounded p-2">
+                                <option value="empreendedorismo">Empreendedorismo</option>
+                                <option value="agricultura">Agricultura</option>
+                                <option value="programacao">Programação</option>
+                                <option value="idiomas">Idiomas</option>
+                                <option value="saude">Saúde</option>
+                                <option value="religiao">Religião</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block mb-1">Formato Principal</label>
+                            <select id="courseFormat" class="w-full border rounded p-2">
+                                <option value="video">Vídeo</option>
+                                <option value="pdf">PDF</option>
+                                <option value="audio">Áudio</option>
+                                <option value="image">Imagem</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label class="block mb-1">Descrição</label>
+                        <textarea id="courseDescription" class="w-full border rounded p-2" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h4 class="font-semibold mb-2">Conteúdo do Curso</h4>
+                        
+                        <div class="mb-4">
+                            <h5 class="font-medium mb-2">Adicionar Link do YouTube</h5>
+                            <div class="flex">
+                                <input type="text" id="youtubeLink" placeholder="Cole o link do YouTube aqui" class="flex-1 border rounded-l-lg p-2">
+                                <button id="addYoutubeLink" class="btn-primary rounded-l-none">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h5 class="font-medium mb-2">Fazer Upload de Arquivos</h5>
+                            <input type="file" id="fileUpload" class="w-full border rounded p-2" multiple>
+                            <p class="text-sm text-gray-600 mt-1">Formatos suportados: vídeo, áudio, PDF, imagem</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-end space-x-2">
+                        <button id="cancelCourse" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg">Cancelar</button>
+                        <button id="saveCourse" class="btn-primary">Salvar Curso</button>
+                    </div>
+                </div>
+                
+                <!-- Lista de Cursos para Administração -->
+                <div id="adminCoursesList" class="mt-6">
+                    <h3 class="font-semibold mb-4">Gerenciar Cursos</h3>
+                    <div id="adminCourses" class="space-y-4">
+                        <!-- Cursos para administração serão carregados aqui -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de Login/Registro -->
+    <div id="authModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="authModalTitle" class="text-xl font-bold">Entrar</h3>
+                <button id="closeAuthModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="authTabs" class="flex mb-4">
+                <button id="loginTab" class="flex-1 py-2 border-b-2 border-blue-600 text-blue-600 font-semibold">Entrar</button>
+                <button id="registerTab" class="flex-1 py-2 border-b-2 border-gray-200 text-gray-500">Registrar</button>
+            </div>
+            
+            <form id="authForm">
+                <div class="mb-4">
+                    <label class="block mb-1">E-mail</label>
+                    <input type="email" id="authEmail" class="w-full border rounded p-2" required>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block mb-1">Senha</label>
+                    <input type="password" id="authPassword" class="w-full border rounded p-2" required>
+                </div>
+                
+                <div id="registerFields" class="hidden">
+                    <div class="mb-4">
+                        <label class="block mb-1">Nome Completo</label>
+                        <input type="text" id="authName" class="w-full border rounded p-2">
+                    </div>
+                </div>
+                
+                <button type="submit" id="authSubmit" class="btn-primary w-full mb-4">Entrar</button>
+            </form>
+            
+            <div class="text-center">
+                <p class="text-gray-600 mb-2">Ou entre com</p>
+                <button id="googleAuth" class="border border-gray-300 rounded-lg p-2 w-full flex items-center justify-center">
+                    <i class="fab fa-google text-red-500 mr-2"></i> Google
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal do Curso -->
+    <div id="courseModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg w-full max-w-4xl max-h-screen overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="courseModalTitle" class="text-xl font-bold">Título do Curso</h3>
+                <button id="closeCourseModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="courseContent" class="space-y-4">
+                <!-- Conteúdo do curso será carregado aqui -->
+            </div>
+            
+            <div class="mt-6 flex justify-between items-center">
+                <div>
+                    <div class="progress-bar w-48">
+                        <div id="courseProgress" class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <p id="courseProgressText" class="text-sm text-gray-600 mt-1">0% completo</p>
+                </div>
+                
+                <button id="startCourseBtn" class="btn-primary">Iniciar Curso</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Certificado -->
+    <div id="certificateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg w-full max-w-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Certificado de Conclusão</h3>
+                <button id="closeCertificateModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="certificateContent" class="border-2 border-blue-600 p-6 text-center">
+                <!-- Conteúdo do certificado será gerado aqui -->
+            </div>
+            
+            <div class="mt-4 flex justify-center space-x-2">
+                <button id="downloadCertificate" class="btn-primary">Baixar PDF</button>
+                <button id="shareCertificate" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg">Compartilhar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBgWfocz6rpycz3SiJJ39Nfc1gNUd6kafk",
+            authDomain: "imjachurch.firebaseapp.com",
+            projectId: "imjachurch",
+            storageBucket: "imjachurch.appspot.com",
+            messagingSenderId: "145864254479",
+            appId: "1:145864254479:web:3c1e6f5b3b5e5f5b5e5f5b"
+        };
+
+        // Inicialização do Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // Chave da API Gemini
+        const GEMINI_API_KEY = "AIzaSyA0-W114QCmGPdp_t-uMVa0Wsc7_NOEdn4";
+
+        // Estado da aplicação
+        let currentUser = null;
+        let isAdmin = false;
+        let courses = [];
+        let userCourses = [];
+        let userProgress = {};
+
+        // Elementos da DOM
+        const elements = {
+            // Navegação
+            sidebar: document.getElementById('sidebar'),
+            mobileMenuBtn: document.getElementById('mobileMenuBtn'),
+            navLinks: document.querySelectorAll('.nav-link'),
+            pages: document.querySelectorAll('.page'),
+            
+            // Autenticação
+            authSection: document.getElementById('authSection'),
+            userSection: document.getElementById('userSection'),
+            userName: document.getElementById('userName'),
+            userStars: document.getElementById('userStars'),
+            loginBtn: document.getElementById('loginBtn'),
+            registerBtn: document.getElementById('registerBtn'),
+            logoutBtn: document.getElementById('logoutBtn'),
+            authModal: document.getElementById('authModal'),
+            authModalTitle: document.getElementById('authModalTitle'),
+            closeAuthModal: document.getElementById('closeAuthModal'),
+            authTabs: document.getElementById('authTabs'),
+            loginTab: document.getElementById('loginTab'),
+            registerTab: document.getElementById('registerTab'),
+            authForm: document.getElementById('authForm'),
+            authEmail: document.getElementById('authEmail'),
+            authPassword: document.getElementById('authPassword'),
+            authName: document.getElementById('authName'),
+            authSubmit: document.getElementById('authSubmit'),
+            registerFields: document.getElementById('registerFields'),
+            googleAuth: document.getElementById('googleAuth'),
+            
+            // Conteúdo
+            coursesList: document.getElementById('coursesList'),
+            userCoursesList: document.getElementById('userCoursesList'),
+            certificatesList: document.getElementById('certificatesList'),
+            categoryFilters: document.querySelectorAll('.category-filter'),
+            
+            // Perfil
+            profileName: document.getElementById('profileName'),
+            profileEmail: document.getElementById('profileEmail'),
+            profileStars: document.getElementById('profileStars'),
+            overallProgress: document.getElementById('overallProgress'),
+            progressText: document.getElementById('progressText'),
+            startedCourses: document.getElementById('startedCourses'),
+            
+            // Gemini
+            geminiQuestion: document.getElementById('geminiQuestion'),
+            askGemini: document.getElementById('askGemini'),
+            geminiSuggestions: document.getElementById('geminiSuggestions'),
+            
+            // Admin
+            adminNav: document.getElementById('adminNav'),
+            adminPage: document.getElementById('adminPage'),
+            adminStats: document.getElementById('adminStats'),
+            totalUsers: document.getElementById('totalUsers'),
+            totalCourses: document.getElementById('totalCourses'),
+            completedCourses: document.getElementById('completedCourses'),
+            addCourseBtn: document.getElementById('addCourseBtn'),
+            manageUsersBtn: document.getElementById('manageUsersBtn'),
+            addCourseForm: document.getElementById('addCourseForm'),
+            courseTitle: document.getElementById('courseTitle'),
+            courseInstructor: document.getElementById('courseInstructor'),
+            courseCategory: document.getElementById('courseCategory'),
+            courseFormat: document.getElementById('courseFormat'),
+            courseDescription: document.getElementById('courseDescription'),
+            youtubeLink: document.getElementById('youtubeLink'),
+            addYoutubeLink: document.getElementById('addYoutubeLink'),
+            fileUpload: document.getElementById('fileUpload'),
+            cancelCourse: document.getElementById('cancelCourse'),
+            saveCourse: document.getElementById('saveCourse'),
+            adminCourses: document.getElementById('adminCourses'),
+            
+            // Modais
+            courseModal: document.getElementById('courseModal'),
+            courseModalTitle: document.getElementById('courseModalTitle'),
+            courseContent: document.getElementById('courseContent'),
+            courseProgress: document.getElementById('courseProgress'),
+            courseProgressText: document.getElementById('courseProgressText'),
+            startCourseBtn: document.getElementById('startCourseBtn'),
+            closeCourseModal: document.getElementById('closeCourseModal'),
+            
+            certificateModal: document.getElementById('certificateModal'),
+            certificateContent: document.getElementById('certificateContent'),
+            downloadCertificate: document.getElementById('downloadCertificate'),
+            shareCertificate: document.getElementById('shareCertificate'),
+            closeCertificateModal: document.getElementById('closeCertificateModal')
+        };
+
+        // Inicialização da aplicação
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventListeners();
+            loadCourses();
+        });
+
+        function initializeApp() {
+            // Verificar estado de autenticação
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    currentUser = user;
+                    checkIfAdmin(user);
+                    loadUserData(user);
+                    showUserSection();
+                } else {
+                    currentUser = null;
+                    isAdmin = false;
+                    showAuthSection();
+                }
+            });
+        }
+
+        function setupEventListeners() {
+            // Navegação mobile
+            elements.mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+            
+            // Navegação entre páginas
+            elements.navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = link.getAttribute('data-page');
+                    showPage(page);
+                    
+                    // Fechar menu mobile após clicar em um link
+                    if (window.innerWidth < 768) {
+                        elements.sidebar.classList.remove('open');
+                    }
+                });
+            });
+            
+            // Filtros de categoria
+            elements.categoryFilters.forEach(filter => {
+                filter.addEventListener('click', () => {
+                    elements.categoryFilters.forEach(f => f.classList.remove('active'));
+                    filter.classList.add('active');
+                    const category = filter.getAttribute('data-category');
+                    filterCourses(category);
+                });
+            });
+            
+            // Autenticação
+            elements.loginBtn.addEventListener('click', () => showAuthModal('login'));
+            elements.registerBtn.addEventListener('click', () => showAuthModal('register'));
+            elements.logoutBtn.addEventListener('click', logout);
+            
+            elements.closeAuthModal.addEventListener('click', () => elements.authModal.classList.add('hidden'));
+            elements.loginTab.addEventListener('click', () => switchAuthTab('login'));
+            elements.registerTab.addEventListener('click', () => switchAuthTab('register'));
+            elements.authForm.addEventListener('submit', handleAuth);
+            elements.googleAuth.addEventListener('click', signInWithGoogle);
+            
+            // Gemini
+            elements.askGemini.addEventListener('click', askGemini);
+            elements.geminiQuestion.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') askGemini();
+            });
+            
+            // Admin
+            elements.addCourseBtn.addEventListener('click', () => elements.addCourseForm.classList.toggle('hidden'));
+            elements.cancelCourse.addEventListener('click', () => elements.addCourseForm.classList.add('hidden'));
+            elements.saveCourse.addEventListener('click', saveCourse);
+            elements.addYoutubeLink.addEventListener('click', addYoutubeContent);
+            elements.fileUpload.addEventListener('change', handleFileUpload);
+            
+            // Modais
+            elements.closeCourseModal.addEventListener('click', () => elements.courseModal.classList.add('hidden'));
+            elements.startCourseBtn.addEventListener('click', startCourse);
+            elements.closeCertificateModal.addEventListener('click', () => elements.certificateModal.classList.add('hidden'));
+            elements.downloadCertificate.addEventListener('click', downloadCertificate);
+            elements.shareCertificate.addEventListener('click', shareCertificate);
+        }
+
+        function toggleMobileMenu() {
+            elements.sidebar.classList.toggle('open');
+        }
+
+        function showPage(pageName) {
+            // Esconder todas as páginas
+            elements.pages.forEach(page => {
+                page.classList.remove('active');
+                page.classList.add('hidden');
+            });
+            
+            // Remover classe active de todos os links
+            elements.navLinks.forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Mostrar a página selecionada
+            const pageElement = document.getElementById(`${pageName}Page`);
+            if (pageElement) {
+                pageElement.classList.remove('hidden');
+                pageElement.classList.add('active');
+                
+                // Ativar o link correspondente
+                const activeLink = document.querySelector(`[data-page="${pageName}"]`);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                }
+                
+                // Carregar conteúdo específico da página
+                switch(pageName) {
+                    case 'courses':
+                        loadUserCourses();
+                        break;
+                    case 'certificates':
+                        loadUserCertificates();
+                        break;
+                    case 'profile':
+                        loadUserProfile();
+                        break;
+                    case 'gemini':
+                        loadGeminiSuggestions();
+                        break;
+                    case 'admin':
+                        loadAdminData();
+                        break;
+                }
+            }
+        }
+
+        function showAuthSection() {
+            elements.authSection.classList.remove('hidden');
+            elements.userSection.classList.add('hidden');
+            elements.adminNav.classList.add('hidden');
+        }
+
+        function showUserSection() {
+            elements.authSection.classList.add('hidden');
+            elements.userSection.classList.remove('hidden');
+            
+            if (isAdmin) {
+                elements.adminNav.classList.remove('hidden');
+            } else {
+                elements.adminNav.classList.add('hidden');
+            }
+        }
+
+        function showAuthModal(mode) {
+            elements.authModal.classList.remove('hidden');
+            switchAuthTab(mode);
+        }
+
+        function switchAuthTab(mode) {
+            if (mode === 'login') {
+                elements.authModalTitle.textContent = 'Entrar';
+                elements.loginTab.classList.add('border-blue-600', 'text-blue-600');
+                elements.loginTab.classList.remove('border-gray-200', 'text-gray-500');
+                elements.registerTab.classList.add('border-gray-200', 'text-gray-500');
+                elements.registerTab.classList.remove('border-blue-600', 'text-blue-600');
+                elements.registerFields.classList.add('hidden');
+                elements.authSubmit.textContent = 'Entrar';
+            } else {
+                elements.authModalTitle.textContent = 'Registrar';
+                elements.registerTab.classList.add('border-blue-600', 'text-blue-600');
+                elements.registerTab.classList.remove('border-gray-200', 'text-gray-500');
+                elements.loginTab.classList.add('border-gray-200', 'text-gray-500');
+                elements.loginTab.classList.remove('border-blue-600', 'text-blue-600');
+                elements.registerFields.classList.remove('hidden');
+                elements.authSubmit.textContent = 'Registrar';
+            }
+        }
+
+        async function handleAuth(e) {
+            e.preventDefault();
+            
+            const email = elements.authEmail.value;
+            const password = elements.authPassword.value;
+            const name = elements.authName.value;
+            const isLogin = elements.authSubmit.textContent === 'Entrar';
+            
+            try {
+                if (isLogin) {
+                    await auth.signInWithEmailAndPassword(email, password);
+                } else {
+                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    await db.collection('users').doc(userCredential.user.uid).set({
+                        name: name,
+                        email: email,
+                        stars: 0,
+                        coursesStarted: [],
+                        coursesCompleted: [],
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                
+                elements.authModal.classList.add('hidden');
+                elements.authForm.reset();
+            } catch (error) {
+                alert(`Erro: ${error.message}`);
+            }
+        }
+
+        async function signInWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            
+            try {
+                await auth.signInWithPopup(provider);
+                elements.authModal.classList.add('hidden');
+            } catch (error) {
+                alert(`Erro ao entrar com Google: ${error.message}`);
+            }
+        }
+
+        async function logout() {
+            try {
+                await auth.signOut();
+            } catch (error) {
+                alert(`Erro ao sair: ${error.message}`);
+            }
+        }
+
+        async function checkIfAdmin(user) {
+            if (user.email === 'denzelkhossa@gmail.com') {
+                isAdmin = true;
+                elements.userName.innerHTML = `${user.displayName || user.email} <span class="admin-badge">Admin</span>`;
+            } else {
+                isAdmin = false;
+                elements.userName.textContent = user.displayName || user.email;
+            }
+        }
+
+        async function loadUserData(user) {
+            try {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    elements.userStars.innerHTML = `<i class="fas fa-star"></i> ${userData.stars || 0}`;
+                    
+                    // Carregar progresso do usuário
+                    userProgress = userData.coursesStarted || {};
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados do usuário:', error);
+            }
+        }
+
+        async function loadCourses() {
+            try {
+                const coursesSnapshot = await db.collection('courses').get();
+                courses = [];
+                coursesSnapshot.forEach(doc => {
+                    courses.push({ id: doc.id, ...doc.data() });
+                });
+                
+                displayCourses(courses);
+            } catch (error) {
+                console.error('Erro ao carregar cursos:', error);
+            }
+        }
+
+        function displayCourses(coursesToDisplay) {
+            elements.coursesList.innerHTML = '';
+            
+            coursesToDisplay.forEach(course => {
+                const courseCard = document.createElement('div');
+                courseCard.className = 'course-card bg-white rounded-lg shadow-md overflow-hidden fade-in';
+                courseCard.innerHTML = `
+                    <div class="h-40 bg-blue-100 flex items-center justify-center">
+                        <i class="fas fa-${getCourseIcon(course.format)} text-4xl text-blue-600"></i>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2">${course.title}</h3>
+                        <p class="text-gray-600 text-sm mb-2">${course.instructor}</p>
+                        <p class="text-gray-700 mb-4">${course.description.substring(0, 100)}...</p>
+                        <div class="flex justify-between items-center">
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">${formatCategory(course.category)}</span>
+                            <button class="view-course btn-primary text-sm" data-id="${course.id}">Ver Curso</button>
+                        </div>
+                    </div>
+                `;
+                
+                elements.coursesList.appendChild(courseCard);
+            });
+            
+            // Adicionar event listeners aos botões de visualização
+            document.querySelectorAll('.view-course').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const courseId = e.target.getAttribute('data-id');
+                    viewCourse(courseId);
+                });
+            });
+        }
+
+        function filterCourses(category) {
+            if (category === 'all') {
+                displayCourses(courses);
+            } else {
+                const filteredCourses = courses.filter(course => course.category === category);
+                displayCourses(filteredCourses);
+            }
+        }
+
+        function getCourseIcon(format) {
+            switch(format) {
+                case 'video': return 'video';
+                case 'pdf': return 'file-pdf';
+                case 'audio': return 'headphones';
+                case 'image': return 'image';
+                default: return 'book';
+            }
+        }
+
+        function formatCategory(category) {
+            const categories = {
+                'empreendedorismo': 'Empreendedorismo',
+                'agricultura': 'Agricultura',
+                'programacao': 'Programação',
+                'idiomas': 'Idiomas',
+                'saude': 'Saúde',
+                'religiao': 'Religião'
+            };
+            return categories[category] || category;
+        }
+
+        function viewCourse(courseId) {
+            const course = courses.find(c => c.id === courseId);
+            if (!course) return;
+            
+            elements.courseModalTitle.textContent = course.title;
+            elements.courseContent.innerHTML = `
+                <div class="mb-4">
+                    <p class="text-gray-700">${course.description}</p>
+                </div>
+                <div class="mb-4">
+                    <p><strong>Professor:</strong> ${course.instructor}</p>
+                    <p><strong>Categoria:</strong> ${formatCategory(course.category)}</p>
+                    <p><strong>Formato:</strong> ${course.format}</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-2">Conteúdo do Curso</h4>
+                    <div id="courseMaterials" class="space-y-2">
+                        <!-- Materiais do curso serão carregados aqui -->
+                    </div>
+                </div>
+            `;
+            
+            // Carregar materiais do curso
+            loadCourseMaterials(courseId);
+            
+            // Verificar se o usuário já iniciou o curso
+            const progress = userProgress[courseId] || 0;
+            elements.courseProgress.style.width = `${progress}%`;
+            elements.courseProgressText.textContent = `${progress}% completo`;
+            
+            if (progress === 100) {
+                elements.startCourseBtn.textContent = 'Curso Concluído';
+                elements.startCourseBtn.disabled = true;
+                elements.startCourseBtn.classList.add('bg-green-600');
+                elements.startCourseBtn.classList.remove('bg-blue-600');
+            } else if (progress > 0) {
+                elements.startCourseBtn.textContent = 'Continuar Curso';
+            } else {
+                elements.startCourseBtn.textContent = 'Iniciar Curso';
+            }
+            
+            elements.startCourseBtn.setAttribute('data-id', courseId);
+            elements.courseModal.classList.remove('hidden');
+        }
+
+        async function loadCourseMaterials(courseId) {
+            try {
+                const materialsSnapshot = await db.collection('courses').doc(courseId).collection('materials').get();
+                const materialsContainer = document.getElementById('courseMaterials');
+                materialsContainer.innerHTML = '';
+                
+                materialsSnapshot.forEach(doc => {
+                    const material = doc.data();
+                    const materialElement = document.createElement('div');
+                    materialElement.className = 'border rounded p-2 flex justify-between items-center';
+                    
+                    let contentHTML = '';
+                    if (material.type === 'youtube') {
+                        contentHTML = `
+                            <div>
+                                <i class="fab fa-youtube text-red-500 mr-2"></i>
+                                <span>Vídeo: ${material.title || 'Vídeo do YouTube'}</span>
+                            </div>
+                            <button class="view-material btn-primary text-sm" data-type="youtube" data-url="${material.url}">Assistir</button>
+                        `;
+                    } else {
+                        const icon = getCourseIcon(material.type);
+                        contentHTML = `
+                            <div>
+                                <i class="fas fa-${icon} text-blue-600 mr-2"></i>
+                                <span>${material.title || `Arquivo ${material.type.toUpperCase()}`}</span>
+                            </div>
+                            <div>
+                                <button class="view-material btn-primary text-sm mr-2" data-type="${material.type}" data-url="${material.url}">Ver</button>
+                                <button class="download-material border border-blue-600 text-blue-600 px-2 py-1 rounded text-sm" data-url="${material.url}" data-filename="${material.title}">Baixar</button>
+                            </div>
+                        `;
+                    }
+                    
+                    materialElement.innerHTML = contentHTML;
+                    materialsContainer.appendChild(materialElement);
+                });
+                
+                // Adicionar event listeners aos botões de material
+                document.querySelectorAll('.view-material').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const type = e.target.getAttribute('data-type');
+                        const url = e.target.getAttribute('data-url');
+                        viewMaterial(type, url);
+                    });
+                });
+                
+                document.querySelectorAll('.download-material').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const url = e.target.getAttribute('data-url');
+                        const filename = e.target.getAttribute('data-filename') || 'material';
+                        downloadMaterial(url, filename);
+                    });
+                });
+            } catch (error) {
+                console.error('Erro ao carregar materiais do curso:', error);
+            }
+        }
+
+        function viewMaterial(type, url) {
+            if (type === 'youtube') {
+                // Extrair ID do vídeo do YouTube
+                const videoId = extractYouTubeId(url);
+                if (videoId) {
+                    window.open(`https://www.youtube.com/embed/${videoId}`, '_blank');
+                }
+            } else {
+                window.open(url, '_blank');
+            }
+        }
+
+        function extractYouTubeId(url) {
+            const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[7].length === 11) ? match[7] : false;
+        }
+
+        async function downloadMaterial(url, filename) {
+            try {
+                const response = await fetch(url);
+                const blob = await response.blob();
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(downloadUrl);
+            } catch (error) {
+                console.error('Erro ao baixar material:', error);
+                alert('Erro ao baixar o arquivo. Tente novamente.');
+            }
+        }
+
+        async function startCourse() {
+            if (!currentUser) {
+                alert('Você precisa estar logado para iniciar um curso.');
+                showAuthModal('login');
+                return;
+            }
+            
+            const courseId = elements.startCourseBtn.getAttribute('data-id');
+            const course = courses.find(c => c.id === courseId);
+            
+            if (!userProgress[courseId]) {
+                userProgress[courseId] = 0;
+                
+                // Atualizar no Firestore
+                await db.collection('users').doc(currentUser.uid).update({
+                    [`coursesStarted.${courseId}`]: 0
+                });
+            }
+            
+            // Simular progresso (em uma aplicação real, isso seria baseado na interação do usuário)
+            if (userProgress[courseId] < 100) {
+                userProgress[courseId] += 25;
+                if (userProgress[courseId] > 100) userProgress[courseId] = 100;
+                
+                // Atualizar no Firestore
+                await db.collection('users').doc(currentUser.uid).update({
+                    [`coursesStarted.${courseId}`]: userProgress[courseId]
+                });
+                
+                // Atualizar a barra de progresso
+                elements.courseProgress.style.width = `${userProgress[courseId]}%`;
+                elements.courseProgressText.textContent = `${userProgress[courseId]}% completo`;
+                
+                // Se o curso foi concluído
+                if (userProgress[courseId] === 100) {
+                    elements.startCourseBtn.textContent = 'Curso Concluído';
+                    elements.startCourseBtn.disabled = true;
+                    elements.startCourseBtn.classList.add('bg-green-600');
+                    elements.startCourseBtn.classList.remove('bg-blue-600');
+                    
+                    // Adicionar estrelas
+                    await addStars(5);
+                    
+                    // Gerar certificado
+                    await generateCertificate(course);
+                } else {
+                    elements.startCourseBtn.textContent = 'Continuar Curso';
+                }
+            }
+        }
+
+        async function addStars(amount) {
+            if (!currentUser) return;
+            
+            try {
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                const userData = userDoc.data();
+                const newStars = (userData.stars || 0) + amount;
+                
+                await db.collection('users').doc(currentUser.uid).update({
+                    stars: newStars
+                });
+                
+                elements.userStars.innerHTML = `<i class="fas fa-star"></i> ${newStars}`;
+            } catch (error) {
+                console.error('Erro ao adicionar estrelas:', error);
+            }
+        }
+
+        async function generateCertificate(course) {
+            if (!currentUser) return;
+            
+            try {
+                const certificateId = `${currentUser.uid}_${course.id}_${Date.now()}`;
+                
+                // Salvar certificado no Firestore
+                await db.collection('certificates').doc(certificateId).set({
+                    userId: currentUser.uid,
+                    courseId: course.id,
+                    courseTitle: course.title,
+                    userName: currentUser.displayName || currentUser.email,
+                    issueDate: new Date().toLocaleDateString('pt-MZ'),
+                    certificateId: certificateId
+                });
+                
+                // Mostrar certificado
+                showCertificate(course, certificateId);
+            } catch (error) {
+                console.error('Erro ao gerar certificado:', error);
+            }
+        }
+
+        function showCertificate(course, certificateId) {
+            elements.certificateContent.innerHTML = `
+                <div class="border-4 border-gold-500 p-8">
+                    <h1 class="text-3xl font-bold mb-4">Certificado de Conclusão</h1>
+                    <p class="text-xl mb-2">Este certificado é concedido a</p>
+                    <h2 class="text-2xl font-bold mb-6">${currentUser.displayName || currentUser.email}</h2>
+                    <p class="text-lg mb-4">por ter concluído com sucesso o curso</p>
+                    <h3 class="text-xl font-bold mb-6">"${course.title}"</h3>
+                    <p class="mb-4">Emitido em: ${new Date().toLocaleDateString('pt-MZ')}</p>
+                    <div id="certificateQrCode" class="mt-4"></div>
+                    <p class="text-sm mt-2">ID do Certificado: ${certificateId}</p>
+                </div>
+            `;
+            
+            // Gerar QR Code
+            QRCode.toCanvas(document.getElementById('certificateQrCode'), certificateId, {
+                width: 100,
+                height: 100
+            }, function(error) {
+                if (error) console.error('Erro ao gerar QR Code:', error);
+            });
+            
+            elements.certificateModal.classList.remove('hidden');
+        }
+
+        function downloadCertificate() {
+            const element = elements.certificateContent;
+            const opt = {
+                margin: 1,
+                filename: 'certificado_aprende_mocambique.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            
+            html2pdf().set(opt).from(element).save();
+        }
+
+        function shareCertificate() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Meu Certificado - Aprende Moçambique',
+                    text: `Concluí o curso no Aprende Moçambique!`,
+                    url: window.location.href
+                })
+                .catch(error => console.log('Erro ao compartilhar:', error));
+            } else {
+                alert('Seu navegador não suporta a função de compartilhamento.');
+            }
+        }
+
+        async function loadUserCourses() {
+            if (!currentUser) return;
+            
+            try {
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                const userData = userDoc.data();
+                
+                if (userData && userData.coursesStarted) {
+                    userCourses = Object.keys(userData.coursesStarted).map(courseId => {
+                        const course = courses.find(c => c.id === courseId);
+                        if (course) {
+                            return {
+                                ...course,
+                                progress: userData.coursesStarted[courseId]
+                            };
+                        }
+                        return null;
+                    }).filter(course => course !== null);
+                    
+                    displayUserCourses();
+                }
+            } catch (error) {
+                console.error('Erro ao carregar cursos do usuário:', error);
+            }
+        }
+
+        function displayUserCourses() {
+            elements.userCoursesList.innerHTML = '';
+            
+            if (userCourses.length === 0) {
+                elements.userCoursesList.innerHTML = '<p class="text-gray-600">Você ainda não iniciou nenhum curso.</p>';
+                return;
+            }
+            
+            userCourses.forEach(course => {
+                const courseElement = document.createElement('div');
+                courseElement.className = 'bg-white p-4 rounded-lg shadow-md';
+                courseElement.innerHTML = `
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-lg">${course.title}</h3>
+                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">${formatCategory(course.category)}</span>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-2">${course.instructor}</p>
+                    <div class="mb-2">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${course.progress}%"></div>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">${course.progress}% completo</p>
+                    </div>
+                    <button class="continue-course btn-primary text-sm" data-id="${course.id}">${course.progress === 100 ? 'Ver Certificado' : 'Continuar'}</button>
+                `;
+                
+                elements.userCoursesList.appendChild(courseElement);
+            });
+            
+            // Adicionar event listeners aos botões de continuar
+            document.querySelectorAll('.continue-course').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const courseId = e.target.getAttribute('data-id');
+                    const course = userCourses.find(c => c.id === courseId);
+                    
+                    if (course.progress === 100) {
+                        // Mostrar certificado
+                        showCertificate(course, `${currentUser.uid}_${course.id}_certificate`);
+                    } else {
+                        // Continuar curso
+                        viewCourse(courseId);
+                    }
+                });
+            });
+        }
+
+        async function loadUserCertificates() {
+            if (!currentUser) return;
+            
+            try {
+                const certificatesSnapshot = await db.collection('certificates')
+                    .where('userId', '==', currentUser.uid)
+                    .get();
+                
+                elements.certificatesList.innerHTML = '';
+                
+                if (certificatesSnapshot.empty) {
+                    elements.certificatesList.innerHTML = '<p class="text-gray-600">Você ainda não possui certificados.</p>';
+                    return;
+                }
+                
+                certificatesSnapshot.forEach(doc => {
+                    const certificate = doc.data();
+                    const certificateElement = document.createElement('div');
+                    certificateElement.className = 'bg-white p-4 rounded-lg shadow-md';
+                    certificateElement.innerHTML = `
+                        <div class="text-center">
+                            <i class="fas fa-certificate text-4xl text-yellow-500 mb-2"></i>
+                            <h3 class="font-bold text-lg mb-1">${certificate.courseTitle}</h3>
+                            <p class="text-gray-600 text-sm mb-2">Emitido em: ${certificate.issueDate}</p>
+                            <button class="view-certificate btn-primary text-sm" data-id="${doc.id}">Ver Certificado</button>
+                        </div>
+                    `;
+                    
+                    elements.certificatesList.appendChild(certificateElement);
+                });
+                
+                // Adicionar event listeners aos botões de visualização
+                document.querySelectorAll('.view-certificate').forEach(button => {
+                    button.addEventListener('click', async (e) => {
+                        const certificateId = e.target.getAttribute('data-id');
+                        const certificateDoc = await db.collection('certificates').doc(certificateId).get();
+                        
+                        if (certificateDoc.exists) {
+                            const certificate = certificateDoc.data();
+                            const course = courses.find(c => c.id === certificate.courseId);
+                            
+                            if (course) {
+                                showCertificate(course, certificateId);
+                            }
+                        }
+                    });
+                });
+            } catch (error) {
+                console.error('Erro ao carregar certificados:', error);
+            }
+        }
+
+        async function loadUserProfile() {
+            if (!currentUser) return;
+            
+            try {
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                const userData = userDoc.data();
+                
+                elements.profileName.textContent = userData.name || currentUser.displayName || currentUser.email;
+                elements.profileEmail.textContent = currentUser.email;
+                
+                // Estrelas
+                elements.profileStars.innerHTML = `
+                    <span class="text-yellow-500">
+                        <i class="fas fa-star"></i> ${userData.stars || 0} estrelas
+                    </span>
+                `;
+                
+                // Progresso geral
+                if (userData.coursesStarted) {
+                    const coursesCount = Object.keys(userData.coursesStarted).length;
+                    const totalProgress = Object.values(userData.coursesStarted).reduce((sum, progress) => sum + progress, 0);
+                    const averageProgress = coursesCount > 0 ? Math.round(totalProgress / coursesCount) : 0;
+                    
+                    elements.overallProgress.style.width = `${averageProgress}%`;
+                    elements.progressText.textContent = `${averageProgress}% completo (${coursesCount} cursos)`;
+                    
+                    // Cursos iniciados
+                    elements.startedCourses.innerHTML = '';
+                    Object.entries(userData.coursesStarted).forEach(([courseId, progress]) => {
+                        const course = courses.find(c => c.id === courseId);
+                        if (course) {
+                            const courseElement = document.createElement('div');
+                            courseElement.className = 'flex justify-between items-center';
+                            courseElement.innerHTML = `
+                                <span>${course.title}</span>
+                                <span class="text-sm text-gray-600">${progress}%</span>
+                            `;
+                            elements.startedCourses.appendChild(courseElement);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Erro ao carregar perfil:', error);
+            }
+        }
+
+        async function askGemini() {
+            const question = elements.geminiQuestion.value.trim();
+            if (!question) return;
+            
+            if (!currentUser) {
+                alert('Você precisa estar logado para usar o assistente IA.');
+                showAuthModal('login');
+                return;
+            }
+            
+            // Adicionar pergunta do usuário ao chat
+            const chatContainer = document.querySelector('.gemini-chat');
+            const userMessage = document.createElement('div');
+            userMessage.className = 'user-message';
+            userMessage.innerHTML = `<strong>Você:</strong> ${question}`;
+            chatContainer.appendChild(userMessage);
+            
+            // Limpar campo de pergunta
+            elements.geminiQuestion.value = '';
+            
+            // Simular resposta da IA (em uma aplicação real, isso seria uma chamada à API do Gemini)
+            setTimeout(() => {
+                const aiMessage = document.createElement('div');
+                aiMessage.className = 'ai-message';
+                
+                // Resposta simulada baseada na pergunta
+                let response = 'Desculpe, não entendi sua pergunta.';
+                
+                if (question.toLowerCase().includes('curso') || question.toLowerCase().includes('recomenda')) {
+                    response = 'Com base no seu perfil, recomendo os cursos de Empreendedorismo e Agricultura, que são muito populares em Moçambique.';
+                } else if (question.toLowerCase().includes('certificado')) {
+                    response = 'Os certificados são gerados automaticamente após a conclusão de um curso. Eles incluem um QR Code para validação e podem ser baixados em PDF.';
+                } else if (question.toLowerCase().includes('progresso')) {
+                    response = 'Seu progresso é salvo automaticamente. Você pode continuar de onde parou a qualquer momento.';
+                } else if (question.toLowerCase().includes('offline')) {
+                    response = 'Você pode baixar materiais para estudo offline clicando no botão "Baixar" em cada material do curso.';
+                }
+                
+                aiMessage.innerHTML = `<strong>Gemini:</strong> ${response}`;
+                chatContainer.appendChild(aiMessage);
+                
+                // Rolagem automática para a mensagem mais recente
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 1000);
+        }
+
+        function loadGeminiSuggestions() {
+            // Simular sugestões da IA
+            const suggestions = [
+                {
+                    title: 'Introdução ao Empreendedorismo Rural',
+                    category: 'empreendedorismo',
+                    description: 'Aprenda a iniciar um negócio no contexto rural de Moçambique.'
+                },
+                {
+                    title: 'Técnicas de Agricultura Sustentável',
+                    category: 'agricultura',
+                    description: 'Métodos modernos para aumentar a produtividade agrícola.'
+                },
+                {
+                    title: 'Programação Web Básica',
+                    category: 'programacao',
+                    description: 'Fundamentos de HTML, CSS e JavaScript para iniciantes.'
+                },
+                {
+                    title: 'Inglês para Negócios',
+                    category: 'idiomas',
+                    description: 'Aprenda inglês focado no contexto empresarial.'
+                }
+            ];
+            
+            elements.geminiSuggestions.innerHTML = '';
+            
+            suggestions.forEach(suggestion => {
+                const suggestionElement = document.createElement('div');
+                suggestionElement.className = 'bg-white p-4 rounded-lg shadow-md';
+                suggestionElement.innerHTML = `
+                    <h4 class="font-bold mb-1">${suggestion.title}</h4>
+                    <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mb-2 inline-block">${formatCategory(suggestion.category)}</span>
+                    <p class="text-gray-600 text-sm">${suggestion.description}</p>
+                    <button class="view-suggestion btn-primary text-sm mt-2" data-category="${suggestion.category}">Ver Cursos</button>
+                `;
+                
+                elements.geminiSuggestions.appendChild(suggestionElement);
+            });
+            
+            // Adicionar event listeners aos botões de sugestão
+            document.querySelectorAll('.view-suggestion').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const category = e.target.getAttribute('data-category');
+                    
+                    // Ativar o filtro correspondente
+                    elements.categoryFilters.forEach(filter => {
+                        if (filter.getAttribute('data-category') === category) {
+                            filter.click();
+                        }
+                    });
+                    
+                    // Ir para a página inicial
+                    showPage('home');
+                });
+            });
+        }
+
+        async function loadAdminData() {
+            if (!isAdmin) return;
+            
+            try {
+                // Estatísticas de usuários
+                const usersSnapshot = await db.collection('users').get();
+                elements.totalUsers.textContent = usersSnapshot.size;
+                
+                // Estatísticas de cursos
+                const coursesSnapshot = await db.collection('courses').get();
+                elements.totalCourses.textContent = coursesSnapshot.size;
+                
+                // Contar cursos concluídos (progresso 100%)
+                let completedCount = 0;
+                usersSnapshot.forEach(doc => {
+                    const userData = doc.data();
+                    if (userData.coursesStarted) {
+                        Object.values(userData.coursesStarted).forEach(progress => {
+                            if (progress === 100) completedCount++;
+                        });
+                    }
+                });
+                elements.completedCourses.textContent = completedCount;
+                
+                // Carregar cursos para administração
+                loadAdminCourses();
+            } catch (error) {
+                console.error('Erro ao carregar dados de administração:', error);
+            }
+        }
+
+        function loadAdminCourses() {
+            elements.adminCourses.innerHTML = '';
+            
+            courses.forEach(course => {
+                const courseElement = document.createElement('div');
+                courseElement.className = 'bg-white p-4 rounded-lg shadow-md';
+                courseElement.innerHTML = `
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold">${course.title}</h3>
+                        <div>
+                            <button class="edit-course btn-primary text-sm mr-2" data-id="${course.id}">Editar</button>
+                            <button class="delete-course bg-red-600 text-white px-3 py-1 rounded text-sm" data-id="${course.id}">Excluir</button>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm">${course.instructor} | ${formatCategory(course.category)}</p>
+                    <p class="text-gray-700 mt-2">${course.description}</p>
+                `;
+                
+                elements.adminCourses.appendChild(courseElement);
+            });
+            
+            // Adicionar event listeners aos botões de edição e exclusão
+            document.querySelectorAll('.edit-course').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const courseId = e.target.getAttribute('data-id');
+                    editCourse(courseId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-course').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const courseId = e.target.getAttribute('data-id');
+                    deleteCourse(courseId);
+                });
+            });
+        }
+
+        function editCourse(courseId) {
+            // Preencher o formulário com os dados do curso
+            const course = courses.find(c => c.id === courseId);
+            if (!course) return;
+            
+            elements.courseTitle.value = course.title;
+            elements.courseInstructor.value = course.instructor;
+            elements.courseCategory.value = course.category;
+            elements.courseFormat.value = course.format;
+            elements.courseDescription.value = course.description;
+            
+            // Mostrar formulário
+            elements.addCourseForm.classList.remove('hidden');
+            
+            // Rolar para o formulário
+            elements.addCourseForm.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function deleteCourse(courseId) {
+            if (!confirm('Tem certeza que deseja excluir este curso?')) return;
+            
+            try {
+                await db.collection('courses').doc(courseId).delete();
+                alert('Curso excluído com sucesso!');
+                loadCourses();
+                loadAdminCourses();
+            } catch (error) {
+                alert('Erro ao excluir curso: ' + error.message);
+            }
+        }
+
+        async function saveCourse() {
+            if (!isAdmin) return;
+            
+            const title = elements.courseTitle.value.trim();
+            const instructor = elements.courseInstructor.value.trim();
+            const category = elements.courseCategory.value;
+            const format = elements.courseFormat.value;
+            const description = elements.courseDescription.value.trim();
+            
+            if (!title || !instructor || !description) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            try {
+                const courseData = {
+                    title,
+                    instructor,
+                    category,
+                    format,
+                    description,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                // Verificar se é uma edição ou novo curso
+                const existingCourse = courses.find(c => c.title === title && c.instructor === instructor);
+                
+                if (existingCourse) {
+                    // Atualizar curso existente
+                    await db.collection('courses').doc(existingCourse.id).update(courseData);
+                    alert('Curso atualizado com sucesso!');
+                } else {
+                    // Criar novo curso
+                    await db.collection('courses').add(courseData);
+                    alert('Curso criado com sucesso!');
+                }
+                
+                // Limpar formulário
+                elements.addCourseForm.classList.add('hidden');
+                elements.courseTitle.value = '';
+                elements.courseInstructor.value = '';
+                elements.courseDescription.value = '';
+                
+                // Recarregar cursos
+                loadCourses();
+                loadAdminCourses();
+            } catch (error) {
+                alert('Erro ao salvar curso: ' + error.message);
+            }
+        }
+
+        function addYoutubeContent() {
+            const url = elements.youtubeLink.value.trim();
+            if (!url) {
+                alert('Por favor, insira um link do YouTube.');
+                return;
+            }
+            
+            // Validar URL do YouTube
+            const videoId = extractYouTubeId(url);
+            if (!videoId) {
+                alert('Por favor, insira um link válido do YouTube.');
+                return;
+            }
+            
+            // Em uma aplicação real, isso salvaria no Firestore
+            alert('Link do YouTube adicionado com sucesso! (Em uma aplicação real, isso seria salvo no banco de dados)');
+            elements.youtubeLink.value = '';
+        }
+
+        function handleFileUpload(e) {
+            const files = e.target.files;
+            if (files.length === 0) return;
+            
+            // Em uma aplicação real, isso faria upload para o Firebase Storage
+            // e salvaria as referências no Firestore
+            alert(`${files.length} arquivo(s) selecionado(s) para upload. (Em uma aplicação real, isso faria upload para o servidor)`);
+            e.target.value = '';
+        }
+
+        // Função para simular integração com M-Pesa (para versão futura)
+        function integrateMpesa() {
+            console.log('Integração com M-Pesa preparada para implementação futura');
+        }
+    </script>
+</body>
+</html>
