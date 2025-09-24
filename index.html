@@ -3,47 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aprende Moçambique - Plataforma de Cursos Online</title>
-    
+    <title>Aprende Moçambique</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
     <!-- Ícones -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- QR Code Generator -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-    
-    <!-- PDF Generation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
+        /* Estilos personalizados */
         :root {
-            --primary-blue: #2563eb;
-            --light-gray: #f3f4f6;
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
         }
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        .btn-primary {
-            background-color: var(--primary-blue);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-primary:hover {
-            background-color: #1d4ed8;
-            transform: translateY(-2px);
+            background-color: #f8fafc;
         }
         
         .course-card {
@@ -52,417 +31,560 @@
         
         .course-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
         
         .progress-bar {
             height: 8px;
             border-radius: 4px;
-            background-color: #e5e7eb;
             overflow: hidden;
         }
         
         .progress-fill {
             height: 100%;
-            background-color: var(--primary-blue);
+            background-color: var(--primary-color);
             transition: width 0.5s ease;
         }
         
-        .star-rating {
-            color: #fbbf24;
+        .admin-only {
+            display: none;
         }
         
-        .admin-badge {
-            background-color: #ef4444;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            margin-left: 8px;
+        .admin-logged-in .admin-only {
+            display: block;
         }
         
-        .gemini-chat {
-            max-height: 300px;
-            overflow-y: auto;
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
         }
         
-        .gemini-message {
-            margin: 10px 0;
-            padding: 10px;
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background-color: white;
             border-radius: 8px;
-            max-width: 80%;
-        }
-        
-        .user-message {
-            background-color: var(--primary-blue);
-            color: white;
-            margin-left: auto;
-        }
-        
-        .ai-message {
-            background-color: var(--light-gray);
-            color: #333;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
         }
         
         /* Animações */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
         .fade-in {
-            animation: fadeIn 0.5s ease forwards;
+            animation: fadeIn 0.5s ease-in-out;
         }
         
         /* Responsividade */
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
+            .course-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             }
-            
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            
-            .mobile-menu-btn {
-                display: block;
+        }
+        
+        @media (max-width: 480px) {
+            .course-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body class="bg-gray-50">
-    <!-- Barra de Navegação -->
-    <nav class="bg-white shadow-md py-4 px-6 flex justify-between items-center">
-        <div class="flex items-center">
-            <button id="mobileMenuBtn" class="text-blue-600 text-xl mr-4 md:hidden">
-                <i class="fas fa-bars"></i>
+    <!-- Cabeçalho -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                    <span class="text-white font-bold text-lg">AM</span>
+                </div>
+                <h1 class="text-xl font-bold text-blue-600">Aprende Moçambique</h1>
+            </div>
+            
+            <nav class="hidden md:flex space-x-6">
+                <a href="#inicio" class="text-gray-700 hover:text-blue-600 font-medium">Início</a>
+                <a href="#cursos" class="text-gray-700 hover:text-blue-600 font-medium">Cursos</a>
+                <a href="#categorias" class="text-gray-700 hover:text-blue-600 font-medium">Categorias</a>
+                <a href="#sobre" class="text-gray-700 hover:text-blue-600 font-medium">Sobre</a>
+            </nav>
+            
+            <div class="flex items-center space-x-4">
+                <!-- Botão de IA -->
+                <button id="ai-assistant-btn" class="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition">
+                    <i class="fas fa-robot"></i>
+                </button>
+                
+                <!-- Área do usuário -->
+                <div id="user-area" class="hidden">
+                    <div class="flex items-center space-x-2">
+                        <span id="user-name" class="text-gray-700"></span>
+                        <div class="relative">
+                            <button id="user-menu-btn" class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center">
+                                <i class="fas fa-user"></i>
+                            </button>
+                            <div id="user-menu" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden">
+                                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Meu Perfil</a>
+                                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Meus Cursos</a>
+                                <a href="#" class="admin-only block px-4 py-2 text-gray-700 hover:bg-gray-100">Painel Admin</a>
+                                <a href="#" id="logout-btn" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Sair</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Botões de login/cadastro -->
+                <div id="auth-buttons" class="flex space-x-2">
+                    <button id="login-btn" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition">Entrar</button>
+                    <button id="signup-btn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">Cadastrar</button>
+                </div>
+            </div>
+            
+            <button id="mobile-menu-btn" class="md:hidden text-gray-700">
+                <i class="fas fa-bars text-xl"></i>
             </button>
-            <h1 class="text-2xl font-bold text-blue-600">Aprende Moçambique</h1>
         </div>
         
-        <div class="flex items-center space-x-4">
-            <div id="userSection" class="hidden">
-                <span id="userName" class="mr-2"></span>
-                <span id="userStars" class="text-yellow-500"></span>
-                <button id="logoutBtn" class="ml-4 text-blue-600 hover:text-blue-800">Sair</button>
-            </div>
-            <div id="authSection">
-                <button id="loginBtn" class="btn-primary">Entrar</button>
-                <button id="registerBtn" class="ml-2 border border-blue-600 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50">Registar</button>
+        <!-- Menu móvel -->
+        <div id="mobile-menu" class="md:hidden bg-white border-t hidden">
+            <div class="container mx-auto px-4 py-3 flex flex-col space-y-3">
+                <a href="#inicio" class="text-gray-700 hover:text-blue-600 font-medium">Início</a>
+                <a href="#cursos" class="text-gray-700 hover:text-blue-600 font-medium">Cursos</a>
+                <a href="#categorias" class="text-gray-700 hover:text-blue-600 font-medium">Categorias</a>
+                <a href="#sobre" class="text-gray-700 hover:text-blue-600 font-medium">Sobre</a>
             </div>
         </div>
-    </nav>
+    </header>
 
-    <!-- Conteúdo Principal -->
-    <div class="flex">
-        <!-- Sidebar -->
-        <aside id="sidebar" class="sidebar bg-white w-64 min-h-screen shadow-md p-6 md:block">
-            <nav>
-                <ul class="space-y-2">
-                    <li><a href="#" class="nav-link active" data-page="home"><i class="fas fa-home mr-2"></i> Página Inicial</a></li>
-                    <li><a href="#" class="nav-link" data-page="courses"><i class="fas fa-book mr-2"></i> Meus Cursos</a></li>
-                    <li><a href="#" class="nav-link" data-page="certificates"><i class="fas fa-certificate mr-2"></i> Certificados</a></li>
-                    <li><a href="#" class="nav-link" data-page="profile"><i class="fas fa-user mr-2"></i> Perfil</a></li>
-                    <li><a href="#" class="nav-link" data-page="gemini"><i class="fas fa-robot mr-2"></i> Assistente IA</a></li>
-                    <li id="adminNav" class="hidden"><a href="#" class="nav-link" data-page="admin"><i class="fas fa-cog mr-2"></i> Painel Admin</a></li>
-                </ul>
-            </nav>
-        </aside>
+    <!-- Conteúdo principal -->
+    <main>
+        <!-- Seção Hero -->
+        <section id="inicio" class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
+            <div class="container mx-auto px-4 text-center">
+                <h2 class="text-4xl font-bold mb-4">Aprenda habilidades práticas para o desenvolvimento de Moçambique</h2>
+                <p class="text-xl mb-8 max-w-2xl mx-auto">Cursos gratuitos em diversas áreas, com certificado válido e suporte de IA personalizado.</p>
+                <button class="px-6 py-3 bg-white text-blue-600 rounded-md font-medium hover:bg-gray-100 transition">Explorar Cursos</button>
+            </div>
+        </section>
 
-        <!-- Conteúdo Dinâmico -->
-        <main class="flex-1 p-6">
-            <!-- Página Inicial -->
-            <div id="homePage" class="page active">
-                <h2 class="text-2xl font-bold mb-6">Cursos Disponíveis</h2>
+        <!-- Seção de Cursos em Destaque -->
+        <section id="cursos" class="py-12">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold mb-8 text-center">Cursos em Destaque</h2>
                 
-                <!-- Filtros por Categoria -->
-                <div class="mb-6">
-                    <div class="flex flex-wrap gap-2">
-                        <button class="category-filter active" data-category="all">Todos</button>
-                        <button class="category-filter" data-category="empreendedorismo">Empreendedorismo</button>
-                        <button class="category-filter" data-category="agricultura">Agricultura</button>
-                        <button class="category-filter" data-category="programacao">Programação</button>
-                        <button class="category-filter" data-category="idiomas">Idiomas</button>
-                        <button class="category-filter" data-category="saude">Saúde</button>
-                        <button class="category-filter" data-category="religiao">Religião</button>
-                    </div>
+                <!-- Filtros de categoria -->
+                <div class="flex flex-wrap justify-center gap-2 mb-8">
+                    <button class="category-filter px-4 py-2 bg-blue-600 text-white rounded-full active" data-category="all">Todos</button>
+                    <button class="category-filter px-4 py-2 bg-gray-200 text-gray-700 rounded-full" data-category="empreendedorismo">Empreendedorismo</button>
+                    <button class="category-filter px-4 py-2 bg-gray-200 text-gray-700 rounded-full" data-category="agricultura">Agricultura</button>
+                    <button class="category-filter px-4 py-2 bg-gray-200 text-gray-700 rounded-full" data-category="programacao">Programação</button>
+                    <button class="category-filter px-4 py-2 bg-gray-200 text-gray-700 rounded-full" data-category="idiomas">Idiomas</button>
+                    <button class="category-filter px-4 py-2 bg-gray-200 text-gray-700 rounded-full" data-category="saude">Saúde</button>
+                    <button class="category-filter px-4 py-2 bg-gray-200 text-gray-700 rounded-full" data-category="religiao">Religião</button>
                 </div>
                 
-                <!-- Lista de Cursos -->
-                <div id="coursesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Os cursos serão carregados dinamicamente aqui -->
+                <!-- Grid de cursos -->
+                <div id="courses-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <!-- Os cursos serão carregados dinamicamente via JavaScript -->
                 </div>
             </div>
+        </section>
 
-            <!-- Página de Cursos do Usuário -->
-            <div id="coursesPage" class="page hidden">
-                <h2 class="text-2xl font-bold mb-6">Meus Cursos</h2>
-                <div id="userCoursesList" class="space-y-6">
-                    <!-- Cursos do usuário serão carregados aqui -->
-                </div>
-            </div>
-
-            <!-- Página de Certificados -->
-            <div id="certificatesPage" class="page hidden">
-                <h2 class="text-2xl font-bold mb-6">Meus Certificados</h2>
-                <div id="certificatesList" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Certificados serão carregados aqui -->
-                </div>
-            </div>
-
-            <!-- Página de Perfil -->
-            <div id="profilePage" class="page hidden">
-                <h2 class="text-2xl font-bold mb-6">Meu Perfil</h2>
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <div class="flex items-center mb-6">
-                        <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-2xl">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="ml-4">
-                            <h3 id="profileName" class="text-xl font-bold"></h3>
-                            <p id="profileEmail" class="text-gray-600"></p>
-                            <div id="profileStars" class="mt-1"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <h4 class="font-semibold mb-2">Progresso Geral</h4>
-                        <div class="progress-bar">
-                            <div id="overallProgress" class="progress-fill" style="width: 0%"></div>
-                        </div>
-                        <p id="progressText" class="text-sm text-gray-600 mt-1">0% completo</p>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-semibold mb-2">Cursos Iniciados</h4>
-                        <div id="startedCourses" class="space-y-2">
-                            <!-- Cursos iniciados serão listados aqui -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Página do Assistente IA -->
-            <div id="geminiPage" class="page hidden">
-                <h2 class="text-2xl font-bold mb-6">Assistente IA - Gemini</h2>
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <div class="mb-4">
-                        <p class="text-gray-600 mb-4">Faça perguntas sobre os cursos, peça recomendações ou feedback personalizado.</p>
-                        
-                        <div class="gemini-chat mb-4 p-4 border rounded-lg">
-                            <div class="ai-message">
-                                <strong>Gemini:</strong> Olá! Sou o assistente IA do Aprende Moçambique. Como posso ajudá-lo hoje?
-                            </div>
-                        </div>
-                        
-                        <div class="flex">
-                            <input type="text" id="geminiQuestion" placeholder="Digite sua pergunta..." class="flex-1 border rounded-l-lg p-2">
-                            <button id="askGemini" class="btn-primary rounded-l-none">Enviar</button>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-semibold mb-2">Sugestões de Cursos</h4>
-                        <div id="geminiSuggestions" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <!-- Sugestões da IA serão carregadas aqui -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Página de Administração -->
-            <div id="adminPage" class="page hidden">
-                <h2 class="text-2xl font-bold mb-6">Painel de Administração</h2>
+        <!-- Seção de Categorias -->
+        <section id="categorias" class="py-12 bg-gray-100">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold mb-8 text-center">Categorias de Cursos</h2>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div class="bg-white p-4 rounded-lg shadow-md">
-                        <h3 class="font-semibold mb-2">Estatísticas</h3>
-                        <div id="adminStats">
-                            <p>Total de Usuários: <span id="totalUsers">0</span></p>
-                            <p>Total de Cursos: <span id="totalCourses">0</span></p>
-                            <p>Cursos Concluídos: <span id="completedCourses">0</span></p>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <div class="bg-white rounded-lg shadow p-6 text-center hover:shadow-md transition">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-business-time text-blue-600 text-2xl"></i>
                         </div>
+                        <h3 class="font-bold text-lg mb-2">Empreendedorismo</h3>
+                        <p class="text-gray-600">Aprenda a criar e gerir o seu próprio negócio</p>
                     </div>
                     
-                    <div class="bg-white p-4 rounded-lg shadow-md">
-                        <h3 class="font-semibold mb-2">Ações Rápidas</h3>
-                        <button id="addCourseBtn" class="btn-primary w-full mb-2">Adicionar Curso</button>
-                        <button id="manageUsersBtn" class="btn-primary w-full">Gerenciar Usuários</button>
+                    <div class="bg-white rounded-lg shadow p-6 text-center hover:shadow-md transition">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-seedling text-green-600 text-2xl"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">Agricultura</h3>
+                        <p class="text-gray-600">Técnicas modernas de cultivo e produção agrícola</p>
                     </div>
+                    
+                    <div class="bg-white rounded-lg shadow p-6 text-center hover:shadow-md transition">
+                        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-code text-purple-600 text-2xl"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">Programação</h3>
+                        <p class="text-gray-600">Desenvolva habilidades digitais para o futuro</p>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow p-6 text-center hover:shadow-md transition">
+                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-language text-red-600 text-2xl"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">Idiomas</h3>
+                        <p class="text-gray-600">Aprenda Português, Inglês e outras línguas</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção Sobre -->
+        <section id="sobre" class="py-12">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto text-center">
+                    <h2 class="text-3xl font-bold mb-6">Sobre o Aprende Moçambique</h2>
+                    <p class="text-lg text-gray-700 mb-6">
+                        O Aprende Moçambique é uma plataforma de educação online gratuita, desenvolvida especificamente para atender às necessidades de aprendizagem da população moçambicana. 
+                        Oferecemos cursos em diversas áreas com foco em habilidades práticas que podem impulsionar o desenvolvimento pessoal e profissional.
+                    </p>
+                    <p class="text-lg text-gray-700 mb-6">
+                        Nossa missão é tornar a educação acessível a todos, mesmo em regiões com conectividade limitada, através de recursos otimizados para baixo consumo de dados 
+                        e funcionalidades de download para estudo offline.
+                    </p>
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-graduation-cap text-blue-600 text-2xl mr-2"></i>
+                            <span>Certificados Gratuitos</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-mobile-alt text-blue-600 text-2xl mr-2"></i>
+                            <span>Otimizado para Mobile</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-wifi text-blue-600 text-2xl mr-2"></i>
+                            <span>Baixo Consumo de Dados</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-robot text-blue-600 text-2xl mr-2"></i>
+                            <span>Assistente de IA</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Aprende Moçambique</h3>
+                    <p class="text-gray-400">Plataforma de cursos online gratuitos para o desenvolvimento de Moçambique.</p>
                 </div>
                 
-                <!-- Formulário para Adicionar Curso -->
-                <div id="addCourseForm" class="bg-white p-6 rounded-lg shadow-md hidden">
-                    <h3 class="font-semibold mb-4">Adicionar Novo Curso</h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block mb-1">Título do Curso</label>
-                            <input type="text" id="courseTitle" class="w-full border rounded p-2">
-                        </div>
-                        
-                        <div>
-                            <label class="block mb-1">Professor</label>
-                            <input type="text" id="courseInstructor" class="w-full border rounded p-2">
-                        </div>
-                        
-                        <div>
-                            <label class="block mb-1">Categoria</label>
-                            <select id="courseCategory" class="w-full border rounded p-2">
-                                <option value="empreendedorismo">Empreendedorismo</option>
-                                <option value="agricultura">Agricultura</option>
-                                <option value="programacao">Programação</option>
-                                <option value="idiomas">Idiomas</option>
-                                <option value="saude">Saúde</option>
-                                <option value="religiao">Religião</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block mb-1">Formato Principal</label>
-                            <select id="courseFormat" class="w-full border rounded p-2">
-                                <option value="video">Vídeo</option>
-                                <option value="pdf">PDF</option>
-                                <option value="audio">Áudio</option>
-                                <option value="image">Imagem</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-4">
-                        <label class="block mb-1">Descrição</label>
-                        <textarea id="courseDescription" class="w-full border rounded p-2" rows="3"></textarea>
-                    </div>
-                    
-                    <div class="mt-4">
-                        <h4 class="font-semibold mb-2">Conteúdo do Curso</h4>
-                        
-                        <div class="mb-4">
-                            <h5 class="font-medium mb-2">Adicionar Link do YouTube</h5>
-                            <div class="flex">
-                                <input type="text" id="youtubeLink" placeholder="Cole o link do YouTube aqui" class="flex-1 border rounded-l-lg p-2">
-                                <button id="addYoutubeLink" class="btn-primary rounded-l-none">Adicionar</button>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <h5 class="font-medium mb-2">Fazer Upload de Arquivos</h5>
-                            <input type="file" id="fileUpload" class="w-full border rounded p-2" multiple>
-                            <p class="text-sm text-gray-600 mt-1">Formatos suportados: vídeo, áudio, PDF, imagem</p>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-6 flex justify-end space-x-2">
-                        <button id="cancelCourse" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg">Cancelar</button>
-                        <button id="saveCourse" class="btn-primary">Salvar Curso</button>
-                    </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Links Rápidos</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#inicio" class="text-gray-400 hover:text-white transition">Início</a></li>
+                        <li><a href="#cursos" class="text-gray-400 hover:text-white transition">Cursos</a></li>
+                        <li><a href="#categorias" class="text-gray-400 hover:text-white transition">Categorias</a></li>
+                        <li><a href="#sobre" class="text-gray-400 hover:text-white transition">Sobre</a></li>
+                    </ul>
                 </div>
                 
-                <!-- Lista de Cursos para Administração -->
-                <div id="adminCoursesList" class="mt-6">
-                    <h3 class="font-semibold mb-4">Gerenciar Cursos</h3>
-                    <div id="adminCourses" class="space-y-4">
-                        <!-- Cursos para administração serão carregados aqui -->
-                    </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Contato</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center">
+                            <i class="fas fa-envelope mr-2 text-gray-400"></i>
+                            <span class="text-gray-400">contato@aprendemocambique.co.mz</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-phone mr-2 text-gray-400"></i>
+                            <span class="text-gray-400">+258 84 123 4567</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
-        </main>
-    </div>
+            
+            <div class="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400">
+                <p>&copy; 2023 Aprende Moçambique. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
 
-    <!-- Modal de Login/Registro -->
-    <div id="authModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-        <div class="bg-white p-6 rounded-lg w-full max-w-md">
+    <!-- Modal de Login -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content p-6">
             <div class="flex justify-between items-center mb-4">
-                <h3 id="authModalTitle" class="text-xl font-bold">Entrar</h3>
-                <button id="closeAuthModal" class="text-gray-500 hover:text-gray-700">
+                <h3 class="text-xl font-bold">Entrar na Plataforma</h3>
+                <button id="close-login-modal" class="text-gray-500 hover:text-gray-700">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             
-            <div id="authTabs" class="flex mb-4">
-                <button id="loginTab" class="flex-1 py-2 border-b-2 border-blue-600 text-blue-600 font-semibold">Entrar</button>
-                <button id="registerTab" class="flex-1 py-2 border-b-2 border-gray-200 text-gray-500">Registrar</button>
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+                    <input type="email" id="login-email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                
+                <div>
+                    <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+                    <input type="password" id="login-password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                
+                <button type="submit" class="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">Entrar</button>
+                
+                <div class="text-center">
+                    <span class="text-gray-600">ou</span>
+                </div>
+                
+                <button type="button" id="google-login-btn" class="w-full py-2 bg-white border border-gray-300 rounded-md flex items-center justify-center space-x-2 hover:bg-gray-50 transition">
+                    <i class="fab fa-google text-red-500"></i>
+                    <span>Entrar com Google</span>
+                </button>
+                
+                <div class="text-center text-sm">
+                    <span class="text-gray-600">Não tem uma conta? </span>
+                    <button type="button" id="switch-to-signup" class="text-blue-600 hover:underline">Cadastre-se</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Cadastro -->
+    <div id="signup-modal" class="modal">
+        <div class="modal-content p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Criar Conta</h3>
+                <button id="close-signup-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             
-            <form id="authForm">
-                <div class="mb-4">
-                    <label class="block mb-1">E-mail</label>
-                    <input type="email" id="authEmail" class="w-full border rounded p-2" required>
+            <form id="signup-form" class="space-y-4">
+                <div>
+                    <label for="signup-name" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+                    <input type="text" id="signup-name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                 </div>
                 
-                <div class="mb-4">
-                    <label class="block mb-1">Senha</label>
-                    <input type="password" id="authPassword" class="w-full border rounded p-2" required>
+                <div>
+                    <label for="signup-email" class="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+                    <input type="email" id="signup-email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                 </div>
                 
-                <div id="registerFields" class="hidden">
-                    <div class="mb-4">
-                        <label class="block mb-1">Nome Completo</label>
-                        <input type="text" id="authName" class="w-full border rounded p-2">
+                <div>
+                    <label for="signup-password" class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+                    <input type="password" id="signup-password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required minlength="6">
+                </div>
+                
+                <div>
+                    <label for="signup-confirm-password" class="block text-sm font-medium text-gray-700 mb-1">Confirmar Senha</label>
+                    <input type="password" id="signup-confirm-password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required minlength="6">
+                </div>
+                
+                <button type="submit" class="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">Criar Conta</button>
+                
+                <div class="text-center">
+                    <span class="text-gray-600">ou</span>
+                </div>
+                
+                <button type="button" id="google-signup-btn" class="w-full py-2 bg-white border border-gray-300 rounded-md flex items-center justify-center space-x-2 hover:bg-gray-50 transition">
+                    <i class="fab fa-google text-red-500"></i>
+                    <span>Cadastrar com Google</span>
+                </button>
+                
+                <div class="text-center text-sm">
+                    <span class="text-gray-600">Já tem uma conta? </span>
+                    <button type="button" id="switch-to-login" class="text-blue-600 hover:underline">Entrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal do Assistente de IA -->
+    <div id="ai-modal" class="modal">
+        <div class="modal-content p-6 max-w-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Assistente de IA</h3>
+                <button id="close-ai-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="ai-chat" class="h-64 overflow-y-auto mb-4 p-4 bg-gray-100 rounded-lg">
+                <div class="ai-message mb-4">
+                    <div class="flex items-start space-x-2">
+                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                            <i class="fas fa-robot text-white"></i>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg max-w-xs md:max-w-md">
+                            <p>Olá! Sou o assistente de IA do Aprende Moçambique. Posso ajudar a encontrar cursos, responder perguntas sobre o conteúdo e dar feedback personalizado. Como posso ajudar?</p>
+                        </div>
                     </div>
                 </div>
-                
-                <button type="submit" id="authSubmit" class="btn-primary w-full mb-4">Entrar</button>
-            </form>
+            </div>
             
-            <div class="text-center">
-                <p class="text-gray-600 mb-2">Ou entre com</p>
-                <button id="googleAuth" class="border border-gray-300 rounded-lg p-2 w-full flex items-center justify-center">
-                    <i class="fab fa-google text-red-500 mr-2"></i> Google
+            <div class="flex space-x-2">
+                <input type="text" id="ai-input" placeholder="Digite sua pergunta..." class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button id="send-ai-message" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                    <i class="fas fa-paper-plane"></i>
                 </button>
             </div>
         </div>
     </div>
 
     <!-- Modal do Curso -->
-    <div id="courseModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-        <div class="bg-white p-6 rounded-lg w-full max-w-4xl max-h-screen overflow-y-auto">
+    <div id="course-modal" class="modal">
+        <div class="modal-content p-6 max-w-4xl">
             <div class="flex justify-between items-center mb-4">
-                <h3 id="courseModalTitle" class="text-xl font-bold">Título do Curso</h3>
-                <button id="closeCourseModal" class="text-gray-500 hover:text-gray-700">
+                <h3 id="course-modal-title" class="text-xl font-bold">Detalhes do Curso</h3>
+                <button id="close-course-modal" class="text-gray-500 hover:text-gray-700">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             
-            <div id="courseContent" class="space-y-4">
+            <div id="course-modal-content">
                 <!-- Conteúdo do curso será carregado aqui -->
             </div>
-            
-            <div class="mt-6 flex justify-between items-center">
-                <div>
-                    <div class="progress-bar w-48">
-                        <div id="courseProgress" class="progress-fill" style="width: 0%"></div>
-                    </div>
-                    <p id="courseProgressText" class="text-sm text-gray-600 mt-1">0% completo</p>
-                </div>
-                
-                <button id="startCourseBtn" class="btn-primary">Iniciar Curso</button>
-            </div>
         </div>
     </div>
 
-    <!-- Modal de Certificado -->
-    <div id="certificateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-        <div class="bg-white p-6 rounded-lg w-full max-w-2xl">
+    <!-- Modal do Painel Admin -->
+    <div id="admin-modal" class="modal">
+        <div class="modal-content p-6 max-w-4xl max-h-screen overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold">Certificado de Conclusão</h3>
-                <button id="closeCertificateModal" class="text-gray-500 hover:text-gray-700">
+                <h3 class="text-xl font-bold">Painel Administrativo</h3>
+                <button id="close-admin-modal" class="text-gray-500 hover:text-gray-700">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             
-            <div id="certificateContent" class="border-2 border-blue-600 p-6 text-center">
-                <!-- Conteúdo do certificado será gerado aqui -->
+            <div class="admin-tabs flex border-b mb-4">
+                <button class="admin-tab active px-4 py-2 font-medium" data-tab="courses">Cursos</button>
+                <button class="admin-tab px-4 py-2 font-medium" data-tab="users">Usuários</button>
+                <button class="admin-tab px-4 py-2 font-medium" data-tab="stats">Estatísticas</button>
             </div>
             
-            <div class="mt-4 flex justify-center space-x-2">
-                <button id="downloadCertificate" class="btn-primary">Baixar PDF</button>
-                <button id="shareCertificate" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg">Compartilhar</button>
+            <div id="admin-courses-tab" class="admin-tab-content">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="text-lg font-bold">Gerenciar Cursos</h4>
+                    <button id="add-course-btn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                        <i class="fas fa-plus mr-2"></i>Adicionar Curso
+                    </button>
+                </div>
+                
+                <div id="admin-courses-list">
+                    <!-- Lista de cursos para administração -->
+                </div>
+            </div>
+            
+            <div id="admin-users-tab" class="admin-tab-content hidden">
+                <h4 class="text-lg font-bold mb-4">Gerenciar Usuários</h4>
+                <div id="admin-users-list">
+                    <!-- Lista de usuários para administração -->
+                </div>
+            </div>
+            
+            <div id="admin-stats-tab" class="admin-tab-content hidden">
+                <h4 class="text-lg font-bold mb-4">Estatísticas da Plataforma</h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-blue-100 p-4 rounded-lg">
+                        <h5 class="font-bold text-blue-800">Total de Usuários</h5>
+                        <p id="total-users" class="text-2xl font-bold">0</p>
+                    </div>
+                    <div class="bg-green-100 p-4 rounded-lg">
+                        <h5 class="font-bold text-green-800">Total de Cursos</h5>
+                        <p id="total-courses" class="text-2xl font-bold">0</p>
+                    </div>
+                    <div class="bg-purple-100 p-4 rounded-lg">
+                        <h5 class="font-bold text-purple-800">Cursos Concluídos</h5>
+                        <p id="completed-courses" class="text-2xl font-bold">0</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Modal de Adicionar/Editar Curso -->
+    <div id="course-form-modal" class="modal">
+        <div class="modal-content p-6 max-w-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="course-form-title" class="text-xl font-bold">Adicionar Novo Curso</h3>
+                <button id="close-course-form-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="course-form" class="space-y-4">
+                <input type="hidden" id="course-id">
+                
+                <div>
+                    <label for="course-title" class="block text-sm font-medium text-gray-700 mb-1">Título do Curso</label>
+                    <input type="text" id="course-title" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                
+                <div>
+                    <label for="course-description" class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                    <textarea id="course-description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+                </div>
+                
+                <div>
+                    <label for="course-instructor" class="block text-sm font-medium text-gray-700 mb-1">Professor/Instrutor</label>
+                    <input type="text" id="course-instructor" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                
+                <div>
+                    <label for="course-category" class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+                    <select id="course-category" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <option value="">Selecione uma categoria</option>
+                        <option value="empreendedorismo">Empreendedorismo</option>
+                        <option value="agricultura">Agricultura</option>
+                        <option value="programacao">Programação</option>
+                        <option value="idiomas">Idiomas</option>
+                        <option value="saude">Saúde</option>
+                        <option value="religiao">Religião</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="course-format" class="block text-sm font-medium text-gray-700 mb-1">Formato Principal</label>
+                    <select id="course-format" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <option value="">Selecione um formato</option>
+                        <option value="video">Vídeo</option>
+                        <option value="pdf">PDF</option>
+                        <option value="audio">Áudio</option>
+                        <option value="imagem">Imagem</option>
+                    </select>
+                </div>
+                
+                <div id="youtube-link-section">
+                    <label for="course-youtube-link" class="block text-sm font-medium text-gray-700 mb-1">Link do YouTube (opcional)</label>
+                    <input type="url" id="course-youtube-link" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://www.youtube.com/watch?v=...">
+                </div>
+                
+                <div id="file-upload-section">
+                    <label for="course-file" class="block text-sm font-medium text-gray-700 mb-1">Upload de Arquivo (opcional)</label>
+                    <input type="file" id="course-file" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="cancel-course-form" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">Salvar Curso</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts JavaScript -->
     <script>
         // Configuração do Firebase
         const firebaseConfig = {
@@ -473,424 +595,752 @@
             messagingSenderId: "145864254479",
             appId: "1:145864254479:web:3c1e6f5b3b5e5f5b5e5f5b"
         };
-
-        // Inicialização do Firebase
+        
+        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
         const storage = firebase.storage();
-
-        // Chave da API Gemini
+        
+        // Configuração da IA Gemini
         const GEMINI_API_KEY = "AIzaSyA0-W114QCmGPdp_t-uMVa0Wsc7_NOEdn4";
-
+        
         // Estado da aplicação
         let currentUser = null;
         let isAdmin = false;
         let courses = [];
-        let userCourses = [];
-        let userProgress = {};
-
-        // Elementos da DOM
-        const elements = {
-            // Navegação
-            sidebar: document.getElementById('sidebar'),
-            mobileMenuBtn: document.getElementById('mobileMenuBtn'),
-            navLinks: document.querySelectorAll('.nav-link'),
-            pages: document.querySelectorAll('.page'),
-            
-            // Autenticação
-            authSection: document.getElementById('authSection'),
-            userSection: document.getElementById('userSection'),
-            userName: document.getElementById('userName'),
-            userStars: document.getElementById('userStars'),
-            loginBtn: document.getElementById('loginBtn'),
-            registerBtn: document.getElementById('registerBtn'),
-            logoutBtn: document.getElementById('logoutBtn'),
-            authModal: document.getElementById('authModal'),
-            authModalTitle: document.getElementById('authModalTitle'),
-            closeAuthModal: document.getElementById('closeAuthModal'),
-            authTabs: document.getElementById('authTabs'),
-            loginTab: document.getElementById('loginTab'),
-            registerTab: document.getElementById('registerTab'),
-            authForm: document.getElementById('authForm'),
-            authEmail: document.getElementById('authEmail'),
-            authPassword: document.getElementById('authPassword'),
-            authName: document.getElementById('authName'),
-            authSubmit: document.getElementById('authSubmit'),
-            registerFields: document.getElementById('registerFields'),
-            googleAuth: document.getElementById('googleAuth'),
-            
-            // Conteúdo
-            coursesList: document.getElementById('coursesList'),
-            userCoursesList: document.getElementById('userCoursesList'),
-            certificatesList: document.getElementById('certificatesList'),
-            categoryFilters: document.querySelectorAll('.category-filter'),
-            
-            // Perfil
-            profileName: document.getElementById('profileName'),
-            profileEmail: document.getElementById('profileEmail'),
-            profileStars: document.getElementById('profileStars'),
-            overallProgress: document.getElementById('overallProgress'),
-            progressText: document.getElementById('progressText'),
-            startedCourses: document.getElementById('startedCourses'),
-            
-            // Gemini
-            geminiQuestion: document.getElementById('geminiQuestion'),
-            askGemini: document.getElementById('askGemini'),
-            geminiSuggestions: document.getElementById('geminiSuggestions'),
-            
-            // Admin
-            adminNav: document.getElementById('adminNav'),
-            adminPage: document.getElementById('adminPage'),
-            adminStats: document.getElementById('adminStats'),
-            totalUsers: document.getElementById('totalUsers'),
-            totalCourses: document.getElementById('totalCourses'),
-            completedCourses: document.getElementById('completedCourses'),
-            addCourseBtn: document.getElementById('addCourseBtn'),
-            manageUsersBtn: document.getElementById('manageUsersBtn'),
-            addCourseForm: document.getElementById('addCourseForm'),
-            courseTitle: document.getElementById('courseTitle'),
-            courseInstructor: document.getElementById('courseInstructor'),
-            courseCategory: document.getElementById('courseCategory'),
-            courseFormat: document.getElementById('courseFormat'),
-            courseDescription: document.getElementById('courseDescription'),
-            youtubeLink: document.getElementById('youtubeLink'),
-            addYoutubeLink: document.getElementById('addYoutubeLink'),
-            fileUpload: document.getElementById('fileUpload'),
-            cancelCourse: document.getElementById('cancelCourse'),
-            saveCourse: document.getElementById('saveCourse'),
-            adminCourses: document.getElementById('adminCourses'),
-            
-            // Modais
-            courseModal: document.getElementById('courseModal'),
-            courseModalTitle: document.getElementById('courseModalTitle'),
-            courseContent: document.getElementById('courseContent'),
-            courseProgress: document.getElementById('courseProgress'),
-            courseProgressText: document.getElementById('courseProgressText'),
-            startCourseBtn: document.getElementById('startCourseBtn'),
-            closeCourseModal: document.getElementById('closeCourseModal'),
-            
-            certificateModal: document.getElementById('certificateModal'),
-            certificateContent: document.getElementById('certificateContent'),
-            downloadCertificate: document.getElementById('downloadCertificate'),
-            shareCertificate: document.getElementById('shareCertificate'),
-            closeCertificateModal: document.getElementById('closeCertificateModal')
-        };
-
-        // Inicialização da aplicação
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeApp();
-            setupEventListeners();
-            loadCourses();
+        let currentCourse = null;
+        
+        // Elementos DOM
+        const loginBtn = document.getElementById('login-btn');
+        const signupBtn = document.getElementById('signup-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const userArea = document.getElementById('user-area');
+        const authButtons = document.getElementById('auth-buttons');
+        const userName = document.getElementById('user-name');
+        const userMenuBtn = document.getElementById('user-menu-btn');
+        const userMenu = document.getElementById('user-menu');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const aiAssistantBtn = document.getElementById('ai-assistant-btn');
+        const adminOnlyElements = document.querySelectorAll('.admin-only');
+        
+        // Modais
+        const loginModal = document.getElementById('login-modal');
+        const signupModal = document.getElementById('signup-modal');
+        const aiModal = document.getElementById('ai-modal');
+        const courseModal = document.getElementById('course-modal');
+        const adminModal = document.getElementById('admin-modal');
+        const courseFormModal = document.getElementById('course-form-modal');
+        
+        // Formulários
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const courseForm = document.getElementById('course-form');
+        
+        // Botões de fechar modais
+        document.getElementById('close-login-modal').addEventListener('click', () => hideModal(loginModal));
+        document.getElementById('close-signup-modal').addEventListener('click', () => hideModal(signupModal));
+        document.getElementById('close-ai-modal').addEventListener('click', () => hideModal(aiModal));
+        document.getElementById('close-course-modal').addEventListener('click', () => hideModal(courseModal));
+        document.getElementById('close-admin-modal').addEventListener('click', () => hideModal(adminModal));
+        document.getElementById('close-course-form-modal').addEventListener('click', () => hideModal(courseFormModal));
+        
+        // Alternar entre login e cadastro
+        document.getElementById('switch-to-signup').addEventListener('click', () => {
+            hideModal(loginModal);
+            showModal(signupModal);
         });
-
-        function initializeApp() {
-            // Verificar estado de autenticação
-            auth.onAuthStateChanged((user) => {
-                if (user) {
-                    currentUser = user;
-                    checkIfAdmin(user);
-                    loadUserData(user);
-                    showUserSection();
-                } else {
-                    currentUser = null;
-                    isAdmin = false;
-                    showAuthSection();
-                }
-            });
+        
+        document.getElementById('switch-to-login').addEventListener('click', () => {
+            hideModal(signupModal);
+            showModal(loginModal);
+        });
+        
+        // Funções para mostrar/ocultar modais
+        function showModal(modal) {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
         }
-
-        function setupEventListeners() {
-            // Navegação mobile
-            elements.mobileMenuBtn.addEventListener('click', toggleMobileMenu);
-            
-            // Navegação entre páginas
-            elements.navLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const page = link.getAttribute('data-page');
-                    showPage(page);
-                    
-                    // Fechar menu mobile após clicar em um link
-                    if (window.innerWidth < 768) {
-                        elements.sidebar.classList.remove('open');
-                    }
-                });
-            });
-            
-            // Filtros de categoria
-            elements.categoryFilters.forEach(filter => {
-                filter.addEventListener('click', () => {
-                    elements.categoryFilters.forEach(f => f.classList.remove('active'));
-                    filter.classList.add('active');
-                    const category = filter.getAttribute('data-category');
-                    filterCourses(category);
-                });
-            });
-            
-            // Autenticação
-            elements.loginBtn.addEventListener('click', () => showAuthModal('login'));
-            elements.registerBtn.addEventListener('click', () => showAuthModal('register'));
-            elements.logoutBtn.addEventListener('click', logout);
-            
-            elements.closeAuthModal.addEventListener('click', () => elements.authModal.classList.add('hidden'));
-            elements.loginTab.addEventListener('click', () => switchAuthTab('login'));
-            elements.registerTab.addEventListener('click', () => switchAuthTab('register'));
-            elements.authForm.addEventListener('submit', handleAuth);
-            elements.googleAuth.addEventListener('click', signInWithGoogle);
-            
-            // Gemini
-            elements.askGemini.addEventListener('click', askGemini);
-            elements.geminiQuestion.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') askGemini();
-            });
-            
-            // Admin
-            elements.addCourseBtn.addEventListener('click', () => elements.addCourseForm.classList.toggle('hidden'));
-            elements.cancelCourse.addEventListener('click', () => elements.addCourseForm.classList.add('hidden'));
-            elements.saveCourse.addEventListener('click', saveCourse);
-            elements.addYoutubeLink.addEventListener('click', addYoutubeContent);
-            elements.fileUpload.addEventListener('change', handleFileUpload);
-            
-            // Modais
-            elements.closeCourseModal.addEventListener('click', () => elements.courseModal.classList.add('hidden'));
-            elements.startCourseBtn.addEventListener('click', startCourse);
-            elements.closeCertificateModal.addEventListener('click', () => elements.certificateModal.classList.add('hidden'));
-            elements.downloadCertificate.addEventListener('click', downloadCertificate);
-            elements.shareCertificate.addEventListener('click', shareCertificate);
+        
+        function hideModal(modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
         }
-
-        function toggleMobileMenu() {
-            elements.sidebar.classList.toggle('open');
-        }
-
-        function showPage(pageName) {
-            // Esconder todas as páginas
-            elements.pages.forEach(page => {
-                page.classList.remove('active');
-                page.classList.add('hidden');
-            });
-            
-            // Remover classe active de todos os links
-            elements.navLinks.forEach(link => {
-                link.classList.remove('active');
-            });
-            
-            // Mostrar a página selecionada
-            const pageElement = document.getElementById(`${pageName}Page`);
-            if (pageElement) {
-                pageElement.classList.remove('hidden');
-                pageElement.classList.add('active');
+        
+        // Menu móvel
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // Menu do usuário
+        userMenuBtn.addEventListener('click', () => {
+            userMenu.classList.toggle('hidden');
+        });
+        
+        // Fechar menu ao clicar fora
+        document.addEventListener('click', (e) => {
+            if (!userMenuBtn.contains(e.target) && !userMenu.contains(e.target)) {
+                userMenu.classList.add('hidden');
+            }
+        });
+        
+        // Abrir modais
+        loginBtn.addEventListener('click', () => showModal(loginModal));
+        signupBtn.addEventListener('click', () => showModal(signupModal));
+        aiAssistantBtn.addEventListener('click', () => showModal(aiModal));
+        
+        // Painel administrativo
+        document.querySelectorAll('.admin-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remover classe active de todas as abas
+                document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+                // Adicionar classe active à aba clicada
+                tab.classList.add('active');
                 
-                // Ativar o link correspondente
-                const activeLink = document.querySelector(`[data-page="${pageName}"]`);
-                if (activeLink) {
-                    activeLink.classList.add('active');
-                }
-                
-                // Carregar conteúdo específico da página
-                switch(pageName) {
-                    case 'courses':
-                        loadUserCourses();
-                        break;
-                    case 'certificates':
-                        loadUserCertificates();
-                        break;
-                    case 'profile':
-                        loadUserProfile();
-                        break;
-                    case 'gemini':
-                        loadGeminiSuggestions();
-                        break;
-                    case 'admin':
-                        loadAdminData();
-                        break;
-                }
-            }
-        }
-
-        function showAuthSection() {
-            elements.authSection.classList.remove('hidden');
-            elements.userSection.classList.add('hidden');
-            elements.adminNav.classList.add('hidden');
-        }
-
-        function showUserSection() {
-            elements.authSection.classList.add('hidden');
-            elements.userSection.classList.remove('hidden');
-            
-            if (isAdmin) {
-                elements.adminNav.classList.remove('hidden');
-            } else {
-                elements.adminNav.classList.add('hidden');
-            }
-        }
-
-        function showAuthModal(mode) {
-            elements.authModal.classList.remove('hidden');
-            switchAuthTab(mode);
-        }
-
-        function switchAuthTab(mode) {
-            if (mode === 'login') {
-                elements.authModalTitle.textContent = 'Entrar';
-                elements.loginTab.classList.add('border-blue-600', 'text-blue-600');
-                elements.loginTab.classList.remove('border-gray-200', 'text-gray-500');
-                elements.registerTab.classList.add('border-gray-200', 'text-gray-500');
-                elements.registerTab.classList.remove('border-blue-600', 'text-blue-600');
-                elements.registerFields.classList.add('hidden');
-                elements.authSubmit.textContent = 'Entrar';
-            } else {
-                elements.authModalTitle.textContent = 'Registrar';
-                elements.registerTab.classList.add('border-blue-600', 'text-blue-600');
-                elements.registerTab.classList.remove('border-gray-200', 'text-gray-500');
-                elements.loginTab.classList.add('border-gray-200', 'text-gray-500');
-                elements.loginTab.classList.remove('border-blue-600', 'text-blue-600');
-                elements.registerFields.classList.remove('hidden');
-                elements.authSubmit.textContent = 'Registrar';
-            }
-        }
-
-        async function handleAuth(e) {
+                // Ocultar todos os conteúdos de abas
+                document.querySelectorAll('.admin-tab-content').forEach(content => content.classList.add('hidden'));
+                // Mostrar o conteúdo da aba correspondente
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(`admin-${tabId}-tab`).classList.remove('hidden');
+            });
+        });
+        
+        // Login com e-mail/senha
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const email = elements.authEmail.value;
-            const password = elements.authPassword.value;
-            const name = elements.authName.value;
-            const isLogin = elements.authSubmit.textContent === 'Entrar';
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
             
             try {
-                if (isLogin) {
-                    await auth.signInWithEmailAndPassword(email, password);
-                } else {
-                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                    await db.collection('users').doc(userCredential.user.uid).set({
-                        name: name,
-                        email: email,
-                        stars: 0,
-                        coursesStarted: [],
-                        coursesCompleted: [],
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                }
-                
-                elements.authModal.classList.add('hidden');
-                elements.authForm.reset();
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                currentUser = userCredential.user;
+                checkAdminStatus();
+                hideModal(loginModal);
+                showUserArea();
             } catch (error) {
-                alert(`Erro: ${error.message}`);
+                alert('Erro no login: ' + error.message);
             }
-        }
-
+        });
+        
+        // Cadastro com e-mail/senha
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('signup-confirm-password').value;
+            
+            if (password !== confirmPassword) {
+                alert('As senhas não coincidem!');
+                return;
+            }
+            
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                currentUser = userCredential.user;
+                
+                // Salvar informações adicionais do usuário no Firestore
+                await db.collection('users').doc(currentUser.uid).set({
+                    name: name,
+                    email: email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    isAdmin: false,
+                    points: 0,
+                    completedCourses: []
+                });
+                
+                checkAdminStatus();
+                hideModal(signupModal);
+                showUserArea();
+            } catch (error) {
+                alert('Erro no cadastro: ' + error.message);
+            }
+        });
+        
+        // Login com Google
+        document.getElementById('google-login-btn').addEventListener('click', signInWithGoogle);
+        document.getElementById('google-signup-btn').addEventListener('click', signInWithGoogle);
+        
         async function signInWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             
             try {
-                await auth.signInWithPopup(provider);
-                elements.authModal.classList.add('hidden');
+                const result = await auth.signInWithPopup(provider);
+                currentUser = result.user;
+                
+                // Verificar se o usuário já existe no Firestore
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                
+                if (!userDoc.exists) {
+                    // Criar novo usuário no Firestore
+                    await db.collection('users').doc(currentUser.uid).set({
+                        name: currentUser.displayName,
+                        email: currentUser.email,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        isAdmin: false,
+                        points: 0,
+                        completedCourses: []
+                    });
+                }
+                
+                checkAdminStatus();
+                hideModal(loginModal);
+                hideModal(signupModal);
+                showUserArea();
             } catch (error) {
-                alert(`Erro ao entrar com Google: ${error.message}`);
+                alert('Erro no login com Google: ' + error.message);
             }
         }
-
-        async function logout() {
-            try {
-                await auth.signOut();
-            } catch (error) {
-                alert(`Erro ao sair: ${error.message}`);
-            }
-        }
-
-        async function checkIfAdmin(user) {
-            if (user.email === 'denzelkhossa@gmail.com') {
-                isAdmin = true;
-                elements.userName.innerHTML = `${user.displayName || user.email} <span class="admin-badge">Admin</span>`;
+        
+        // Logout
+        logoutBtn.addEventListener('click', () => {
+            auth.signOut();
+        });
+        
+        // Monitorar estado de autenticação
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                await checkAdminStatus();
+                showUserArea();
+                loadCourses();
+                
+                if (isAdmin) {
+                    loadAdminData();
+                }
             } else {
+                currentUser = null;
                 isAdmin = false;
-                elements.userName.textContent = user.displayName || user.email;
+                hideUserArea();
             }
-        }
-
-        async function loadUserData(user) {
+        });
+        
+        // Verificar se o usuário é administrador
+        async function checkAdminStatus() {
+            if (!currentUser) {
+                isAdmin = false;
+                return;
+            }
+            
+            // Verificar se é o e-mail do administrador
+            if (currentUser.email === 'denzelkhossa@gmail.com') {
+                isAdmin = true;
+                document.body.classList.add('admin-logged-in');
+                return;
+            }
+            
+            // Verificar no Firestore
             try {
-                const userDoc = await db.collection('users').doc(user.uid).get();
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
                 if (userDoc.exists) {
                     const userData = userDoc.data();
-                    elements.userStars.innerHTML = `<i class="fas fa-star"></i> ${userData.stars || 0}`;
+                    isAdmin = userData.isAdmin || false;
                     
-                    // Carregar progresso do usuário
-                    userProgress = userData.coursesStarted || {};
+                    if (isAdmin) {
+                        document.body.classList.add('admin-logged-in');
+                    } else {
+                        document.body.classList.remove('admin-logged-in');
+                    }
                 }
             } catch (error) {
-                console.error('Erro ao carregar dados do usuário:', error);
+                console.error('Erro ao verificar status de administrador:', error);
+                isAdmin = false;
+                document.body.classList.remove('admin-logged-in');
             }
         }
-
+        
+        // Mostrar área do usuário
+        function showUserArea() {
+            authButtons.classList.add('hidden');
+            userArea.classList.remove('hidden');
+            userName.textContent = currentUser.displayName || currentUser.email;
+            
+            // Adicionar botão do painel admin se for administrador
+            if (isAdmin) {
+                const adminBtn = document.createElement('button');
+                adminBtn.id = 'admin-panel-btn';
+                adminBtn.className = 'px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition';
+                adminBtn.innerHTML = '<i class="fas fa-cog mr-2"></i>Painel Admin';
+                adminBtn.addEventListener('click', () => showModal(adminModal));
+                
+                userArea.querySelector('.flex').insertBefore(adminBtn, userArea.querySelector('.relative'));
+            } else {
+                const existingAdminBtn = document.getElementById('admin-panel-btn');
+                if (existingAdminBtn) {
+                    existingAdminBtn.remove();
+                }
+            }
+        }
+        
+        // Ocultar área do usuário
+        function hideUserArea() {
+            authButtons.classList.remove('hidden');
+            userArea.classList.add('hidden');
+            document.body.classList.remove('admin-logged-in');
+            
+            const existingAdminBtn = document.getElementById('admin-panel-btn');
+            if (existingAdminBtn) {
+                existingAdminBtn.remove();
+            }
+        }
+        
+        // Carregar cursos do Firestore
         async function loadCourses() {
             try {
                 const coursesSnapshot = await db.collection('courses').get();
                 courses = [];
+                
                 coursesSnapshot.forEach(doc => {
-                    courses.push({ id: doc.id, ...doc.data() });
+                    courses.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
                 });
                 
-                displayCourses(courses);
+                renderCourses();
             } catch (error) {
                 console.error('Erro ao carregar cursos:', error);
             }
         }
-
-        function displayCourses(coursesToDisplay) {
-            elements.coursesList.innerHTML = '';
+        
+        // Renderizar cursos na página
+        function renderCourses() {
+            const coursesGrid = document.getElementById('courses-grid');
+            coursesGrid.innerHTML = '';
             
-            coursesToDisplay.forEach(course => {
+            courses.forEach(course => {
                 const courseCard = document.createElement('div');
-                courseCard.className = 'course-card bg-white rounded-lg shadow-md overflow-hidden fade-in';
+                courseCard.className = 'course-card bg-white rounded-lg shadow overflow-hidden fade-in';
                 courseCard.innerHTML = `
-                    <div class="h-40 bg-blue-100 flex items-center justify-center">
-                        <i class="fas fa-${getCourseIcon(course.format)} text-4xl text-blue-600"></i>
+                    <div class="h-48 bg-gray-200 relative">
+                        ${course.youtubeLink ? `
+                            <img src="https://img.youtube.com/vi/${extractYouTubeId(course.youtubeLink)}/hqdefault.jpg" 
+                                 alt="${course.title}" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+                                <i class="fas fa-play text-white text-4xl"></i>
+                            </div>
+                        ` : `
+                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-r from-blue-500 to-blue-700">
+                                <i class="fas fa-book-open text-white text-6xl"></i>
+                            </div>
+                        `}
                     </div>
                     <div class="p-4">
-                        <h3 class="font-bold text-lg mb-2">${course.title}</h3>
-                        <p class="text-gray-600 text-sm mb-2">${course.instructor}</p>
-                        <p class="text-gray-700 mb-4">${course.description.substring(0, 100)}...</p>
-                        <div class="flex justify-between items-center">
-                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">${formatCategory(course.category)}</span>
-                            <button class="view-course btn-primary text-sm" data-id="${course.id}">Ver Curso</button>
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg">${course.title}</h3>
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">${formatCategory(course.category)}</span>
                         </div>
+                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">${course.description}</p>
+                        <div class="flex justify-between items-center text-sm text-gray-500 mb-3">
+                            <span><i class="fas fa-user-tie mr-1"></i>${course.instructor}</span>
+                            <span><i class="fas fa-${getFormatIcon(course.format)} mr-1"></i>${formatFormat(course.format)}</span>
+                        </div>
+                        <button class="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition start-course-btn" data-course-id="${course.id}">
+                            Iniciar Curso
+                        </button>
                     </div>
                 `;
                 
-                elements.coursesList.appendChild(courseCard);
+                coursesGrid.appendChild(courseCard);
             });
             
-            // Adicionar event listeners aos botões de visualização
-            document.querySelectorAll('.view-course').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const courseId = e.target.getAttribute('data-id');
-                    viewCourse(courseId);
+            // Adicionar event listeners aos botões de iniciar curso
+            document.querySelectorAll('.start-course-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const courseId = e.target.getAttribute('data-course-id');
+                    openCourse(courseId);
                 });
             });
         }
-
-        function filterCourses(category) {
-            if (category === 'all') {
-                displayCourses(courses);
+        
+        // Abrir modal do curso
+        function openCourse(courseId) {
+            currentCourse = courses.find(c => c.id === courseId);
+            
+            if (!currentCourse) return;
+            
+            document.getElementById('course-modal-title').textContent = currentCourse.title;
+            
+            const courseContent = document.getElementById('course-modal-content');
+            courseContent.innerHTML = `
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">${formatCategory(currentCourse.category)}</span>
+                        <span class="text-gray-600 text-sm"><i class="fas fa-user-tie mr-1"></i>${currentCourse.instructor}</span>
+                    </div>
+                    <p class="text-gray-700 mb-4">${currentCourse.description}</p>
+                    
+                    ${currentCourse.youtubeLink ? `
+                        <div class="mb-4">
+                            <h4 class="font-bold mb-2">Vídeo do Curso</h4>
+                            <div class="aspect-w-16 aspect-h-9">
+                                <iframe src="https://www.youtube.com/embed/${extractYouTubeId(currentCourse.youtubeLink)}" 
+                                        frameborder="0" allowfullscreen class="w-full h-64 rounded-lg"></iframe>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${currentCourse.fileUrl ? `
+                        <div class="mb-4">
+                            <h4 class="font-bold mb-2">Material do Curso</h4>
+                            <div class="flex items-center justify-between p-3 bg-gray-100 rounded-lg">
+                                <div class="flex items-center">
+                                    <i class="fas fa-file-${getFileIcon(currentCourse.fileUrl)} text-blue-600 text-xl mr-3"></i>
+                                    <span>${getFileName(currentCourse.fileUrl)}</span>
+                                </div>
+                                <a href="${currentCourse.fileUrl}" download class="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                                    <i class="fas fa-download mr-1"></i>Baixar
+                                </a>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="flex justify-between items-center mt-6">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-2">
+                                <i class="fas fa-star text-yellow-500"></i>
+                            </div>
+                            <span>Ganhe 10 pontos ao concluir</span>
+                        </div>
+                        <button class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition complete-course-btn">
+                            <i class="fas fa-check mr-1"></i>Marcar como Concluído
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Adicionar event listener ao botão de concluir curso
+            document.querySelector('.complete-course-btn').addEventListener('click', completeCourse);
+            
+            showModal(courseModal);
+        }
+        
+        // Concluir curso
+        async function completeCourse() {
+            if (!currentUser || !currentCourse) return;
+            
+            try {
+                // Atualizar progresso do usuário
+                const userRef = db.collection('users').doc(currentUser.uid);
+                const userDoc = await userRef.get();
+                const userData = userDoc.data();
+                
+                const completedCourses = userData.completedCourses || [];
+                
+                if (!completedCourses.includes(currentCourse.id)) {
+                    completedCourses.push(currentCourse.id);
+                    
+                    await userRef.update({
+                        completedCourses: completedCourses,
+                        points: (userData.points || 0) + 10
+                    });
+                    
+                    // Gerar certificado
+                    generateCertificate();
+                    
+                    alert('Parabéns! Você concluiu o curso e ganhou 10 pontos!');
+                    hideModal(courseModal);
+                } else {
+                    alert('Você já concluiu este curso!');
+                }
+            } catch (error) {
+                console.error('Erro ao concluir curso:', error);
+                alert('Erro ao concluir o curso. Tente novamente.');
+            }
+        }
+        
+        // Gerar certificado
+        function generateCertificate() {
+            // Esta função geraria um certificado em PDF
+            // Por simplicidade, vamos apenas simular o download
+            alert('Certificado gerado com sucesso! Em uma implementação real, um PDF seria baixado.');
+        }
+        
+        // Assistente de IA
+        document.getElementById('send-ai-message').addEventListener('click', sendAIMessage);
+        document.getElementById('ai-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendAIMessage();
+            }
+        });
+        
+        async function sendAIMessage() {
+            const input = document.getElementById('ai-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Adicionar mensagem do usuário ao chat
+            addMessageToChat(message, 'user');
+            input.value = '';
+            
+            try {
+                // Simular resposta da IA (em uma implementação real, integraríamos com a API do Gemini)
+                const response = await simulateGeminiResponse(message);
+                addMessageToChat(response, 'ai');
+            } catch (error) {
+                addMessageToChat('Desculpe, ocorreu um erro ao processar sua mensagem. Tente novamente.', 'ai');
+            }
+        }
+        
+        function addMessageToChat(message, sender) {
+            const chat = document.getElementById('ai-chat');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `${sender}-message mb-4 fade-in`;
+            
+            if (sender === 'user') {
+                messageDiv.innerHTML = `
+                    <div class="flex items-start justify-end space-x-2">
+                        <div class="bg-blue-600 text-white p-3 rounded-lg max-w-xs md:max-w-md">
+                            <p>${message}</p>
+                        </div>
+                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-white"></i>
+                        </div>
+                    </div>
+                `;
             } else {
-                const filteredCourses = courses.filter(course => course.category === category);
-                displayCourses(filteredCourses);
+                messageDiv.innerHTML = `
+                    <div class="flex items-start space-x-2">
+                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                            <i class="fas fa-robot text-white"></i>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg max-w-xs md:max-w-md">
+                            <p>${message}</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            chat.appendChild(messageDiv);
+            chat.scrollTop = chat.scrollHeight;
+        }
+        
+        // Simular resposta da IA Gemini (em uma implementação real, usaríamos a API)
+        async function simulateGeminiResponse(message) {
+            // Simular um delay de rede
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            const lowerMessage = message.toLowerCase();
+            
+            if (lowerMessage.includes('curso') || lowerMessage.includes('recomenda')) {
+                return `Com base no seu interesse, recomendo os seguintes cursos:
+                
+1. **Empreendedorismo para Iniciantes** - Aprenda os fundamentos para iniciar seu próprio negócio
+2. **Agricultura Sustentável** - Técnicas modernas de cultivo adaptadas ao clima de Moçambique
+3. **Introdução à Programação** - Desenvolva habilidades digitais para o futuro
+
+Qual área te interessa mais?`;
+            } else if (lowerMessage.includes('agricultura') || lowerMessage.includes('cultivo')) {
+                return `Para agricultura, temos cursos específicos sobre:
+                
+- Técnicas de irrigação eficiente
+- Cultivo de produtos locais como mandioca e milho
+- Uso sustentável do solo
+- Combate a pragas de forma natural
+
+Gostaria de saber mais sobre algum desses tópicos?`;
+            } else if (lowerMessage.includes('certificado')) {
+                return `Ao concluir qualquer curso na plataforma, você receberá automaticamente um certificado digital em PDF com QR Code para validação. Os certificados são gratuitos e podem ser usados para enriquecer seu currículo.`;
+            } else {
+                return `Obrigado pela sua pergunta! Como assistente de IA do Aprende Moçambique, posso ajudar você a:
+                
+- Encontrar cursos adequados aos seus interesses
+- Explicar conceitos dos cursos
+- Dar dicas de estudo personalizadas
+- Acompanhar seu progresso
+
+Em que posso ajudar especificamente?`;
             }
         }
-
-        function getCourseIcon(format) {
-            switch(format) {
-                case 'video': return 'video';
-                case 'pdf': return 'file-pdf';
-                case 'audio': return 'headphones';
-                case 'image': return 'image';
-                default: return 'book';
+        
+        // Painel administrativo - Adicionar curso
+        document.getElementById('add-course-btn').addEventListener('click', () => {
+            document.getElementById('course-form-title').textContent = 'Adicionar Novo Curso';
+            document.getElementById('course-id').value = '';
+            document.getElementById('course-form').reset();
+            showModal(courseFormModal);
+        });
+        
+        // Formulário de curso
+        courseForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const courseId = document.getElementById('course-id').value;
+            const title = document.getElementById('course-title').value;
+            const description = document.getElementById('course-description').value;
+            const instructor = document.getElementById('course-instructor').value;
+            const category = document.getElementById('course-category').value;
+            const format = document.getElementById('course-format').value;
+            const youtubeLink = document.getElementById('course-youtube-link').value;
+            const file = document.getElementById('course-file').files[0];
+            
+            try {
+                let fileUrl = '';
+                
+                // Fazer upload do arquivo se houver
+                if (file) {
+                    const storageRef = storage.ref();
+                    const fileRef = storageRef.child(`courses/${Date.now()}_${file.name}`);
+                    await fileRef.put(file);
+                    fileUrl = await fileRef.getDownloadURL();
+                }
+                
+                const courseData = {
+                    title,
+                    description,
+                    instructor,
+                    category,
+                    format,
+                    youtubeLink: youtubeLink || '',
+                    fileUrl,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                if (courseId) {
+                    // Atualizar curso existente
+                    await db.collection('courses').doc(courseId).update(courseData);
+                } else {
+                    // Adicionar novo curso
+                    await db.collection('courses').add(courseData);
+                }
+                
+                hideModal(courseFormModal);
+                loadCourses();
+                loadAdminData();
+            } catch (error) {
+                alert('Erro ao salvar curso: ' + error.message);
+            }
+        });
+        
+        // Carregar dados do painel administrativo
+        async function loadAdminData() {
+            if (!isAdmin) return;
+            
+            try {
+                // Carregar estatísticas
+                const usersSnapshot = await db.collection('users').get();
+                const coursesSnapshot = await db.collection('courses').get();
+                
+                document.getElementById('total-users').textContent = usersSnapshot.size;
+                document.getElementById('total-courses').textContent = coursesSnapshot.size;
+                
+                // Calcular cursos concluídos
+                let completedCount = 0;
+                usersSnapshot.forEach(doc => {
+                    const userData = doc.data();
+                    if (userData.completedCourses) {
+                        completedCount += userData.completedCourses.length;
+                    }
+                });
+                
+                document.getElementById('completed-courses').textContent = completedCount;
+                
+                // Carregar lista de cursos para administração
+                const adminCoursesList = document.getElementById('admin-courses-list');
+                adminCoursesList.innerHTML = '';
+                
+                courses.forEach(course => {
+                    const courseItem = document.createElement('div');
+                    courseItem.className = 'flex justify-between items-center p-3 border-b';
+                    courseItem.innerHTML = `
+                        <div>
+                            <h5 class="font-bold">${course.title}</h5>
+                            <p class="text-sm text-gray-600">${course.instructor} • ${formatCategory(course.category)}</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="edit-course-btn px-3 py-1 bg-blue-600 text-white rounded-md text-sm" data-course-id="${course.id}">
+                                <i class="fas fa-edit mr-1"></i>Editar
+                            </button>
+                            <button class="delete-course-btn px-3 py-1 bg-red-600 text-white rounded-md text-sm" data-course-id="${course.id}">
+                                <i class="fas fa-trash mr-1"></i>Excluir
+                            </button>
+                        </div>
+                    `;
+                    
+                    adminCoursesList.appendChild(courseItem);
+                });
+                
+                // Adicionar event listeners aos botões de editar e excluir
+                document.querySelectorAll('.edit-course-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const courseId = e.target.closest('button').getAttribute('data-course-id');
+                        editCourse(courseId);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-course-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const courseId = e.target.closest('button').getAttribute('data-course-id');
+                        deleteCourse(courseId);
+                    });
+                });
+                
+                // Carregar lista de usuários
+                const adminUsersList = document.getElementById('admin-users-list');
+                adminUsersList.innerHTML = '';
+                
+                usersSnapshot.forEach(doc => {
+                    const userData = doc.data();
+                    const userItem = document.createElement('div');
+                    userItem.className = 'flex justify-between items-center p-3 border-b';
+                    userItem.innerHTML = `
+                        <div>
+                            <h5 class="font-bold">${userData.name}</h5>
+                            <p class="text-sm text-gray-600">${userData.email} • ${userData.points || 0} pontos</p>
+                        </div>
+                        <div>
+                            <span class="text-sm ${userData.isAdmin ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'} px-2 py-1 rounded-full">
+                                ${userData.isAdmin ? 'Administrador' : 'Usuário'}
+                            </span>
+                        </div>
+                    `;
+                    
+                    adminUsersList.appendChild(userItem);
+                });
+            } catch (error) {
+                console.error('Erro ao carregar dados administrativos:', error);
             }
         }
-
+        
+        // Editar curso
+        function editCourse(courseId) {
+            const course = courses.find(c => c.id === courseId);
+            if (!course) return;
+            
+            document.getElementById('course-form-title').textContent = 'Editar Curso';
+            document.getElementById('course-id').value = course.id;
+            document.getElementById('course-title').value = course.title;
+            document.getElementById('course-description').value = course.description;
+            document.getElementById('course-instructor').value = course.instructor;
+            document.getElementById('course-category').value = course.category;
+            document.getElementById('course-format').value = course.format;
+            document.getElementById('course-youtube-link').value = course.youtubeLink || '';
+            
+            showModal(courseFormModal);
+        }
+        
+        // Excluir curso
+        async function deleteCourse(courseId) {
+            if (!confirm('Tem certeza que deseja excluir este curso?')) return;
+            
+            try {
+                await db.collection('courses').doc(courseId).delete();
+                loadCourses();
+                loadAdminData();
+            } catch (error) {
+                alert('Erro ao excluir curso: ' + error.message);
+            }
+        }
+        
+        // Funções auxiliares
+        function extractYouTubeId(url) {
+            const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[7].length === 11) ? match[7] : null;
+        }
+        
         function formatCategory(category) {
             const categories = {
                 'empreendedorismo': 'Empreendedorismo',
@@ -902,747 +1352,62 @@
             };
             return categories[category] || category;
         }
-
-        function viewCourse(courseId) {
-            const course = courses.find(c => c.id === courseId);
-            if (!course) return;
-            
-            elements.courseModalTitle.textContent = course.title;
-            elements.courseContent.innerHTML = `
-                <div class="mb-4">
-                    <p class="text-gray-700">${course.description}</p>
-                </div>
-                <div class="mb-4">
-                    <p><strong>Professor:</strong> ${course.instructor}</p>
-                    <p><strong>Categoria:</strong> ${formatCategory(course.category)}</p>
-                    <p><strong>Formato:</strong> ${course.format}</p>
-                </div>
-                <div>
-                    <h4 class="font-semibold mb-2">Conteúdo do Curso</h4>
-                    <div id="courseMaterials" class="space-y-2">
-                        <!-- Materiais do curso serão carregados aqui -->
-                    </div>
-                </div>
-            `;
-            
-            // Carregar materiais do curso
-            loadCourseMaterials(courseId);
-            
-            // Verificar se o usuário já iniciou o curso
-            const progress = userProgress[courseId] || 0;
-            elements.courseProgress.style.width = `${progress}%`;
-            elements.courseProgressText.textContent = `${progress}% completo`;
-            
-            if (progress === 100) {
-                elements.startCourseBtn.textContent = 'Curso Concluído';
-                elements.startCourseBtn.disabled = true;
-                elements.startCourseBtn.classList.add('bg-green-600');
-                elements.startCourseBtn.classList.remove('bg-blue-600');
-            } else if (progress > 0) {
-                elements.startCourseBtn.textContent = 'Continuar Curso';
-            } else {
-                elements.startCourseBtn.textContent = 'Iniciar Curso';
-            }
-            
-            elements.startCourseBtn.setAttribute('data-id', courseId);
-            elements.courseModal.classList.remove('hidden');
-        }
-
-        async function loadCourseMaterials(courseId) {
-            try {
-                const materialsSnapshot = await db.collection('courses').doc(courseId).collection('materials').get();
-                const materialsContainer = document.getElementById('courseMaterials');
-                materialsContainer.innerHTML = '';
-                
-                materialsSnapshot.forEach(doc => {
-                    const material = doc.data();
-                    const materialElement = document.createElement('div');
-                    materialElement.className = 'border rounded p-2 flex justify-between items-center';
-                    
-                    let contentHTML = '';
-                    if (material.type === 'youtube') {
-                        contentHTML = `
-                            <div>
-                                <i class="fab fa-youtube text-red-500 mr-2"></i>
-                                <span>Vídeo: ${material.title || 'Vídeo do YouTube'}</span>
-                            </div>
-                            <button class="view-material btn-primary text-sm" data-type="youtube" data-url="${material.url}">Assistir</button>
-                        `;
-                    } else {
-                        const icon = getCourseIcon(material.type);
-                        contentHTML = `
-                            <div>
-                                <i class="fas fa-${icon} text-blue-600 mr-2"></i>
-                                <span>${material.title || `Arquivo ${material.type.toUpperCase()}`}</span>
-                            </div>
-                            <div>
-                                <button class="view-material btn-primary text-sm mr-2" data-type="${material.type}" data-url="${material.url}">Ver</button>
-                                <button class="download-material border border-blue-600 text-blue-600 px-2 py-1 rounded text-sm" data-url="${material.url}" data-filename="${material.title}">Baixar</button>
-                            </div>
-                        `;
-                    }
-                    
-                    materialElement.innerHTML = contentHTML;
-                    materialsContainer.appendChild(materialElement);
-                });
-                
-                // Adicionar event listeners aos botões de material
-                document.querySelectorAll('.view-material').forEach(button => {
-                    button.addEventListener('click', (e) => {
-                        const type = e.target.getAttribute('data-type');
-                        const url = e.target.getAttribute('data-url');
-                        viewMaterial(type, url);
-                    });
-                });
-                
-                document.querySelectorAll('.download-material').forEach(button => {
-                    button.addEventListener('click', (e) => {
-                        const url = e.target.getAttribute('data-url');
-                        const filename = e.target.getAttribute('data-filename') || 'material';
-                        downloadMaterial(url, filename);
-                    });
-                });
-            } catch (error) {
-                console.error('Erro ao carregar materiais do curso:', error);
-            }
-        }
-
-        function viewMaterial(type, url) {
-            if (type === 'youtube') {
-                // Extrair ID do vídeo do YouTube
-                const videoId = extractYouTubeId(url);
-                if (videoId) {
-                    window.open(`https://www.youtube.com/embed/${videoId}`, '_blank');
-                }
-            } else {
-                window.open(url, '_blank');
-            }
-        }
-
-        function extractYouTubeId(url) {
-            const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[7].length === 11) ? match[7] : false;
-        }
-
-        async function downloadMaterial(url, filename) {
-            try {
-                const response = await fetch(url);
-                const blob = await response.blob();
-                const downloadUrl = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = downloadUrl;
-                a.download = filename;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(downloadUrl);
-            } catch (error) {
-                console.error('Erro ao baixar material:', error);
-                alert('Erro ao baixar o arquivo. Tente novamente.');
-            }
-        }
-
-        async function startCourse() {
-            if (!currentUser) {
-                alert('Você precisa estar logado para iniciar um curso.');
-                showAuthModal('login');
-                return;
-            }
-            
-            const courseId = elements.startCourseBtn.getAttribute('data-id');
-            const course = courses.find(c => c.id === courseId);
-            
-            if (!userProgress[courseId]) {
-                userProgress[courseId] = 0;
-                
-                // Atualizar no Firestore
-                await db.collection('users').doc(currentUser.uid).update({
-                    [`coursesStarted.${courseId}`]: 0
-                });
-            }
-            
-            // Simular progresso (em uma aplicação real, isso seria baseado na interação do usuário)
-            if (userProgress[courseId] < 100) {
-                userProgress[courseId] += 25;
-                if (userProgress[courseId] > 100) userProgress[courseId] = 100;
-                
-                // Atualizar no Firestore
-                await db.collection('users').doc(currentUser.uid).update({
-                    [`coursesStarted.${courseId}`]: userProgress[courseId]
-                });
-                
-                // Atualizar a barra de progresso
-                elements.courseProgress.style.width = `${userProgress[courseId]}%`;
-                elements.courseProgressText.textContent = `${userProgress[courseId]}% completo`;
-                
-                // Se o curso foi concluído
-                if (userProgress[courseId] === 100) {
-                    elements.startCourseBtn.textContent = 'Curso Concluído';
-                    elements.startCourseBtn.disabled = true;
-                    elements.startCourseBtn.classList.add('bg-green-600');
-                    elements.startCourseBtn.classList.remove('bg-blue-600');
-                    
-                    // Adicionar estrelas
-                    await addStars(5);
-                    
-                    // Gerar certificado
-                    await generateCertificate(course);
-                } else {
-                    elements.startCourseBtn.textContent = 'Continuar Curso';
-                }
-            }
-        }
-
-        async function addStars(amount) {
-            if (!currentUser) return;
-            
-            try {
-                const userDoc = await db.collection('users').doc(currentUser.uid).get();
-                const userData = userDoc.data();
-                const newStars = (userData.stars || 0) + amount;
-                
-                await db.collection('users').doc(currentUser.uid).update({
-                    stars: newStars
-                });
-                
-                elements.userStars.innerHTML = `<i class="fas fa-star"></i> ${newStars}`;
-            } catch (error) {
-                console.error('Erro ao adicionar estrelas:', error);
-            }
-        }
-
-        async function generateCertificate(course) {
-            if (!currentUser) return;
-            
-            try {
-                const certificateId = `${currentUser.uid}_${course.id}_${Date.now()}`;
-                
-                // Salvar certificado no Firestore
-                await db.collection('certificates').doc(certificateId).set({
-                    userId: currentUser.uid,
-                    courseId: course.id,
-                    courseTitle: course.title,
-                    userName: currentUser.displayName || currentUser.email,
-                    issueDate: new Date().toLocaleDateString('pt-MZ'),
-                    certificateId: certificateId
-                });
-                
-                // Mostrar certificado
-                showCertificate(course, certificateId);
-            } catch (error) {
-                console.error('Erro ao gerar certificado:', error);
-            }
-        }
-
-        function showCertificate(course, certificateId) {
-            elements.certificateContent.innerHTML = `
-                <div class="border-4 border-gold-500 p-8">
-                    <h1 class="text-3xl font-bold mb-4">Certificado de Conclusão</h1>
-                    <p class="text-xl mb-2">Este certificado é concedido a</p>
-                    <h2 class="text-2xl font-bold mb-6">${currentUser.displayName || currentUser.email}</h2>
-                    <p class="text-lg mb-4">por ter concluído com sucesso o curso</p>
-                    <h3 class="text-xl font-bold mb-6">"${course.title}"</h3>
-                    <p class="mb-4">Emitido em: ${new Date().toLocaleDateString('pt-MZ')}</p>
-                    <div id="certificateQrCode" class="mt-4"></div>
-                    <p class="text-sm mt-2">ID do Certificado: ${certificateId}</p>
-                </div>
-            `;
-            
-            // Gerar QR Code
-            QRCode.toCanvas(document.getElementById('certificateQrCode'), certificateId, {
-                width: 100,
-                height: 100
-            }, function(error) {
-                if (error) console.error('Erro ao gerar QR Code:', error);
-            });
-            
-            elements.certificateModal.classList.remove('hidden');
-        }
-
-        function downloadCertificate() {
-            const element = elements.certificateContent;
-            const opt = {
-                margin: 1,
-                filename: 'certificado_aprende_mocambique.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        
+        function formatFormat(format) {
+            const formats = {
+                'video': 'Vídeo',
+                'pdf': 'PDF',
+                'audio': 'Áudio',
+                'imagem': 'Imagem'
             };
-            
-            html2pdf().set(opt).from(element).save();
+            return formats[format] || format;
         }
-
-        function shareCertificate() {
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Meu Certificado - Aprende Moçambique',
-                    text: `Concluí o curso no Aprende Moçambique!`,
-                    url: window.location.href
-                })
-                .catch(error => console.log('Erro ao compartilhar:', error));
-            } else {
-                alert('Seu navegador não suporta a função de compartilhamento.');
-            }
+        
+        function getFormatIcon(format) {
+            const icons = {
+                'video': 'play-circle',
+                'pdf': 'file-pdf',
+                'audio': 'volume-up',
+                'imagem': 'image'
+            };
+            return icons[format] || 'file';
         }
-
-        async function loadUserCourses() {
-            if (!currentUser) return;
-            
-            try {
-                const userDoc = await db.collection('users').doc(currentUser.uid).get();
-                const userData = userDoc.data();
-                
-                if (userData && userData.coursesStarted) {
-                    userCourses = Object.keys(userData.coursesStarted).map(courseId => {
-                        const course = courses.find(c => c.id === courseId);
-                        if (course) {
-                            return {
-                                ...course,
-                                progress: userData.coursesStarted[courseId]
-                            };
-                        }
-                        return null;
-                    }).filter(course => course !== null);
+        
+        function getFileIcon(url) {
+            if (url.includes('.pdf')) return 'pdf';
+            if (url.includes('.mp4') || url.includes('.avi')) return 'video';
+            if (url.includes('.mp3') || url.includes('.wav')) return 'audio';
+            if (url.includes('.jpg') || url.includes('.png')) return 'image';
+            return 'download';
+        }
+        
+        function getFileName(url) {
+            return url.split('/').pop().split('?')[0];
+        }
+        
+        // Inicializar a aplicação
+        document.addEventListener('DOMContentLoaded', () => {
+            // Adicionar event listeners para filtros de categoria
+            document.querySelectorAll('.category-filter').forEach(filter => {
+                filter.addEventListener('click', (e) => {
+                    // Remover classe active de todos os filtros
+                    document.querySelectorAll('.category-filter').forEach(f => f.classList.remove('active', 'bg-blue-600', 'text-white'));
+                    document.querySelectorAll('.category-filter').forEach(f => f.classList.add('bg-gray-200', 'text-gray-700'));
                     
-                    displayUserCourses();
-                }
-            } catch (error) {
-                console.error('Erro ao carregar cursos do usuário:', error);
-            }
-        }
-
-        function displayUserCourses() {
-            elements.userCoursesList.innerHTML = '';
-            
-            if (userCourses.length === 0) {
-                elements.userCoursesList.innerHTML = '<p class="text-gray-600">Você ainda não iniciou nenhum curso.</p>';
-                return;
-            }
-            
-            userCourses.forEach(course => {
-                const courseElement = document.createElement('div');
-                courseElement.className = 'bg-white p-4 rounded-lg shadow-md';
-                courseElement.innerHTML = `
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="font-bold text-lg">${course.title}</h3>
-                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">${formatCategory(course.category)}</span>
-                    </div>
-                    <p class="text-gray-600 text-sm mb-2">${course.instructor}</p>
-                    <div class="mb-2">
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${course.progress}%"></div>
-                        </div>
-                        <p class="text-sm text-gray-600 mt-1">${course.progress}% completo</p>
-                    </div>
-                    <button class="continue-course btn-primary text-sm" data-id="${course.id}">${course.progress === 100 ? 'Ver Certificado' : 'Continuar'}</button>
-                `;
-                
-                elements.userCoursesList.appendChild(courseElement);
-            });
-            
-            // Adicionar event listeners aos botões de continuar
-            document.querySelectorAll('.continue-course').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const courseId = e.target.getAttribute('data-id');
-                    const course = userCourses.find(c => c.id === courseId);
+                    // Adicionar classe active ao filtro clicado
+                    e.target.classList.add('active', 'bg-blue-600', 'text-white');
+                    e.target.classList.remove('bg-gray-200', 'text-gray-700');
                     
-                    if (course.progress === 100) {
-                        // Mostrar certificado
-                        showCertificate(course, `${currentUser.uid}_${course.id}_certificate`);
-                    } else {
-                        // Continuar curso
-                        viewCourse(courseId);
-                    }
-                });
-            });
-        }
-
-        async function loadUserCertificates() {
-            if (!currentUser) return;
-            
-            try {
-                const certificatesSnapshot = await db.collection('certificates')
-                    .where('userId', '==', currentUser.uid)
-                    .get();
-                
-                elements.certificatesList.innerHTML = '';
-                
-                if (certificatesSnapshot.empty) {
-                    elements.certificatesList.innerHTML = '<p class="text-gray-600">Você ainda não possui certificados.</p>';
-                    return;
-                }
-                
-                certificatesSnapshot.forEach(doc => {
-                    const certificate = doc.data();
-                    const certificateElement = document.createElement('div');
-                    certificateElement.className = 'bg-white p-4 rounded-lg shadow-md';
-                    certificateElement.innerHTML = `
-                        <div class="text-center">
-                            <i class="fas fa-certificate text-4xl text-yellow-500 mb-2"></i>
-                            <h3 class="font-bold text-lg mb-1">${certificate.courseTitle}</h3>
-                            <p class="text-gray-600 text-sm mb-2">Emitido em: ${certificate.issueDate}</p>
-                            <button class="view-certificate btn-primary text-sm" data-id="${doc.id}">Ver Certificado</button>
-                        </div>
-                    `;
-                    
-                    elements.certificatesList.appendChild(certificateElement);
-                });
-                
-                // Adicionar event listeners aos botões de visualização
-                document.querySelectorAll('.view-certificate').forEach(button => {
-                    button.addEventListener('click', async (e) => {
-                        const certificateId = e.target.getAttribute('data-id');
-                        const certificateDoc = await db.collection('certificates').doc(certificateId).get();
-                        
-                        if (certificateDoc.exists) {
-                            const certificate = certificateDoc.data();
-                            const course = courses.find(c => c.id === certificate.courseId);
-                            
-                            if (course) {
-                                showCertificate(course, certificateId);
-                            }
-                        }
-                    });
-                });
-            } catch (error) {
-                console.error('Erro ao carregar certificados:', error);
-            }
-        }
-
-        async function loadUserProfile() {
-            if (!currentUser) return;
-            
-            try {
-                const userDoc = await db.collection('users').doc(currentUser.uid).get();
-                const userData = userDoc.data();
-                
-                elements.profileName.textContent = userData.name || currentUser.displayName || currentUser.email;
-                elements.profileEmail.textContent = currentUser.email;
-                
-                // Estrelas
-                elements.profileStars.innerHTML = `
-                    <span class="text-yellow-500">
-                        <i class="fas fa-star"></i> ${userData.stars || 0} estrelas
-                    </span>
-                `;
-                
-                // Progresso geral
-                if (userData.coursesStarted) {
-                    const coursesCount = Object.keys(userData.coursesStarted).length;
-                    const totalProgress = Object.values(userData.coursesStarted).reduce((sum, progress) => sum + progress, 0);
-                    const averageProgress = coursesCount > 0 ? Math.round(totalProgress / coursesCount) : 0;
-                    
-                    elements.overallProgress.style.width = `${averageProgress}%`;
-                    elements.progressText.textContent = `${averageProgress}% completo (${coursesCount} cursos)`;
-                    
-                    // Cursos iniciados
-                    elements.startedCourses.innerHTML = '';
-                    Object.entries(userData.coursesStarted).forEach(([courseId, progress]) => {
-                        const course = courses.find(c => c.id === courseId);
-                        if (course) {
-                            const courseElement = document.createElement('div');
-                            courseElement.className = 'flex justify-between items-center';
-                            courseElement.innerHTML = `
-                                <span>${course.title}</span>
-                                <span class="text-sm text-gray-600">${progress}%</span>
-                            `;
-                            elements.startedCourses.appendChild(courseElement);
-                        }
-                    });
-                }
-            } catch (error) {
-                console.error('Erro ao carregar perfil:', error);
-            }
-        }
-
-        async function askGemini() {
-            const question = elements.geminiQuestion.value.trim();
-            if (!question) return;
-            
-            if (!currentUser) {
-                alert('Você precisa estar logado para usar o assistente IA.');
-                showAuthModal('login');
-                return;
-            }
-            
-            // Adicionar pergunta do usuário ao chat
-            const chatContainer = document.querySelector('.gemini-chat');
-            const userMessage = document.createElement('div');
-            userMessage.className = 'user-message';
-            userMessage.innerHTML = `<strong>Você:</strong> ${question}`;
-            chatContainer.appendChild(userMessage);
-            
-            // Limpar campo de pergunta
-            elements.geminiQuestion.value = '';
-            
-            // Simular resposta da IA (em uma aplicação real, isso seria uma chamada à API do Gemini)
-            setTimeout(() => {
-                const aiMessage = document.createElement('div');
-                aiMessage.className = 'ai-message';
-                
-                // Resposta simulada baseada na pergunta
-                let response = 'Desculpe, não entendi sua pergunta.';
-                
-                if (question.toLowerCase().includes('curso') || question.toLowerCase().includes('recomenda')) {
-                    response = 'Com base no seu perfil, recomendo os cursos de Empreendedorismo e Agricultura, que são muito populares em Moçambique.';
-                } else if (question.toLowerCase().includes('certificado')) {
-                    response = 'Os certificados são gerados automaticamente após a conclusão de um curso. Eles incluem um QR Code para validação e podem ser baixados em PDF.';
-                } else if (question.toLowerCase().includes('progresso')) {
-                    response = 'Seu progresso é salvo automaticamente. Você pode continuar de onde parou a qualquer momento.';
-                } else if (question.toLowerCase().includes('offline')) {
-                    response = 'Você pode baixar materiais para estudo offline clicando no botão "Baixar" em cada material do curso.';
-                }
-                
-                aiMessage.innerHTML = `<strong>Gemini:</strong> ${response}`;
-                chatContainer.appendChild(aiMessage);
-                
-                // Rolagem automática para a mensagem mais recente
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }, 1000);
-        }
-
-        function loadGeminiSuggestions() {
-            // Simular sugestões da IA
-            const suggestions = [
-                {
-                    title: 'Introdução ao Empreendedorismo Rural',
-                    category: 'empreendedorismo',
-                    description: 'Aprenda a iniciar um negócio no contexto rural de Moçambique.'
-                },
-                {
-                    title: 'Técnicas de Agricultura Sustentável',
-                    category: 'agricultura',
-                    description: 'Métodos modernos para aumentar a produtividade agrícola.'
-                },
-                {
-                    title: 'Programação Web Básica',
-                    category: 'programacao',
-                    description: 'Fundamentos de HTML, CSS e JavaScript para iniciantes.'
-                },
-                {
-                    title: 'Inglês para Negócios',
-                    category: 'idiomas',
-                    description: 'Aprenda inglês focado no contexto empresarial.'
-                }
-            ];
-            
-            elements.geminiSuggestions.innerHTML = '';
-            
-            suggestions.forEach(suggestion => {
-                const suggestionElement = document.createElement('div');
-                suggestionElement.className = 'bg-white p-4 rounded-lg shadow-md';
-                suggestionElement.innerHTML = `
-                    <h4 class="font-bold mb-1">${suggestion.title}</h4>
-                    <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mb-2 inline-block">${formatCategory(suggestion.category)}</span>
-                    <p class="text-gray-600 text-sm">${suggestion.description}</p>
-                    <button class="view-suggestion btn-primary text-sm mt-2" data-category="${suggestion.category}">Ver Cursos</button>
-                `;
-                
-                elements.geminiSuggestions.appendChild(suggestionElement);
-            });
-            
-            // Adicionar event listeners aos botões de sugestão
-            document.querySelectorAll('.view-suggestion').forEach(button => {
-                button.addEventListener('click', (e) => {
+                    // Filtrar cursos (em uma implementação real, filtraríamos a lista)
                     const category = e.target.getAttribute('data-category');
-                    
-                    // Ativar o filtro correspondente
-                    elements.categoryFilters.forEach(filter => {
-                        if (filter.getAttribute('data-category') === category) {
-                            filter.click();
-                        }
-                    });
-                    
-                    // Ir para a página inicial
-                    showPage('home');
-                });
-            });
-        }
-
-        async function loadAdminData() {
-            if (!isAdmin) return;
-            
-            try {
-                // Estatísticas de usuários
-                const usersSnapshot = await db.collection('users').get();
-                elements.totalUsers.textContent = usersSnapshot.size;
-                
-                // Estatísticas de cursos
-                const coursesSnapshot = await db.collection('courses').get();
-                elements.totalCourses.textContent = coursesSnapshot.size;
-                
-                // Contar cursos concluídos (progresso 100%)
-                let completedCount = 0;
-                usersSnapshot.forEach(doc => {
-                    const userData = doc.data();
-                    if (userData.coursesStarted) {
-                        Object.values(userData.coursesStarted).forEach(progress => {
-                            if (progress === 100) completedCount++;
-                        });
-                    }
-                });
-                elements.completedCourses.textContent = completedCount;
-                
-                // Carregar cursos para administração
-                loadAdminCourses();
-            } catch (error) {
-                console.error('Erro ao carregar dados de administração:', error);
-            }
-        }
-
-        function loadAdminCourses() {
-            elements.adminCourses.innerHTML = '';
-            
-            courses.forEach(course => {
-                const courseElement = document.createElement('div');
-                courseElement.className = 'bg-white p-4 rounded-lg shadow-md';
-                courseElement.innerHTML = `
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="font-bold">${course.title}</h3>
-                        <div>
-                            <button class="edit-course btn-primary text-sm mr-2" data-id="${course.id}">Editar</button>
-                            <button class="delete-course bg-red-600 text-white px-3 py-1 rounded text-sm" data-id="${course.id}">Excluir</button>
-                        </div>
-                    </div>
-                    <p class="text-gray-600 text-sm">${course.instructor} | ${formatCategory(course.category)}</p>
-                    <p class="text-gray-700 mt-2">${course.description}</p>
-                `;
-                
-                elements.adminCourses.appendChild(courseElement);
-            });
-            
-            // Adicionar event listeners aos botões de edição e exclusão
-            document.querySelectorAll('.edit-course').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const courseId = e.target.getAttribute('data-id');
-                    editCourse(courseId);
+                    // Por simplicidade, vamos apenas recarregar todos os cursos
+                    loadCourses();
                 });
             });
             
-            document.querySelectorAll('.delete-course').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const courseId = e.target.getAttribute('data-id');
-                    deleteCourse(courseId);
-                });
-            });
-        }
-
-        function editCourse(courseId) {
-            // Preencher o formulário com os dados do curso
-            const course = courses.find(c => c.id === courseId);
-            if (!course) return;
-            
-            elements.courseTitle.value = course.title;
-            elements.courseInstructor.value = course.instructor;
-            elements.courseCategory.value = course.category;
-            elements.courseFormat.value = course.format;
-            elements.courseDescription.value = course.description;
-            
-            // Mostrar formulário
-            elements.addCourseForm.classList.remove('hidden');
-            
-            // Rolar para o formulário
-            elements.addCourseForm.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        async function deleteCourse(courseId) {
-            if (!confirm('Tem certeza que deseja excluir este curso?')) return;
-            
-            try {
-                await db.collection('courses').doc(courseId).delete();
-                alert('Curso excluído com sucesso!');
-                loadCourses();
-                loadAdminCourses();
-            } catch (error) {
-                alert('Erro ao excluir curso: ' + error.message);
-            }
-        }
-
-        async function saveCourse() {
-            if (!isAdmin) return;
-            
-            const title = elements.courseTitle.value.trim();
-            const instructor = elements.courseInstructor.value.trim();
-            const category = elements.courseCategory.value;
-            const format = elements.courseFormat.value;
-            const description = elements.courseDescription.value.trim();
-            
-            if (!title || !instructor || !description) {
-                alert('Por favor, preencha todos os campos obrigatórios.');
-                return;
-            }
-            
-            try {
-                const courseData = {
-                    title,
-                    instructor,
-                    category,
-                    format,
-                    description,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                
-                // Verificar se é uma edição ou novo curso
-                const existingCourse = courses.find(c => c.title === title && c.instructor === instructor);
-                
-                if (existingCourse) {
-                    // Atualizar curso existente
-                    await db.collection('courses').doc(existingCourse.id).update(courseData);
-                    alert('Curso atualizado com sucesso!');
-                } else {
-                    // Criar novo curso
-                    await db.collection('courses').add(courseData);
-                    alert('Curso criado com sucesso!');
-                }
-                
-                // Limpar formulário
-                elements.addCourseForm.classList.add('hidden');
-                elements.courseTitle.value = '';
-                elements.courseInstructor.value = '';
-                elements.courseDescription.value = '';
-                
-                // Recarregar cursos
-                loadCourses();
-                loadAdminCourses();
-            } catch (error) {
-                alert('Erro ao salvar curso: ' + error.message);
-            }
-        }
-
-        function addYoutubeContent() {
-            const url = elements.youtubeLink.value.trim();
-            if (!url) {
-                alert('Por favor, insira um link do YouTube.');
-                return;
-            }
-            
-            // Validar URL do YouTube
-            const videoId = extractYouTubeId(url);
-            if (!videoId) {
-                alert('Por favor, insira um link válido do YouTube.');
-                return;
-            }
-            
-            // Em uma aplicação real, isso salvaria no Firestore
-            alert('Link do YouTube adicionado com sucesso! (Em uma aplicação real, isso seria salvo no banco de dados)');
-            elements.youtubeLink.value = '';
-        }
-
-        function handleFileUpload(e) {
-            const files = e.target.files;
-            if (files.length === 0) return;
-            
-            // Em uma aplicação real, isso faria upload para o Firebase Storage
-            // e salvaria as referências no Firestore
-            alert(`${files.length} arquivo(s) selecionado(s) para upload. (Em uma aplicação real, isso faria upload para o servidor)`);
-            e.target.value = '';
-        }
-
-        // Função para simular integração com M-Pesa (para versão futura)
-        function integrateMpesa() {
-            console.log('Integração com M-Pesa preparada para implementação futura');
-        }
+            // Carregar cursos iniciais
+            loadCourses();
+        });
     </script>
 </body>
 </html>
