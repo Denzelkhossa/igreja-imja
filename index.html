@@ -175,7 +175,7 @@
             height: 100vh;
         }
         
-        /* ===== NAVBAR LATERAL (Instagram Style) ===== */
+        /* ===== NAVBAR LATERAL ===== */
         .sidebar {
             width: 244px;
             background: var(--bg-dark);
@@ -1160,16 +1160,16 @@
             <p class="text-muted">Ministério dos Justos Aperfeiçoados</p>
             
             <div class="auth-options">
-                <button class="btn btn-primary" onclick="showAuthForm('login')">
+                <button class="btn btn-primary" id="show-login-btn">
                     <i class="fas fa-sign-in-alt"></i> Entrar
                 </button>
-                <button class="btn btn-outline" onclick="showAuthForm('register')">
+                <button class="btn btn-outline" id="show-register-btn">
                     <i class="fas fa-user-plus"></i> Registrar
                 </button>
             </div>
             
             <div class="auth-options">
-                <button class="btn btn-outline" onclick="signInWithGoogle()" style="width: 100%;">
+                <button class="btn btn-outline" id="google-signin-btn">
                     <i class="fab fa-google"></i> Entrar com Google
                 </button>
             </div>
@@ -1188,10 +1188,10 @@
             <div class="form-group">
                 <input type="password" id="login-password" class="form-input" placeholder="Senha">
             </div>
-            <button class="btn btn-primary" onclick="loginUser()" style="width: 100%;">
+            <button class="btn btn-primary" id="login-btn">
                 <i class="fas fa-sign-in-alt"></i> Entrar
             </button>
-            <button class="btn btn-outline" onclick="goBackAuth()" style="width: 100%; margin-top: 12px;">
+            <button class="btn btn-outline" id="back-from-login-btn">
                 <i class="fas fa-arrow-left"></i> Voltar
             </button>
         </div>
@@ -1213,6 +1213,9 @@
                 <input type="password" id="register-password" class="form-input" placeholder="Senha">
             </div>
             <div class="form-group">
+                <input type="text" id="register-bio" class="form-input" placeholder="Bio (opcional)">
+            </div>
+            <div class="form-group">
                 <select id="register-role" class="form-select">
                     <option value="member">Membro</option>
                     <option value="leader">Líder</option>
@@ -1221,10 +1224,10 @@
             <div class="form-group hidden" id="leader-code-group">
                 <input type="password" id="leader-code" class="form-input" placeholder="Código de líder">
             </div>
-            <button class="btn btn-primary" onclick="registerUser()" style="width: 100%;">
+            <button class="btn btn-primary" id="register-btn">
                 <i class="fas fa-user-plus"></i> Criar Conta
             </button>
-            <button class="btn btn-outline" onclick="goBackAuth()" style="width: 100%; margin-top: 12px;">
+            <button class="btn btn-outline" id="back-from-register-btn">
                 <i class="fas fa-arrow-left"></i> Voltar
             </button>
         </div>
@@ -1239,45 +1242,45 @@
             </div>
             
             <ul class="nav-menu">
-                <li class="nav-item active" onclick="showSection('feed')">
+                <li class="nav-item active" data-section="feed">
                     <i class="fas fa-home"></i>
                     <span class="nav-text">Página Inicial</span>
                 </li>
-                <li class="nav-item" onclick="showSection('search')">
+                <li class="nav-item" data-section="search">
                     <i class="fas fa-search"></i>
                     <span class="nav-text">Pesquisar</span>
                 </li>
-                <li class="nav-item" onclick="showSection('messages')">
+                <li class="nav-item" data-section="messages">
                     <i class="fas fa-comment"></i>
                     <span class="nav-text">Mensagens</span>
                 </li>
-                <li class="nav-item" onclick="showSection('notifications')">
+                <li class="nav-item" data-section="notifications">
                     <i class="fas fa-heart"></i>
                     <span class="nav-text">Notificações</span>
                 </li>
-                <li class="nav-item" onclick="showSection('profile')">
+                <li class="nav-item" data-section="profile">
                     <i class="fas fa-user"></i>
                     <span class="nav-text">Perfil</span>
                 </li>
-                <li class="nav-item" onclick="showSection('about')">
+                <li class="nav-item" data-section="about">
                     <i class="fas fa-church"></i>
                     <span class="nav-text">Sobre o IMJA</span>
                 </li>
-                <li class="nav-item" id="admin-nav" onclick="showSection('admin')">
+                <li class="nav-item hidden" id="admin-nav" data-section="admin">
                     <i class="fas fa-crown"></i>
                     <span class="nav-text">Painel Admin</span>
                 </li>
-                <li class="nav-item" onclick="openAIChat()">
+                <li class="nav-item" id="ai-chat-btn">
                     <i class="fas fa-robot"></i>
                     <span class="nav-text">IMJA Assistant</span>
                 </li>
-                <li class="nav-item" id="create-post-nav" onclick="openCreatePost()">
+                <li class="nav-item hidden" id="create-post-nav">
                     <i class="fas fa-plus-square"></i>
                     <span class="nav-text">Criar</span>
                 </li>
             </ul>
             
-            <div class="nav-item" onclick="logout()">
+            <div class="nav-item" id="logout-btn">
                 <i class="fas fa-sign-out-alt"></i>
                 <span class="nav-text">Sair</span>
             </div>
@@ -1290,32 +1293,8 @@
                 <div id="feed-content">
                     <!-- STORIES -->
                     <div class="stories-container">
-                        <div class="stories">
-                            <div class="story">
-                                <div class="story-avatar">
-                                    <div class="story-avatar-inner">
-                                        <img src="https://i.ibb.co/217bqP6S/20251125-113629.jpg" alt="Apóstolo Hipólito">
-                                    </div>
-                                </div>
-                                <div class="story-username">Ap. Hipólito</div>
-                            </div>
-                            <div class="story">
-                                <div class="story-avatar">
-                                    <div class="story-avatar-inner">
-                                        <img src="https://i.ibb.co/zhbGHsmM/20251125-113655.jpg" alt="Pastora Arlégia">
-                                    </div>
-                                </div>
-                                <div class="story-username">Ps. Arlégia</div>
-                            </div>
-                            <div class="story">
-                                <div class="story-avatar">
-                                    <div class="story-avatar-inner">
-                                        <img src="https://i.ibb.co/BKqHhW9T/1763640488279.jpg" alt="IMJA">
-                                    </div>
-                                </div>
-                                <div class="story-username">IMJA</div>
-                            </div>
-                            <!-- Mais stories serão adicionados via JavaScript -->
+                        <div class="stories" id="stories-list">
+                            <!-- Stories serão carregados via JavaScript -->
                         </div>
                     </div>
 
@@ -1326,15 +1305,17 @@
                 </div>
 
                 <!-- SEÇÃO DE PESQUISA -->
-                <div id="search-content">
+                <div id="search-content" class="hidden">
                     <div class="search-container">
-                        <input type="text" class="search-input" placeholder="Buscar e acharão; pedirão, e dar-se-lhes-á; baterão, e abrir-se-lhes-á. - Mateus 7:7">
+                        <input type="text" class="search-input" id="search-input" placeholder="Buscar e acharão; pedirão, e dar-se-lhes-á; baterão, e abrir-se-lhes-á. - Mateus 7:7">
                     </div>
-                    <!-- Resultados da pesquisa serão exibidos aqui -->
+                    <div id="search-results">
+                        <!-- Resultados da pesquisa serão exibidos aqui -->
+                    </div>
                 </div>
 
                 <!-- SEÇÃO DE PERFIL -->
-                <div id="profile-content">
+                <div id="profile-content" class="hidden">
                     <div class="profile-header">
                         <div class="profile-avatar">
                             <img id="profile-avatar-img" src="" alt="Perfil">
@@ -1370,7 +1351,7 @@
                         <p class="ai-description">Faça perguntas sobre a Bíblia, doutrina cristã ou peça orientação espiritual. Nossa IA está aqui para ajudar!</p>
                         <div class="ai-input-container">
                             <input type="text" class="ai-input" id="profile-ai-input" placeholder="Digite sua pergunta...">
-                            <button class="ai-send-btn" onclick="sendProfileAIMessage()">
+                            <button class="ai-send-btn" id="profile-ai-send-btn">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
                         </div>
@@ -1384,7 +1365,7 @@
                 </div>
 
                 <!-- SEÇÃO SOBRE O MINISTÉRIO -->
-                <div id="about-content">
+                <div id="about-content" class="hidden">
                     <div class="about-section">
                         <h2>Sobre o IMJA</h2>
                         <p>O Ministério dos Justos Aperfeiçoados (IMJA) é uma igreja cristã comprometida com o ensino bíblico, o crescimento espiritual e o serviço à comunidade.</p>
@@ -1425,20 +1406,6 @@
                                 </div>
                                 <div class="team-name">Pastora Arlégia</div>
                                 <div class="team-role">Co-pastora</div>
-                            </div>
-                            <div class="team-member">
-                                <div class="team-avatar">
-                                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop" alt="Pastor João">
-                                </div>
-                                <div class="team-name">Pastor João</div>
-                                <div class="team-role">Ministro de Louvor</div>
-                            </div>
-                            <div class="team-member">
-                                <div class="team-avatar">
-                                    <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?q=80&w=200&auto=format&fit=crop" alt="Diácona Marta">
-                                </div>
-                                <div class="team-name">Diácona Marta</div>
-                                <div class="team-role">Ministério Infantil</div>
                             </div>
                         </div>
                     </div>
@@ -1483,51 +1450,36 @@
                                 <h3>Email</h3>
                                 <p>info@imja.org</p>
                             </div>
-                            <div class="about-card">
-                                <i class="fab fa-whatsapp"></i>
-                                <h3>WhatsApp</h3>
-                                <p>+258 84 123 4567</p>
-                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- PAINEL DE ADMINISTRAÇÃO -->
-                <div id="admin-content">
+                <div id="admin-content" class="hidden">
                     <div class="admin-section">
                         <h2>Painel de Administração</h2>
                         <p>Bem-vindo ao painel de administração do IMJA. Aqui você pode gerenciar o conteúdo e os membros da igreja.</p>
                         
                         <div class="admin-grid">
-                            <div class="admin-card" onclick="openCreatePost()">
+                            <div class="admin-card" id="admin-create-post">
                                 <i class="fas fa-plus-circle"></i>
                                 <h3>Criar Post</h3>
                                 <p>Criar nova publicação para o feed</p>
                             </div>
-                            <div class="admin-card" onclick="openEventModal()">
+                            <div class="admin-card" id="admin-create-event">
                                 <i class="fas fa-calendar-plus"></i>
                                 <h3>Agendar Evento</h3>
                                 <p>Adicionar evento à agenda da igreja</p>
                             </div>
-                            <div class="admin-card" onclick="openVerseModal()">
+                            <div class="admin-card" id="admin-verse-day">
                                 <i class="fas fa-bible"></i>
                                 <h3>Versículo do Dia</h3>
                                 <p>Definir versículo bíblico do dia</p>
                             </div>
-                            <div class="admin-card" onclick="openMembersModal()">
+                            <div class="admin-card" id="admin-manage-members">
                                 <i class="fas fa-users"></i>
                                 <h3>Gerenciar Membros</h3>
                                 <p>Ver e gerenciar membros da igreja</p>
-                            </div>
-                            <div class="admin-card" onclick="openAnalyticsModal()">
-                                <i class="fas fa-chart-bar"></i>
-                                <h3>Estatísticas</h3>
-                                <p>Ver estatísticas de engajamento</p>
-                            </div>
-                            <div class="admin-card" onclick="openSettingsModal()">
-                                <i class="fas fa-cog"></i>
-                                <h3>Configurações</h3>
-                                <p>Configurações gerais do sistema</p>
                             </div>
                         </div>
                     </div>
@@ -1544,34 +1496,34 @@
 
         <!-- BARRA INFERIOR MOBILE -->
         <nav class="bottom-nav">
-            <button class="bottom-nav-item active" onclick="showSection('feed')">
+            <button class="bottom-nav-item active" data-section="feed">
                 <i class="fas fa-home"></i>
             </button>
-            <button class="bottom-nav-item" onclick="showSection('search')">
+            <button class="bottom-nav-item" data-section="search">
                 <i class="fas fa-search"></i>
             </button>
-            <button class="bottom-nav-item" id="create-post-mobile" onclick="openCreatePost()">
+            <button class="bottom-nav-item hidden" id="create-post-mobile">
                 <i class="fas fa-plus-square"></i>
             </button>
-            <button class="bottom-nav-item" onclick="showSection('notifications')">
+            <button class="bottom-nav-item" data-section="notifications">
                 <i class="fas fa-heart"></i>
             </button>
             <button class="bottom-nav-item" id="mobile-more-btn">
                 <i class="fas fa-ellipsis-h"></i>
                 <div class="mobile-more-menu">
-                    <button class="mobile-more-item" onclick="showSection('profile')">
+                    <button class="mobile-more-item" data-section="profile">
                         <i class="fas fa-user"></i> Perfil
                     </button>
-                    <button class="mobile-more-item" onclick="showSection('about')">
+                    <button class="mobile-more-item" data-section="about">
                         <i class="fas fa-church"></i> Sobre o IMJA
                     </button>
-                    <button class="mobile-more-item" id="admin-mobile" onclick="showSection('admin')">
+                    <button class="mobile-more-item hidden" id="admin-mobile" data-section="admin">
                         <i class="fas fa-crown"></i> Painel Admin
                     </button>
-                    <button class="mobile-more-item" onclick="openAIChat()">
+                    <button class="mobile-more-item" id="mobile-ai-chat-btn">
                         <i class="fas fa-robot"></i> IMJA Assistant
                     </button>
-                    <button class="mobile-more-item" onclick="logout()">
+                    <button class="mobile-more-item" id="mobile-logout-btn">
                         <i class="fas fa-sign-out-alt"></i> Sair
                     </button>
                 </div>
@@ -1584,7 +1536,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Criar nova publicação</h3>
-                <button class="close-btn" onclick="closeModal('create-post-modal')">×</button>
+                <button class="close-btn" data-modal="create-post-modal">×</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -1592,7 +1544,7 @@
                 </div>
                 <div class="form-group">
                     <label for="post-type">Tipo de publicação:</label>
-                    <select id="post-type" class="form-select" onchange="togglePostType()">
+                    <select id="post-type" class="form-select">
                         <option value="image">Imagem</option>
                         <option value="video">Vídeo do YouTube</option>
                     </select>
@@ -1603,7 +1555,7 @@
                 <div class="form-group hidden" id="video-url-group">
                     <input type="text" id="youtube-url" class="form-input" placeholder="Cole o URL ou ID do vídeo do YouTube">
                 </div>
-                <button class="btn btn-primary" onclick="createPost()" style="width: 100%;">
+                <button class="btn btn-primary" id="publish-post-btn">
                     <i class="fas fa-share"></i> Publicar
                 </button>
             </div>
@@ -1615,7 +1567,7 @@
         <div class="modal-content chat-modal">
             <div class="modal-header">
                 <h3>IMJA Assistant</h3>
-                <button class="close-btn" onclick="closeModal('ai-chat-modal')">×</button>
+                <button class="close-btn" data-modal="ai-chat-modal">×</button>
             </div>
             <div class="chat-messages" id="ai-chat-messages">
                 <div class="message received">
@@ -1624,42 +1576,33 @@
             </div>
             <div class="chat-input-container">
                 <input type="text" id="ai-chat-input" class="chat-input" placeholder="Digite sua mensagem...">
-                <button class="send-btn" onclick="sendAIMessage()">
+                <button class="send-btn" id="send-ai-message-btn">
                     <i class="fas fa-paper-plane"></i>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL CRIAR EVENTO -->
-    <div id="create-event-modal" class="modal-backdrop hidden">
+    <!-- MODAL CRIAR HISTÓRIA -->
+    <div id="create-story-modal" class="modal-backdrop hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Criar Novo Evento</h3>
-                <button class="close-btn" onclick="closeModal('create-event-modal')">×</button>
+                <h3>Criar Nova História</h3>
+                <button class="close-btn" data-modal="create-story-modal">×</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <input type="text" id="event-title" class="form-input" placeholder="Título do evento">
+                    <input type="file" id="story-image" accept="image/*" class="form-input">
                 </div>
-                <div class="form-group">
-                    <textarea id="event-description" class="form-input" placeholder="Descrição do evento" rows="3"></textarea>
-                </div>
-                <div class="form-group">
-                    <input type="date" id="event-date" class="form-input">
-                </div>
-                <div class="form-group">
-                    <input type="time" id="event-time" class="form-input">
-                </div>
-                <div class="form-group">
-                    <input type="text" id="event-location" class="form-input" placeholder="Local do evento">
-                </div>
-                <button class="btn btn-primary" onclick="createEvent()" style="width: 100%;">
-                    <i class="fas fa-calendar-plus"></i> Criar Evento
+                <button class="btn btn-primary" id="publish-story-btn">
+                    <i class="fas fa-share"></i> Publicar História
                 </button>
             </div>
         </div>
     </div>
+
+    <!-- TOAST CONTAINER -->
+    <div id="toast-container"></div>
 
     <script>
         // ===== CONFIGURAÇÃO FIREBASE =====
@@ -1681,224 +1624,187 @@
         const storage = firebase.storage();
 
         // ===== CONFIGURAÇÃO GEMINI AI =====
-        const GEMINI_API_KEY = "AIzaSyDF1VXR4kRgqUtJlq5hqCdlb_ZBZ9pDY38";
+        const GEMINI_API_KEY = "AIzaSyAHBAXEZ3O-ZntzRI-6FfIYv3TvrRNhPRI";
         const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
 
         // ===== ESTADO DA APLICAÇÃO =====
         let currentUser = null;
-        let userRole = null;
-        let posts = [];
-        let likedPosts = new Set();
+        let userData = null;
+        let postsListener = null;
+        let storiesListener = null;
+        let profilePostsListener = null;
 
         // ===== INICIALIZAÇÃO =====
         document.addEventListener('DOMContentLoaded', function() {
             // Simular tempo de carregamento
             setTimeout(() => {
                 document.getElementById('loading-screen').classList.add('hidden');
-                checkAuthState();
+                initApp();
             }, 2000);
-            
-            // Mostrar/ocultar campo de código de líder
-            document.getElementById('register-role').addEventListener('change', function() {
-                const leaderCodeGroup = document.getElementById('leader-code-group');
-                if (this.value === 'leader') {
-                    leaderCodeGroup.classList.remove('hidden');
-                } else {
-                    leaderCodeGroup.classList.add('hidden');
-                }
-            });
-
-            // Menu mobile mais opções
-            document.getElementById('mobile-more-btn').addEventListener('click', function(e) {
-                e.stopPropagation();
-                const menu = this.querySelector('.mobile-more-menu');
-                menu.classList.toggle('show');
-            });
-
-            // Fechar menu mobile ao clicar fora
-            document.addEventListener('click', function() {
-                document.querySelectorAll('.mobile-more-menu').forEach(menu => {
-                    menu.classList.remove('show');
-                });
-            });
         });
 
-        // ===== AUTENTICAÇÃO =====
-        function checkAuthState() {
-            // Verificar primeiro se há usuário salvo localmente
-            const savedUser = localStorage.getItem('imja_current_user');
-            const savedRole = localStorage.getItem('imja_user_role');
-            
-            if (savedUser && savedRole) {
-                currentUser = JSON.parse(savedUser);
-                userRole = savedRole;
-                showMainApp();
-                return;
-            }
-
-            // Se não há usuário salvo, verificar Firebase Auth
-            auth.onAuthStateChanged((user) => {
-                if (user) {
-                    // Usuário está logado no Firebase
-                    getUserData(user.uid);
+        // ===== FUNÇÕES PRINCIPAIS =====
+        async function initApp() {
+            try {
+                const isAuthenticated = await initAuth();
+                
+                if (isAuthenticated) {
+                    showMainApp();
                 } else {
-                    // Usuário não está logado
-                    document.getElementById('auth-screens').classList.remove('hidden');
+                    showAuthScreens();
                 }
+                
+                setupEventListeners();
+                
+            } catch (error) {
+                console.error('Erro ao inicializar aplicação:', error);
+                showToast('Erro ao carregar aplicação', 'error');
+            }
+        }
+
+        // ===== AUTENTICAÇÃO =====
+        async function initAuth() {
+            return new Promise((resolve) => {
+                auth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        await loadUserData(user.uid);
+                        resolve(true);
+                    } else {
+                        currentUser = null;
+                        userData = null;
+                        resolve(false);
+                    }
+                });
             });
         }
 
-        function getUserData(uid) {
-            // Para simplificar, vamos criar dados básicos se não existirem no Firestore
-            const userData = {
-                uid: uid,
-                name: auth.currentUser.displayName || "Usuário IMJA",
-                email: auth.currentUser.email,
-                role: 'member',
-                avatar: auth.currentUser.photoURL || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop',
-                bio: 'Membro do IMJA - Ministério dos Justos Aperfeiçoados',
-                createdAt: new Date().toISOString()
-            };
-
-            currentUser = userData;
-            userRole = 'member';
-            
-            localStorage.setItem('imja_current_user', JSON.stringify(currentUser));
-            localStorage.setItem('imja_user_role', userRole);
-            
-            showMainApp();
-        }
-
-        function showAuthForm(formType) {
-            document.querySelector('.auth-container').classList.add('hidden');
-            document.getElementById(formType + '-auth').classList.remove('hidden');
-        }
-
-        function goBackAuth() {
-            document.getElementById('login-auth').classList.add('hidden');
-            document.getElementById('register-auth').classList.add('hidden');
-            document.querySelector('.auth-container').classList.remove('hidden');
-        }
-
-        function registerUser() {
-            const name = document.getElementById('register-name').value.trim();
-            const email = document.getElementById('register-email').value.trim();
-            const password = document.getElementById('register-password').value;
-            const role = document.getElementById('register-role').value;
-            const leaderCode = document.getElementById('leader-code').value;
-            
-            if (!name || !email || !password) {
-                showToast('Por favor, preencha todos os campos.', 'error');
-                return;
-            }
-            
-            if (role === 'leader' && leaderCode !== 'IMJA2030') {
-                showToast('Código de líder incorreto.', 'error');
-                return;
-            }
-
-            // Usar sistema local para simplificar
+        async function loadUserData(uid) {
             try {
-                const userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                const userDoc = await db.collection('users').doc(uid).get();
                 
+                if (userDoc.exists) {
+                    userData = userDoc.data();
+                    currentUser = auth.currentUser;
+                    return userData;
+                } else {
+                    // Criar documento do usuário se não existir
+                    const newUserData = {
+                        uid: uid,
+                        name: currentUser.displayName || 'Usuário IMJA',
+                        email: currentUser.email,
+                        role: 'member',
+                        bio: 'Membro do IMJA - Ministério dos Justos Aperfeiçoados',
+                        avatar: currentUser.photoURL || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        followers: 0,
+                        following: 0,
+                        posts: 0
+                    };
+                    
+                    await db.collection('users').doc(uid).set(newUserData);
+                    userData = newUserData;
+                    return userData;
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados do usuário:', error);
+                throw error;
+            }
+        }
+
+        async function registerUser(email, password, name, bio = '', role = 'member', leaderCode = '') {
+            try {
+                if (role === 'leader' && leaderCode !== 'IMJA2030') {
+                    throw new Error('Código de líder incorreto.');
+                }
+
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                // Atualizar perfil
+                await user.updateProfile({
+                    displayName: name
+                });
+
+                // Criar dados do usuário no Firestore
                 const userData = {
-                    uid: userId,
+                    uid: user.uid,
                     name: name,
                     email: email,
                     role: role,
+                    bio: bio || (role === 'leader' ? 'Líder do IMJA' : 'Membro do IMJA'),
                     avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop',
-                    bio: role === 'leader' ? 'Líder do IMJA - Ministério dos Justos Aperfeiçoados' : 'Membro do IMJA - Ministério dos Justos Aperfeiçoados',
-                    createdAt: new Date().toISOString()
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    followers: 0,
+                    following: 0,
+                    posts: 0
                 };
-                
-                localStorage.setItem('imja_current_user', JSON.stringify(userData));
-                localStorage.setItem('imja_user_role', role);
-                
-                currentUser = userData;
-                userRole = role;
+
+                await db.collection('users').doc(user.uid).set(userData);
                 
                 showToast('Conta criada com sucesso!', 'success');
-                setTimeout(() => {
-                    showMainApp();
-                }, 1000);
-                
+                return userCredential;
             } catch (error) {
-                console.error('Erro ao criar conta:', error);
-                showToast('Erro ao criar conta.', 'error');
+                console.error('Erro no registro:', error);
+                throw error;
             }
         }
 
-        function loginUser() {
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value;
-            
-            if (!email || !password) {
-                showToast('Por favor, preencha todos os campos.', 'error');
-                return;
-            }
-            
-            // Simular login local para simplificar
+        async function loginUser(email, password) {
             try {
-                // Criar usuário básico
-                const userData = {
-                    uid: 'user_' + Date.now(),
-                    name: email.split('@')[0],
-                    email: email,
-                    role: 'member',
-                    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop',
-                    bio: 'Membro do IMJA - Ministério dos Justos Aperfeiçoados',
-                    createdAt: new Date().toISOString()
-                };
-                
-                localStorage.setItem('imja_current_user', JSON.stringify(userData));
-                localStorage.setItem('imja_user_role', 'member');
-                
-                currentUser = userData;
-                userRole = 'member';
-                
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 showToast('Login realizado com sucesso!', 'success');
-                setTimeout(() => {
-                    showMainApp();
-                }, 1000);
-                
+                return userCredential;
             } catch (error) {
-                console.error('Erro ao fazer login:', error);
-                showToast('Erro ao fazer login.', 'error');
+                console.error('Erro no login:', error);
+                throw error;
             }
         }
 
-        function signInWithGoogle() {
-            // Implementação simulada do Google Sign-In
-            showToast('Entrando com Google...', 'info');
-            
-            setTimeout(() => {
-                const userData = {
-                    uid: 'google_user_' + Date.now(),
-                    name: 'Usuário Google',
-                    email: 'usuario@gmail.com',
-                    role: 'member',
-                    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop',
-                    bio: 'Membro do IMJA - Ministério dos Justos Aperfeiçoados',
-                    createdAt: new Date().toISOString()
-                };
-                
-                localStorage.setItem('imja_current_user', JSON.stringify(userData));
-                localStorage.setItem('imja_user_role', 'member');
-                
-                currentUser = userData;
-                userRole = 'member';
-                
-                showToast('Login com Google realizado com sucesso!', 'success');
-                showMainApp();
-            }, 1500);
+        async function signInWithGoogle() {
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                const userCredential = await auth.signInWithPopup(provider);
+                showToast('Login com Google realizado!', 'success');
+                return userCredential;
+            } catch (error) {
+                console.error('Erro no login com Google:', error);
+                throw error;
+            }
         }
 
+        async function logoutUser() {
+            try {
+                // Parar todos os listeners
+                stopFeedListener();
+                stopStoriesListener();
+                stopProfilePostsListener();
+                
+                await auth.signOut();
+                currentUser = null;
+                userData = null;
+                showToast('Sessão terminada com sucesso!', 'success');
+            } catch (error) {
+                console.error('Erro no logout:', error);
+                throw error;
+            }
+        }
+
+        // ===== UI E NAVEGAÇÃO =====
         function showMainApp() {
             document.getElementById('auth-screens').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
             
-            // Mostrar/ocultar elementos baseado no papel do usuário
-            if (userRole === 'leader') {
+            setupUserRoleUI();
+            loadInitialContent();
+        }
+
+        function showAuthScreens() {
+            document.getElementById('auth-screens').classList.remove('hidden');
+            document.getElementById('main-app').classList.add('hidden');
+        }
+
+        function setupUserRoleUI() {
+            if (userData && userData.role === 'leader') {
                 document.getElementById('create-post-nav').classList.remove('hidden');
                 document.getElementById('create-post-mobile').classList.remove('hidden');
                 document.getElementById('admin-nav').classList.remove('hidden');
@@ -1909,319 +1815,73 @@
                 document.getElementById('admin-nav').classList.add('hidden');
                 document.getElementById('admin-mobile').classList.add('hidden');
             }
-            
+        }
+
+        function loadInitialContent() {
             loadFeed();
             loadStories();
-            updateProfile();
         }
 
-        function logout() {
-            localStorage.removeItem('imja_current_user');
-            localStorage.removeItem('imja_user_role');
-            
-            currentUser = null;
-            userRole = null;
-            
-            document.getElementById('main-app').classList.add('hidden');
-            document.getElementById('auth-screens').classList.remove('hidden');
-            document.querySelector('.auth-container').classList.remove('hidden');
-            
-            showToast('Sessão terminada com sucesso!', 'success');
-        }
-
-        // ===== FEED E CONTEÚDO =====
-        function loadFeed() {
-            const postsContainer = document.getElementById('posts-container');
-            postsContainer.innerHTML = '<p class="text-center text-muted">Carregando posts...</p>';
-            
-            // Simular carregamento de posts
-            setTimeout(() => {
-                // Posts de exemplo
-                posts = [
-                    {
-                        id: 1,
-                        user: {
-                            name: "Apóstolo Hipólito de Sousa",
-                            avatar: "https://i.ibb.co/217bqP6S/20251125-113629.jpg",
-                            location: "Marracuene"
-                        },
-                        image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1000&auto=format&fit=crop",
-                        caption: "A palavra de Deus é viva e eficaz! Hoje celebramos a vitória em Cristo. #IMJA #Fé #Vitória",
-                        likes: 142,
-                        comments: [
-                            { user: "Irmão Carlos", text: "Amém! Glória a Deus!", time: "1 hora" },
-                            { user: "Irmã Maria", text: "Que mensagem abençoada!", time: "45 minutos" }
-                        ],
-                        time: "2 horas",
-                        type: "image"
-                    },
-                    {
-                        id: 2,
-                        user: {
-                            name: "Pastora Arlégia",
-                            avatar: "https://i.ibb.co/zhbGHsmM/20251125-113655.jpg",
-                            location: "Matalane"
-                        },
-                        image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop",
-                        caption: "Momento de oração e intercessão pelas famílias. Deus está no controle! 🙏 #Oração #Família #IMJA",
-                        likes: 89,
-                        comments: [
-                            { user: "Irmão João", text: "Orando juntos!", time: "30 minutos" }
-                        ],
-                        time: "5 horas",
-                        type: "image"
-                    },
-                    {
-                        id: 3,
-                        user: {
-                            name: "IMJA Ministério",
-                            avatar: "https://i.ibb.co/BKqHhW9T/1763640488279.jpg",
-                            location: "Sede Central"
-                        },
-                        youtubeId: "dQw4w9WgXcQ",
-                        caption: "Não perca o culto de domingo! Teremos uma palavra especial para sua vida. 🕊️ #Culto #IMJA #Bênção",
-                        likes: 210,
-                        comments: [],
-                        time: "1 dia",
-                        type: "video"
-                    }
-                ];
-                
-                renderPosts();
-                showToast('Feed carregado com sucesso!', 'success');
-            }, 1000);
-        }
-
-        function renderPosts() {
-            const postsContainer = document.getElementById('posts-container');
-            postsContainer.innerHTML = '';
-            
-            posts.forEach(post => {
-                const postElement = document.createElement('div');
-                postElement.className = 'post fade-in';
-                postElement.dataset.postId = post.id;
-                
-                // Verificar se o usuário atual curtiu este post
-                const isLiked = likedPosts.has(post.id);
-                
-                let mediaContent = '';
-                if (post.type === 'video' && post.youtubeId) {
-                    mediaContent = `
-                        <div class="post-video">
-                            <iframe 
-                                width="100%" 
-                                height="100%" 
-                                src="https://www.youtube.com/embed/${post.youtubeId}" 
-                                frameborder="0" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowfullscreen>
-                            </iframe>
-                        </div>
-                    `;
-                } else {
-                    mediaContent = `<img src="${post.image}" class="post-image" alt="Post">`;
-                }
-                
-                postElement.innerHTML = `
-                    <div class="post-header">
-                        <div class="post-avatar">
-                            <img src="${post.user.avatar}" alt="${post.user.name}">
-                        </div>
-                        <div class="post-user">
-                            <div class="post-username">${post.user.name}</div>
-                            <div class="post-location">${post.user.location}</div>
-                        </div>
-                        <div class="post-more-container">
-                            <button class="post-more">⋯</button>
-                            <div class="post-more-menu">
-                                ${userRole === 'leader' ? `<button class="post-more-item delete" onclick="deletePost('${post.id}')">Excluir</button>` : ''}
-                                <button class="post-more-item" onclick="reportPost('${post.id}')">Reportar</button>
-                            </div>
-                        </div>
-                    </div>
-                    ${mediaContent}
-                    <div class="post-actions">
-                        <button class="post-action ${isLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}')">
-                            <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i>
-                        </button>
-                        <button class="post-action" onclick="focusComment('${post.id}')">
-                            <i class="far fa-comment"></i>
-                        </button>
-                        <button class="post-action"><i class="far fa-paper-plane"></i></button>
-                        <button class="post-action save"><i class="far fa-bookmark"></i></button>
-                    </div>
-                    <div class="post-likes">${post.likes.toLocaleString()} curtidas</div>
-                    <div class="post-caption">
-                        <span class="username">${post.user.name}</span>
-                        ${post.caption}
-                    </div>
-                    <div class="post-comments" id="comments-${post.id}">
-                        ${post.comments ? post.comments.map(comment => `
-                            <div class="comment">
-                                <span class="comment-username">${comment.user}:</span>
-                                <span class="comment-text">${comment.text}</span>
-                            </div>
-                        `).join('') : ''}
-                    </div>
-                    <div class="post-time">${post.time}</div>
-                    <div class="comment-input">
-                        <input type="text" id="comment-input-${post.id}" placeholder="Adicione um comentário..." onkeypress="if(event.key==='Enter') addComment('${post.id}')">
-                        <button onclick="addComment('${post.id}')">Publicar</button>
-                    </div>
-                `;
-                
-                postsContainer.appendChild(postElement);
+        function showSection(sectionId) {
+            // Ocultar todas as seções
+            const sections = ['feed', 'search', 'profile', 'about', 'admin'];
+            sections.forEach(section => {
+                const element = document.getElementById(`${section}-content`);
+                if (element) element.classList.add('hidden');
             });
             
-            // Adicionar event listeners para os menus de mais opções
-            document.querySelectorAll('.post-more').forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const menu = this.nextElementSibling;
-                    document.querySelectorAll('.post-more-menu').forEach(m => {
-                        if (m !== menu) m.classList.remove('show');
-                    });
-                    menu.classList.toggle('show');
-                });
-            });
+            // Mostrar seção selecionada
+            const targetSection = document.getElementById(`${sectionId}-content`);
+            if (targetSection) targetSection.classList.remove('hidden');
             
-            // Fechar menus ao clicar fora
-            document.addEventListener('click', function() {
-                document.querySelectorAll('.post-more-menu').forEach(menu => {
-                    menu.classList.remove('show');
-                });
-            });
+            // Atualizar navegação ativa
+            updateActiveNavigation(sectionId);
+            
+            // Carregar conteúdo específico da seção
+            if (sectionId === 'profile') {
+                loadProfile();
+            } else if (sectionId === 'feed') {
+                loadFeed();
+            }
         }
 
-        function loadStories() {
-            const stories = [
-                {
-                    name: "Irmão Carlos",
-                    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop"
-                },
-                {
-                    name: "Irmã Maria",
-                    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?q=80&w=200&auto=format&fit=crop"
-                },
-                {
-                    name: "Jovens IMJA",
-                    avatar: "https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?q=80&w=200&auto=format&fit=crop"
-                },
-                {
-                    name: "Louvor",
-                    avatar: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=200&auto=format&fit=crop"
-                }
-            ];
-            
-            const storiesContainer = document.querySelector('.stories');
-            
-            stories.forEach(story => {
-                const storyElement = document.createElement('div');
-                storyElement.className = 'story';
-                storyElement.innerHTML = `
-                    <div class="story-avatar">
-                        <div class="story-avatar-inner">
-                            <img src="${story.avatar}" alt="${story.name}">
-                        </div>
-                    </div>
-                    <div class="story-username">${story.name}</div>
-                `;
-                storiesContainer.appendChild(storyElement);
+        function updateActiveNavigation(activeSection) {
+            // Sidebar
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
             });
+            
+            const activeNavItem = document.querySelector(`.nav-item[data-section="${activeSection}"]`);
+            if (activeNavItem) {
+                activeNavItem.classList.add('active');
+            }
+            
+            // Mobile navigation
+            document.querySelectorAll('.bottom-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            const activeBottomNav = document.querySelector(`.bottom-nav-item[data-section="${activeSection}"]`);
+            if (activeBottomNav) {
+                activeBottomNav.classList.add('active');
+            }
         }
 
-        // ===== INTERAÇÕES COM POSTS =====
-        function toggleLike(postId) {
-            const post = posts.find(p => p.id === postId);
-            if (!post) return;
-            
-            const likeButton = document.querySelector(`[data-post-id="${postId}"] .post-action:first-child`);
-            const likesCount = document.querySelector(`[data-post-id="${postId}"] .post-likes`);
-            
-            if (likedPosts.has(postId)) {
-                // Remover curtida
-                likedPosts.delete(postId);
-                post.likes--;
-                likeButton.classList.remove('liked');
-                likeButton.innerHTML = '<i class="far fa-heart"></i>';
+        function toggleModal(modalId, show = true) {
+            const modal = document.getElementById(modalId);
+            if (show) {
+                modal.classList.remove('hidden');
             } else {
-                // Adicionar curtida
-                likedPosts.add(postId);
-                post.likes++;
-                likeButton.classList.add('liked');
-                likeButton.innerHTML = '<i class="fas fa-heart"></i>';
-            }
-            
-            likesCount.textContent = `${post.likes.toLocaleString()} curtidas`;
-        }
-
-        function addComment(postId) {
-            const commentInput = document.getElementById(`comment-input-${postId}`);
-            const commentText = commentInput.value.trim();
-            
-            if (!commentText) return;
-            
-            const post = posts.find(p => p.id === postId);
-            if (!post) return;
-            
-            if (!post.comments) {
-                post.comments = [];
-            }
-            
-            const newComment = {
-                user: currentUser.name,
-                text: commentText,
-                time: "Agora mesmo"
-            };
-            
-            post.comments.push(newComment);
-            
-            // Atualizar a exibição
-            const commentsContainer = document.getElementById(`comments-${postId}`);
-            const commentElement = document.createElement('div');
-            commentElement.className = 'comment';
-            commentElement.innerHTML = `
-                <span class="comment-username">${newComment.user}:</span>
-                <span class="comment-text">${newComment.text}</span>
-            `;
-            commentsContainer.appendChild(commentElement);
-            
-            // Limpar campo de entrada
-            commentInput.value = '';
-            
-            showToast('Comentário adicionado!', 'success');
-        }
-
-        function focusComment(postId) {
-            const commentInput = document.getElementById(`comment-input-${postId}`);
-            commentInput.focus();
-        }
-
-        function deletePost(postId) {
-            if (userRole !== 'leader') {
-                showToast('Apenas líderes podem excluir posts.', 'error');
-                return;
-            }
-            
-            if (confirm('Tem certeza que deseja excluir este post?')) {
-                // Remover do array local
-                posts = posts.filter(p => p.id !== postId);
-                
-                // Remover do DOM
-                const postElement = document.querySelector(`[data-post-id="${postId}"]`);
-                if (postElement) {
-                    postElement.remove();
-                }
-                
-                showToast('Post excluído com sucesso!', 'success');
+                modal.classList.add('hidden');
             }
         }
 
-        function reportPost(postId) {
-            showToast('Post reportado. Obrigado por nos ajudar a manter a comunidade segura.', 'info');
+        function closeAllModals() {
+            document.querySelectorAll('.modal-backdrop').forEach(modal => {
+                modal.classList.add('hidden');
+            });
         }
 
-        // ===== CRIAÇÃO DE POSTS =====
         function togglePostType() {
             const postType = document.getElementById('post-type').value;
             const imageUploadGroup = document.getElementById('image-upload-group');
@@ -2236,163 +1896,758 @@
             }
         }
 
-        function createPost() {
-            if (userRole !== 'leader') {
-                showToast('Apenas líderes podem criar posts.', 'error');
-                closeModal('create-post-modal');
-                return;
-            }
+        // ===== FEED E POSTS =====
+        async function loadFeed() {
+            const postsContainer = document.getElementById('posts-container');
             
-            const caption = document.getElementById('post-caption').value.trim();
-            const postType = document.getElementById('post-type').value;
-            
-            if (!caption) {
-                showToast('Adicione uma legenda', 'error');
-                return;
-            }
-            
-            let newPost = {
-                id: Date.now(),
-                user: {
-                    name: currentUser.name,
-                    avatar: currentUser.avatar,
-                    location: currentUser.bio.includes('Apóstolo') ? 'Marracuene' : 
-                             currentUser.bio.includes('Pastora') ? 'Matalane' : 'Sede Central'
-                },
-                caption: caption,
-                likes: 0,
-                comments: [],
-                time: "Agora mesmo",
-                type: postType
-            };
-            
-            if (postType === 'image') {
-                const imageFile = document.getElementById('post-image').files[0];
-                
-                if (!imageFile) {
-                    showToast('Selecione uma imagem', 'error');
-                    return;
+            try {
+                // Limpar listener anterior se existir
+                if (postsListener) {
+                    postsListener();
                 }
-                
-                // Simular upload de imagem
-                newPost.image = URL.createObjectURL(imageFile);
-                
-            } else if (postType === 'video') {
-                const youtubeUrl = document.getElementById('youtube-url').value.trim();
-                
-                if (!youtubeUrl) {
-                    showToast('Insira um URL ou ID do YouTube', 'error');
-                    return;
-                }
-                
-                // Extrair ID do vídeo do YouTube
-                let videoId = youtubeUrl;
-                if (youtubeUrl.includes('youtube.com') || youtubeUrl.includes('youtu.be')) {
-                    const match = youtubeUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
-                    videoId = match ? match[1] : youtubeUrl;
-                }
-                
-                newPost.youtubeId = videoId;
+
+                postsListener = db.collection('posts')
+                    .orderBy('createdAt', 'desc')
+                    .limit(20)
+                    .onSnapshot(async (snapshot) => {
+                        postsContainer.innerHTML = '';
+                        
+                        if (snapshot.empty) {
+                            postsContainer.innerHTML = `
+                                <div class="card text-center">
+                                    <p class="text-muted">Nenhuma publicação ainda. Seja o primeiro a compartilhar!</p>
+                                </div>
+                            `;
+                            return;
+                        }
+
+                        const posts = [];
+                        
+                        for (const doc of snapshot.docs) {
+                            const post = doc.data();
+                            post.id = doc.id;
+                            
+                            // Carregar dados do autor
+                            const userDoc = await db.collection('users').doc(post.userId).get();
+                            if (userDoc.exists) {
+                                post.user = userDoc.data();
+                            }
+                            
+                            // Carregar contagem de likes
+                            const likesSnapshot = await db.collection('likes')
+                                .where('postId', '==', post.id)
+                                .get();
+                            post.likesCount = likesSnapshot.size;
+                            
+                            // Verificar se usuário atual curtiu
+                            if (auth.currentUser) {
+                                const userLike = await db.collection('likes')
+                                    .where('postId', '==', post.id)
+                                    .where('userId', '==', auth.currentUser.uid)
+                                    .get();
+                                post.userLiked = !userLike.empty;
+                            }
+                            
+                            posts.push(post);
+                        }
+                        
+                        // Renderizar posts
+                        posts.forEach(post => {
+                            renderPost(post, postsContainer);
+                        });
+                    }, error => {
+                        console.error('Erro ao carregar posts:', error);
+                        showToast('Erro ao carregar feed', 'error');
+                    });
+
+            } catch (error) {
+                console.error('Erro ao carregar feed:', error);
+                showToast('Erro ao carregar feed', 'error');
             }
-            
-            // Adicionar ao início do array
-            posts.unshift(newPost);
-            
-            // Recarregar feed
-            loadFeed();
-            
-            showToast('Publicação criada com sucesso!', 'success');
-            closeModal('create-post-modal');
-            
-            // Limpar formulário
-            document.getElementById('post-caption').value = '';
-            document.getElementById('post-image').value = '';
-            document.getElementById('youtube-url').value = '';
         }
 
-        // ===== PERFIL =====
-        function updateProfile() {
-            document.getElementById('profile-avatar-img').src = currentUser.avatar;
-            document.getElementById('profile-name').textContent = currentUser.name;
-            document.getElementById('profile-bio').textContent = currentUser.bio;
-            
-            // Atualizar estatísticas
-            const userPosts = posts.filter(post => post.user.name === currentUser.name);
-            document.getElementById('stat-posts').textContent = userPosts.length;
-            document.getElementById('stat-followers').textContent = Math.floor(Math.random() * 1000);
-            document.getElementById('stat-following').textContent = Math.floor(Math.random() * 500);
-            
-            // Carregar posts do perfil
-            loadProfilePosts();
+        function stopFeedListener() {
+            if (postsListener) {
+                postsListener();
+                postsListener = null;
+            }
         }
 
-        function loadProfilePosts() {
-            const profilePostsContainer = document.getElementById('profile-posts');
-            const userPosts = posts.filter(post => post.user.name === currentUser.name);
-            
-            if (userPosts.length === 0) {
-                profilePostsContainer.innerHTML = '<p class="text-center text-muted">Nenhuma publicação ainda.</p>';
-                return;
-            }
-            
-            profilePostsContainer.innerHTML = '<h3>Publicações</h3>';
-            
-            userPosts.forEach(post => {
-                const postElement = document.createElement('div');
-                postElement.className = 'post fade-in';
-                
-                let mediaContent = '';
-                if (post.type === 'video' && post.youtubeId) {
-                    mediaContent = `
-                        <div class="post-video">
-                            <iframe 
-                                width="100%" 
-                                height="100%" 
-                                src="https://www.youtube.com/embed/${post.youtubeId}" 
-                                frameborder="0" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowfullscreen>
-                            </iframe>
-                        </div>
-                    `;
-                } else {
-                    mediaContent = `<img src="${post.image}" class="post-image" alt="Post">`;
+        async function createPost(caption, imageFile = null, youtubeUrl = null) {
+            try {
+                const user = auth.currentUser;
+                if (!user) throw new Error('Usuário não autenticado');
+
+                let mediaUrl = null;
+                let mediaType = 'text';
+
+                // Upload de imagem se fornecida
+                if (imageFile) {
+                    const storageRef = storage.ref();
+                    const fileRef = storageRef.child(`posts/${user.uid}/${Date.now()}_${imageFile.name}`);
+                    
+                    const snapshot = await fileRef.put(imageFile);
+                    mediaUrl = await snapshot.ref.getDownloadURL();
+                    mediaType = 'image';
                 }
                 
-                postElement.innerHTML = `
-                    <div class="post-header">
-                        <div class="post-avatar">
-                            <img src="${post.user.avatar}" alt="${post.user.name}">
-                        </div>
-                        <div class="post-user">
-                            <div class="post-username">${post.user.name}</div>
-                            <div class="post-location">${post.user.location}</div>
-                        </div>
+                // Processar URL do YouTube
+                let youtubeId = null;
+                if (youtubeUrl) {
+                    youtubeId = extractYouTubeId(youtubeUrl);
+                    if (youtubeId) {
+                        mediaType = 'video';
+                        mediaUrl = `https://www.youtube.com/embed/${youtubeId}`;
+                    }
+                }
+
+                // Criar documento do post
+                const postData = {
+                    userId: user.uid,
+                    caption: caption,
+                    mediaUrl: mediaUrl,
+                    mediaType: mediaType,
+                    youtubeId: youtubeId,
+                    likesCount: 0,
+                    commentsCount: 0,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                const postRef = await db.collection('posts').add(postData);
+                
+                // Atualizar contador de posts do usuário
+                await db.collection('users').doc(user.uid).update({
+                    posts: firebase.firestore.FieldValue.increment(1)
+                });
+
+                showToast('Publicação criada com sucesso!', 'success');
+                return postRef.id;
+            } catch (error) {
+                console.error('Erro ao criar post:', error);
+                showToast('Erro ao criar publicação', 'error');
+                throw error;
+            }
+        }
+
+        function extractYouTubeId(url) {
+            const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[7].length === 11) ? match[7] : null;
+        }
+
+        function renderPost(post, container) {
+            const postElement = document.createElement('div');
+            postElement.className = 'post fade-in';
+            postElement.dataset.postId = post.id;
+
+            let mediaContent = '';
+            if (post.mediaType === 'video' && post.youtubeId) {
+                mediaContent = `
+                    <div class="post-video">
+                        <iframe 
+                            width="100%" 
+                            height="100%" 
+                            src="https://www.youtube.com/embed/${post.youtubeId}" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen
+                            loading="lazy">
+                        </iframe>
                     </div>
-                    ${mediaContent}
-                    <div class="post-actions">
-                        <button class="post-action ${likedPosts.has(post.id) ? 'liked' : ''}" onclick="toggleLike('${post.id}')">
-                            <i class="${likedPosts.has(post.id) ? 'fas' : 'far'} fa-heart"></i>
-                        </button>
-                        <button class="post-action" onclick="focusComment('${post.id}')">
-                            <i class="far fa-comment"></i>
-                        </button>
-                        <button class="post-action"><i class="far fa-paper-plane"></i></button>
-                    </div>
-                    <div class="post-likes">${post.likes.toLocaleString()} curtidas</div>
-                    <div class="post-caption">
-                        <span class="username">${post.user.name}</span>
-                        ${post.caption}
-                    </div>
-                    <div class="post-time">${post.time}</div>
                 `;
-                
-                profilePostsContainer.appendChild(postElement);
+            } else if (post.mediaType === 'image' && post.mediaUrl) {
+                mediaContent = `<img src="${post.mediaUrl}" class="post-image" alt="Post" loading="lazy">`;
+            }
+
+            const timeAgo = formatTimeAgo(post.createdAt?.toDate());
+
+            postElement.innerHTML = `
+                <div class="post-header">
+                    <div class="post-avatar">
+                        <img src="${post.user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop'}" alt="${post.user?.name}" loading="lazy">
+                    </div>
+                    <div class="post-user">
+                        <div class="post-username">${post.user?.name || 'Usuário'}</div>
+                        <div class="post-location">${post.user?.bio || 'IMJA'}</div>
+                    </div>
+                    <div class="post-more-container">
+                        <button class="post-more">⋯</button>
+                        <div class="post-more-menu">
+                            ${auth.currentUser && auth.currentUser.uid === post.userId ? 
+                                `<button class="post-more-item delete" data-post-id="${post.id}">Excluir</button>` : ''}
+                            <button class="post-more-item report" data-post-id="${post.id}">Reportar</button>
+                        </div>
+                    </div>
+                </div>
+                ${mediaContent}
+                <div class="post-actions">
+                    <button class="post-action ${post.userLiked ? 'liked' : ''}" data-post-id="${post.id}">
+                        <i class="${post.userLiked ? 'fas' : 'far'} fa-heart"></i>
+                    </button>
+                    <button class="post-action" data-post-id="${post.id}">
+                        <i class="far fa-comment"></i>
+                    </button>
+                    <button class="post-action"><i class="far fa-paper-plane"></i></button>
+                    <button class="post-action save"><i class="far fa-bookmark"></i></button>
+                </div>
+                <div class="post-likes">${post.likesCount || 0} curtidas</div>
+                <div class="post-caption">
+                    <span class="username">${post.user?.name || 'Usuário'}</span>
+                    ${post.caption}
+                </div>
+                <div class="post-comments" id="comments-${post.id}">
+                    <!-- Comentários serão carregados via JavaScript -->
+                </div>
+                <div class="post-time">${timeAgo}</div>
+                <div class="comment-input">
+                    <input type="text" id="comment-input-${post.id}" placeholder="Adicione um comentário...">
+                    <button data-post-id="${post.id}">Publicar</button>
+                </div>
+            `;
+
+            container.appendChild(postElement);
+            setupPostEventListeners(postElement, post);
+        }
+
+        function setupPostEventListeners(postElement, post) {
+            // Like button
+            const likeBtn = postElement.querySelector('.post-action:first-child');
+            likeBtn.addEventListener('click', () => toggleLike(post.id));
+
+            // Comment button
+            const commentBtn = postElement.querySelector('.post-action:nth-child(2)');
+            commentBtn.addEventListener('click', () => {
+                const commentInput = postElement.querySelector(`#comment-input-${post.id}`);
+                commentInput.focus();
+            });
+
+            // Comment input
+            const commentInput = postElement.querySelector(`#comment-input-${post.id}`);
+            const commentBtnSend = postElement.querySelector('.comment-input button');
+            
+            const sendComment = () => {
+                const text = commentInput.value.trim();
+                if (text) {
+                    addComment(post.id, text);
+                    commentInput.value = '';
+                }
+            };
+
+            commentInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendComment();
+            });
+            commentBtnSend.addEventListener('click', sendComment);
+
+            // More options menu
+            const moreBtn = postElement.querySelector('.post-more');
+            const moreMenu = postElement.querySelector('.post-more-menu');
+            
+            moreBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                moreMenu.classList.toggle('show');
+            });
+
+            // Delete post
+            const deleteBtn = postElement.querySelector('.post-more-item.delete');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', () => deletePost(post.id));
+            }
+
+            // Report post
+            const reportBtn = postElement.querySelector('.post-more-item.report');
+            reportBtn.addEventListener('click', () => reportPost(post.id));
+
+            // Fechar menu ao clicar fora
+            document.addEventListener('click', () => {
+                moreMenu.classList.remove('show');
             });
         }
 
-        // ===== IA NO PERFIL =====
-        async function sendProfileAIMessage() {
+        async function deletePost(postId) {
+            try {
+                if (!confirm('Tem certeza que deseja excluir este post?')) return;
+
+                const postDoc = await db.collection('posts').doc(postId).get();
+                if (!postDoc.exists) throw new Error('Post não encontrado');
+
+                const post = postDoc.data();
+                
+                // Verificar se o usuário é o autor
+                if (post.userId !== auth.currentUser.uid) {
+                    throw new Error('Apenas o autor pode excluir o post');
+                }
+
+                // Excluir post
+                await db.collection('posts').doc(postId).delete();
+
+                // Excluir mídia do storage se existir
+                if (post.mediaUrl && post.mediaType === 'image') {
+                    const storageRef = storage.refFromURL(post.mediaUrl);
+                    await storageRef.delete();
+                }
+
+                // Atualizar contador de posts do usuário
+                await db.collection('users').doc(auth.currentUser.uid).update({
+                    posts: firebase.firestore.FieldValue.increment(-1)
+                });
+
+                showToast('Post excluído com sucesso!', 'success');
+            } catch (error) {
+                console.error('Erro ao excluir post:', error);
+                showToast('Erro ao excluir post', 'error');
+            }
+        }
+
+        async function reportPost(postId) {
+            try {
+                await db.collection('reports').add({
+                    postId: postId,
+                    userId: auth.currentUser.uid,
+                    reason: 'Reportado pelo usuário',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                showToast('Post reportado. Obrigado por nos ajudar!', 'info');
+            } catch (error) {
+                console.error('Erro ao reportar post:', error);
+                showToast('Erro ao reportar post', 'error');
+            }
+        }
+
+        // ===== STORIES =====
+        async function loadStories() {
+            const storiesContainer = document.getElementById('stories-list');
+            
+            try {
+                // Limpar listener anterior se existir
+                if (storiesListener) {
+                    storiesListener();
+                }
+
+                // Buscar stories das últimas 24 horas
+                const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+                
+                storiesListener = db.collection('stories')
+                    .where('createdAt', '>', twentyFourHoursAgo)
+                    .orderBy('createdAt', 'desc')
+                    .onSnapshot(async (snapshot) => {
+                        storiesContainer.innerHTML = '';
+                        
+                        if (snapshot.empty) {
+                            // Adicionar botão para criar story se não houver stories
+                            if (auth.currentUser) {
+                                storiesContainer.innerHTML = `
+                                    <div class="story" id="create-story-btn">
+                                        <div class="story-avatar">
+                                            <div class="story-avatar-inner">
+                                                <i class="fas fa-plus"></i>
+                                            </div>
+                                        </div>
+                                        <div class="story-username">Criar</div>
+                                    </div>
+                                `;
+                            }
+                            return;
+                        }
+
+                        const storiesByUser = new Map();
+                        
+                        // Agrupar stories por usuário (apenas o mais recente)
+                        snapshot.docs.forEach(doc => {
+                            const story = doc.data();
+                            story.id = doc.id;
+                            
+                            if (!storiesByUser.has(story.userId)) {
+                                storiesByUser.set(story.userId, story);
+                            }
+                        });
+
+                        // Adicionar botão para criar story
+                        if (auth.currentUser) {
+                            const createStoryElement = document.createElement('div');
+                            createStoryElement.className = 'story';
+                            createStoryElement.id = 'create-story-btn';
+                            createStoryElement.innerHTML = `
+                                <div class="story-avatar">
+                                    <div class="story-avatar-inner">
+                                        <i class="fas fa-plus"></i>
+                                    </div>
+                                </div>
+                                <div class="story-username">Criar</div>
+                            `;
+                            storiesContainer.appendChild(createStoryElement);
+                        }
+
+                        // Carregar dados dos usuários e renderizar stories
+                        for (const [userId, story] of storiesByUser) {
+                            try {
+                                const userDoc = await db.collection('users').doc(userId).get();
+                                if (userDoc.exists) {
+                                    const userData = userDoc.data();
+                                    
+                                    const storyElement = document.createElement('div');
+                                    storyElement.className = 'story';
+                                    storyElement.dataset.storyId = story.id;
+                                    storyElement.innerHTML = `
+                                        <div class="story-avatar">
+                                            <div class="story-avatar-inner">
+                                                <img src="${userData.avatar}" alt="${userData.name}" loading="lazy">
+                                            </div>
+                                        </div>
+                                        <div class="story-username">${userData.name}</div>
+                                    `;
+                                    
+                                    storiesContainer.appendChild(storyElement);
+                                }
+                            } catch (error) {
+                                console.error('Erro ao carregar usuário do story:', error);
+                            }
+                        }
+                    }, error => {
+                        console.error('Erro ao carregar stories:', error);
+                    });
+
+            } catch (error) {
+                console.error('Erro ao carregar stories:', error);
+            }
+        }
+
+        function stopStoriesListener() {
+            if (storiesListener) {
+                storiesListener();
+                storiesListener = null;
+            }
+        }
+
+        async function createStory(imageFile) {
+            try {
+                const user = auth.currentUser;
+                if (!user) throw new Error('Usuário não autenticado');
+
+                // Upload da imagem
+                const storageRef = storage.ref();
+                const fileRef = storageRef.child(`stories/${user.uid}/${Date.now()}_${imageFile.name}`);
+                
+                const snapshot = await fileRef.put(imageFile);
+                const imageUrl = await snapshot.ref.getDownloadURL();
+
+                // Criar documento da story
+                const storyData = {
+                    userId: user.uid,
+                    imageUrl: imageUrl,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // Expira em 24 horas
+                };
+
+                await db.collection('stories').add(storyData);
+                
+                showToast('História publicada com sucesso!', 'success');
+                return true;
+            } catch (error) {
+                console.error('Erro ao criar story:', error);
+                showToast('Erro ao publicar história', 'error');
+                throw error;
+            }
+        }
+
+        // ===== PERFIL =====
+        async function loadProfile(userId = null) {
+            const targetUserId = userId || auth.currentUser.uid;
+            
+            try {
+                const userDoc = await db.collection('users').doc(targetUserId).get();
+                if (!userDoc.exists) {
+                    throw new Error('Usuário não encontrado');
+                }
+
+                const userData = userDoc.data();
+                
+                // Atualizar UI do perfil
+                updateProfileUI(userData);
+                
+                // Carregar posts do perfil
+                await loadProfilePosts(targetUserId);
+                
+                // Carregar estatísticas
+                await loadProfileStats(targetUserId);
+                
+                return userData;
+            } catch (error) {
+                console.error('Erro ao carregar perfil:', error);
+                throw error;
+            }
+        }
+
+        function updateProfileUI(userData) {
+            document.getElementById('profile-avatar-img').src = userData.avatar;
+            document.getElementById('profile-name').textContent = userData.name;
+            document.getElementById('profile-bio').textContent = userData.bio || 'Sem bio';
+        }
+
+        async function loadProfilePosts(userId) {
+            const profilePostsContainer = document.getElementById('profile-posts');
+            
+            try {
+                // Limpar listener anterior se existir
+                if (profilePostsListener) {
+                    profilePostsListener();
+                }
+
+                profilePostsListener = db.collection('posts')
+                    .where('userId', '==', userId)
+                    .orderBy('createdAt', 'desc')
+                    .onSnapshot(async (snapshot) => {
+                        profilePostsContainer.innerHTML = '';
+                        
+                        if (snapshot.empty) {
+                            profilePostsContainer.innerHTML = `
+                                <div class="card text-center">
+                                    <p class="text-muted">Nenhuma publicação ainda.</p>
+                                </div>
+                            `;
+                            return;
+                        }
+
+                        const posts = [];
+                        
+                        for (const doc of snapshot.docs) {
+                            const post = doc.data();
+                            post.id = doc.id;
+                            post.user = await getUserData(post.userId);
+                            
+                            // Carregar contagem de likes
+                            const likesSnapshot = await db.collection('likes')
+                                .where('postId', '==', post.id)
+                                .get();
+                            post.likesCount = likesSnapshot.size;
+                            
+                            // Verificar se usuário atual curtiu
+                            if (auth.currentUser) {
+                                const userLike = await db.collection('likes')
+                                    .where('postId', '==', post.id)
+                                    .where('userId', '==', auth.currentUser.uid)
+                                    .get();
+                                post.userLiked = !userLike.empty;
+                            }
+                            
+                            posts.push(post);
+                        }
+                        
+                        // Renderizar posts
+                        posts.forEach(post => {
+                            renderPost(post, profilePostsContainer);
+                        });
+                    }, error => {
+                        console.error('Erro ao carregar posts do perfil:', error);
+                    });
+
+            } catch (error) {
+                console.error('Erro ao carregar posts do perfil:', error);
+            }
+        }
+
+        function stopProfilePostsListener() {
+            if (profilePostsListener) {
+                profilePostsListener();
+                profilePostsListener = null;
+            }
+        }
+
+        async function loadProfileStats(userId) {
+            try {
+                // Contar posts
+                const postsSnapshot = await db.collection('posts')
+                    .where('userId', '==', userId)
+                    .get();
+                const postsCount = postsSnapshot.size;
+
+                // Contar seguidores
+                const followersSnapshot = await db.collection('followers')
+                    .where('followingId', '==', userId)
+                    .get();
+                const followersCount = followersSnapshot.size;
+
+                // Contar seguindo
+                const followingSnapshot = await db.collection('followers')
+                    .where('followerId', '==', userId)
+                    .get();
+                const followingCount = followingSnapshot.size;
+
+                // Atualizar UI
+                document.getElementById('stat-posts').textContent = postsCount;
+                document.getElementById('stat-followers').textContent = followersCount;
+                document.getElementById('stat-following').textContent = followingCount;
+
+            } catch (error) {
+                console.error('Erro ao carregar estatísticas:', error);
+            }
+        }
+
+        async function getUserData(userId) {
+            try {
+                const userDoc = await db.collection('users').doc(userId).get();
+                return userDoc.exists ? userDoc.data() : null;
+            } catch (error) {
+                console.error('Erro ao obter dados do usuário:', error);
+                return null;
+            }
+        }
+
+        // ===== LIKES E COMENTÁRIOS =====
+        async function toggleLike(postId) {
+            try {
+                const user = auth.currentUser;
+                if (!user) throw new Error('Usuário não autenticado');
+
+                // Verificar se já curtiu
+                const existingLike = await db.collection('likes')
+                    .where('postId', '==', postId)
+                    .where('userId', '==', user.uid)
+                    .get();
+
+                if (!existingLike.empty) {
+                    // Descurtir - remover like
+                    await db.collection('likes').doc(existingLike.docs[0].id).delete();
+                    
+                    // Atualizar contador no post
+                    await db.collection('posts').doc(postId).update({
+                        likesCount: firebase.firestore.FieldValue.increment(-1),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    return false; // Like removido
+                } else {
+                    // Curtir - adicionar like
+                    await db.collection('likes').add({
+                        postId: postId,
+                        userId: user.uid,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    // Atualizar contador no post
+                    await db.collection('posts').doc(postId).update({
+                        likesCount: firebase.firestore.FieldValue.increment(1),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    return true; // Like adicionado
+                }
+            } catch (error) {
+                console.error('Erro ao curtir post:', error);
+                showToast('Erro ao curtir post', 'error');
+                throw error;
+            }
+        }
+
+        async function addComment(postId, text) {
+            try {
+                const user = auth.currentUser;
+                if (!user) throw new Error('Usuário não autenticado');
+
+                const commentData = {
+                    postId: postId,
+                    userId: user.uid,
+                    text: text,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                await db.collection('comments').add(commentData);
+                
+                // Atualizar contador de comentários no post
+                await db.collection('posts').doc(postId).update({
+                    commentsCount: firebase.firestore.FieldValue.increment(1),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                showToast('Comentário adicionado!', 'success');
+            } catch (error) {
+                console.error('Erro ao adicionar comentário:', error);
+                showToast('Erro ao adicionar comentário', 'error');
+                throw error;
+            }
+        }
+
+        // ===== IA ASSISTANT =====
+        async function fetchGeminiAI(prompt) {
+            try {
+                const response = await fetch(GEMINI_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: `Como assistente bíblico do IMJA (Ministério dos Justos Aperfeiçoados), responda de forma cristã, amorosa e baseada na Bíblia: ${prompt}`
+                            }]
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro na API Gemini');
+                }
+
+                const data = await response.json();
+                
+                if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                    return data.candidates[0].content.parts[0].text;
+                } else {
+                    throw new Error('Resposta da IA inválida');
+                }
+            } catch (error) {
+                console.error('Erro ao chamar Gemini AI:', error);
+                
+                // Respostas de fallback
+                const fallbackResponses = [
+                    "Deus te abençoe! Em momentos de dúvida, lembre-se de Filipenses 4:6-7: 'Não andem ansiosos por coisa alguma, mas em tudo, pela oração e súplicas, e com ação de graças, apresentem seus pedidos a Deus.'",
+                    "A paz do Senhor! A Bíblia nos ensina em Jeremias 29:11: 'Porque eu sei os planos que tenho para vocês', declara o SENHOR, 'planos de fazê-los prosperar e não de causar dano, planos de dar-lhes esperança e um futuro.'",
+                    "Jesus disse: 'Eu sou o caminho, a verdade e a vida' (João 14:6). Confie Nele em todos os seus caminhos.",
+                    "Para fortalecer sua fé, medite em Romanos 8:28: 'Sabemos que Deus age em todas as coisas para o bem daqueles que o amam.'"
+                ];
+                
+                return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+            }
+        }
+
+        function addChatMessage(text, type, containerId = 'ai-chat-messages') {
+            const container = document.getElementById(containerId);
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = text;
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+            return messageDiv;
+        }
+
+        async function handleAIChat() {
+            const input = document.getElementById('ai-chat-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Adicionar mensagem do usuário
+            addChatMessage(message, 'sent');
+            input.value = '';
+            
+            // Mostrar indicador de digitação
+            const typingIndicator = addChatMessage('IMJA Assistant está digitando...', 'received');
+            
+            try {
+                const response = await fetchGeminiAI(message);
+                
+                // Remover indicador e mostrar resposta
+                typingIndicator.remove();
+                addChatMessage(response, 'received');
+            } catch (error) {
+                console.error('Erro na IA:', error);
+                typingIndicator.remove();
+                addChatMessage('Desculpe, estou com dificuldades técnicas. Por favor, tente novamente.', 'received');
+            }
+        }
+
+        async function handleProfileAI() {
             const input = document.getElementById('profile-ai-input');
             const message = input.value.trim();
             const responseElement = document.getElementById('profile-ai-response');
@@ -2405,213 +2660,371 @@
             input.value = '';
             
             try {
-                // Simular resposta da IA para evitar problemas de API
-                setTimeout(() => {
-                    const responses = [
-                        "Deus te abençoe! Baseado na Bíblia, podemos encontrar orientação em Filipenses 4:6-7: 'Não andem ansiosos por coisa alguma, mas em tudo, pela oração e súplicas, e com ação de graças, apresentem seus pedidos a Deus. E a paz de Deus, que excede todo o entendimento, guardará os seus corações e as suas mentes em Cristo Jesus.'",
-                        "Em momentos de dificuldade, lembre-se de Jeremias 29:11: 'Porque eu sei os planos que tenho para vocês', declara o SENHOR, 'planos de fazê-los prosperar e não de causar dano, planos de dar-lhes esperança e um futuro.'",
-                        "A Bíblia nos ensina em Provérbios 3:5-6: 'Confie no SENHOR de todo o seu coração e não se apoie em seu próprio entendimento; reconheça o SENHOR em todos os seus caminhos, e ele endireitará as suas veredas.'",
-                        "Para fortalecer sua fé, medite em Romanos 8:28: 'Sabemos que Deus age em todas as coisas para o bem daqueles que o amam, dos que foram chamados de acordo com o seu propósito.'"
-                    ];
-                    
-                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-                    responseElement.textContent = randomResponse;
-                }, 2000);
-                
+                const response = await fetchGeminiAI(message);
+                responseElement.textContent = response;
             } catch (error) {
                 console.error('Erro na IA:', error);
                 responseElement.textContent = 'Desculpe, estou com dificuldades técnicas. Por favor, tente novamente.';
             }
         }
 
-        // ===== MODAIS =====
-        function openCreatePost() {
-            if (userRole !== 'leader') {
-                showToast('Apenas líderes podem criar posts.', 'error');
-                return;
-            }
-            document.getElementById('create-post-modal').classList.remove('hidden');
-        }
-
-        function openAIChat() {
-            document.getElementById('ai-chat-modal').classList.remove('hidden');
-        }
-
-        function openEventModal() {
-            document.getElementById('create-event-modal').classList.remove('hidden');
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
-        }
-
-        function showSection(section) {
-            // Ocultar todas as seções
-            document.getElementById('feed-content').style.display = 'none';
-            document.getElementById('search-content').style.display = 'none';
-            document.getElementById('profile-content').style.display = 'none';
-            document.getElementById('about-content').style.display = 'none';
-            document.getElementById('admin-content').style.display = 'none';
-            
-            // Mostrar a seção selecionada
-            document.getElementById(section + '-content').style.display = 'block';
-            
-            // Atualizar navegação ativa
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            
-            document.querySelectorAll('.bottom-nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            
-            // Ativar item correspondente na sidebar
-            document.querySelectorAll('.nav-item').forEach(item => {
-                if (item.textContent.includes(
-                    section === 'feed' ? 'Página Inicial' :
-                    section === 'search' ? 'Pesquisar' :
-                    section === 'profile' ? 'Perfil' :
-                    section === 'about' ? 'Sobre o IMJA' :
-                    section === 'admin' ? 'Painel Admin' : ''
-                )) {
-                    item.classList.add('active');
-                }
-            });
-            
-            // Ativar item correspondente na navegação mobile
-            if (section === 'feed') {
-                document.querySelectorAll('.bottom-nav-item')[0].classList.add('active');
-            } else if (section === 'search') {
-                document.querySelectorAll('.bottom-nav-item')[1].classList.add('active');
-            }
-            
-            if (section === 'profile') {
-                updateProfile();
-            }
-        }
-
-        // ===== IA CHAT =====
-        async function sendAIMessage() {
-            const input = document.getElementById('ai-chat-input');
-            const message = input.value.trim();
-            
-            if (!message) return;
-            
-            // Adicionar mensagem do usuário
-            addChatMessage(message, 'sent');
-            input.value = '';
-            
-            // Mostrar indicador de digitação
-            const typingIndicator = addChatMessage('IMJA Assistant está digitando...', 'received');
-            typingIndicator.classList.add('typing');
-            
-            try {
-                // Simular resposta da IA
-                setTimeout(() => {
-                    const responses = [
-                        "Que Deus abençoe seu dia! Como posso ajudá-lo com questões bíblicas ou espirituais hoje?",
-                        "A paz do Senhor! Estou aqui para oferecer orientação baseada na Palavra de Deus.",
-                        "Jesus disse: 'Eu sou o caminho, a verdade e a vida' (João 14:6). Como posso ajudá-lo a encontrar direção espiritual?",
-                        "A Bíblia nos ensina que 'a fé é a certeza daquilo que esperamos e a prova das coisas que não vemos' (Hebreus 11:1). Em que posso ajudá-lo?"
-                    ];
-                    
-                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-                    
-                    // Remover indicador de digitação e mostrar resposta
-                    typingIndicator.remove();
-                    addChatMessage(randomResponse, 'received');
-                }, 2000);
-                
-            } catch (error) {
-                console.error('Erro na IA:', error);
-                typingIndicator.remove();
-                addChatMessage('Desculpe, estou com dificuldades técnicas. Por favor, tente novamente.', 'received');
-            }
-        }
-
-        function addChatMessage(text, type) {
-            const messagesContainer = document.getElementById('ai-chat-messages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${type}`;
-            messageDiv.textContent = text;
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            return messageDiv;
-        }
-
-        // ===== FUNÇÕES ADMINISTRATIVAS =====
-        function createEvent() {
-            const title = document.getElementById('event-title').value.trim();
-            const description = document.getElementById('event-description').value.trim();
-            const date = document.getElementById('event-date').value;
-            const time = document.getElementById('event-time').value;
-            const location = document.getElementById('event-location').value.trim();
-            
-            if (!title || !description || !date || !time || !location) {
-                showToast('Por favor, preencha todos os campos.', 'error');
-                return;
-            }
-            
-            showToast('Evento criado com sucesso!', 'success');
-            closeModal('create-event-modal');
-            
-            // Limpar formulário
-            document.getElementById('event-title').value = '';
-            document.getElementById('event-description').value = '';
-            document.getElementById('event-date').value = '';
-            document.getElementById('event-time').value = '';
-            document.getElementById('event-location').value = '';
-        }
-
-        function openVerseModal() {
-            showToast('Funcionalidade em desenvolvimento', 'info');
-        }
-
-        function openMembersModal() {
-            showToast('Funcionalidade em desenvolvimento', 'info');
-        }
-
-        function openAnalyticsModal() {
-            showToast('Funcionalidade em desenvolvimento', 'info');
-        }
-
-        function openSettingsModal() {
-            showToast('Funcionalidade em desenvolvimento', 'info');
-        }
-
-        // ===== FUNÇÕES UTILITÁRIAS =====
+        // ===== UTILITÁRIOS =====
         function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             toast.textContent = message;
             
-            document.body.appendChild(toast);
+            toastContainer.appendChild(toast);
             
             setTimeout(() => {
                 toast.remove();
             }, 3000);
         }
 
-        // Event listeners
-        document.getElementById('ai-chat-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendAIMessage();
-            }
-        });
+        function formatTimeAgo(date) {
+            if (!date) return 'Agora mesmo';
+            
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            
+            if (diffInSeconds < 60) return 'Agora mesmo';
+            if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} min`;
+            if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} h`;
+            if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)} d`;
+            if (diffInSeconds < 31536000) return `${Math.floor(diffInSeconds / 2592000)} mes`;
+            return `${Math.floor(diffInSeconds / 31536000)} ano`;
+        }
 
-        document.getElementById('profile-ai-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendProfileAIMessage();
-            }
-        });
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
 
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                document.querySelectorAll('.modal-backdrop').forEach(modal => {
-                    modal.classList.add('hidden');
+        // ===== EVENT LISTENERS =====
+        function setupEventListeners() {
+            setupAuthEventListeners();
+            setupNavigationEventListeners();
+            setupModalEventListeners();
+            setupContentEventListeners();
+            setupAIEventListeners();
+            setupResponsiveEventListeners();
+        }
+
+        function setupAuthEventListeners() {
+            document.getElementById('show-login-btn').addEventListener('click', () => {
+                document.querySelector('.auth-container').classList.add('hidden');
+                document.getElementById('login-auth').classList.remove('hidden');
+            });
+            
+            document.getElementById('show-register-btn').addEventListener('click', () => {
+                document.querySelector('.auth-container').classList.add('hidden');
+                document.getElementById('register-auth').classList.remove('hidden');
+            });
+            
+            document.getElementById('back-from-login-btn').addEventListener('click', goBackAuth);
+            document.getElementById('back-from-register-btn').addEventListener('click', goBackAuth);
+            
+            document.getElementById('register-btn').addEventListener('click', handleRegister);
+            document.getElementById('login-btn').addEventListener('click', handleLogin);
+            document.getElementById('google-signin-btn').addEventListener('click', handleGoogleSignIn);
+            document.getElementById('logout-btn').addEventListener('click', handleLogout);
+            document.getElementById('mobile-logout-btn').addEventListener('click', handleLogout);
+            
+            document.getElementById('register-role').addEventListener('change', function() {
+                const leaderCodeGroup = document.getElementById('leader-code-group');
+                if (this.value === 'leader') {
+                    leaderCodeGroup.classList.remove('hidden');
+                } else {
+                    leaderCodeGroup.classList.add('hidden');
+                }
+            });
+        }
+
+        function setupNavigationEventListeners() {
+            document.querySelectorAll('.nav-item[data-section]').forEach(item => {
+                item.addEventListener('click', () => {
+                    const section = item.dataset.section;
+                    showSection(section);
                 });
+            });
+            
+            document.querySelectorAll('.bottom-nav-item[data-section]').forEach(item => {
+                item.addEventListener('click', () => {
+                    const section = item.dataset.section;
+                    showSection(section);
+                });
+            });
+            
+            document.getElementById('mobile-more-btn').addEventListener('click', function(e) {
+                e.stopPropagation();
+                const menu = this.querySelector('.mobile-more-menu');
+                menu.classList.toggle('show');
+            });
+            
+            document.addEventListener('click', () => {
+                document.querySelectorAll('.mobile-more-menu').forEach(menu => {
+                    menu.classList.remove('show');
+                });
+            });
+        }
+
+        function setupModalEventListeners() {
+            document.getElementById('ai-chat-btn').addEventListener('click', () => toggleModal('ai-chat-modal', true));
+            document.getElementById('mobile-ai-chat-btn').addEventListener('click', () => toggleModal('ai-chat-modal', true));
+            
+            document.getElementById('create-post-nav').addEventListener('click', () => toggleModal('create-post-modal', true));
+            document.getElementById('create-post-mobile').addEventListener('click', () => toggleModal('create-post-modal', true));
+            document.getElementById('admin-create-post').addEventListener('click', () => toggleModal('create-post-modal', true));
+            
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('#create-story-btn')) {
+                    toggleModal('create-story-modal', true);
+                }
+            });
+            
+            document.querySelectorAll('.close-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const modalId = e.target.dataset.modal;
+                    toggleModal(modalId, false);
+                });
+            });
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeAllModals();
+                }
+            });
+            
+            document.querySelectorAll('.modal-backdrop').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.add('hidden');
+                    }
+                });
+            });
+        }
+
+        function setupContentEventListeners() {
+            document.getElementById('publish-post-btn').addEventListener('click', handleCreatePost);
+            document.getElementById('post-type').addEventListener('change', togglePostType);
+            document.getElementById('publish-story-btn').addEventListener('click', handleCreateStory);
+            
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', debounce(handleSearch, 300));
             }
-        });
+        }
+
+        function setupAIEventListeners() {
+            document.getElementById('send-ai-message-btn').addEventListener('click', handleAIChat);
+            document.getElementById('ai-chat-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleAIChat();
+            });
+            
+            document.getElementById('profile-ai-send-btn').addEventListener('click', handleProfileAI);
+            document.getElementById('profile-ai-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleProfileAI();
+            });
+        }
+
+        function setupResponsiveEventListeners() {
+            window.addEventListener('resize', debounce(() => {
+                if (window.innerWidth <= 768) {
+                    document.querySelector('.sidebar').style.display = 'none';
+                } else {
+                    document.querySelector('.sidebar').style.display = 'flex';
+                }
+            }, 250));
+        }
+
+        // ===== HANDLERS =====
+        async function handleRegister() {
+            const name = document.getElementById('register-name').value.trim();
+            const email = document.getElementById('register-email').value.trim();
+            const password = document.getElementById('register-password').value;
+            const bio = document.getElementById('register-bio').value.trim();
+            const role = document.getElementById('register-role').value;
+            const leaderCode = document.getElementById('leader-code').value;
+            
+            if (!name || !email || !password) {
+                showToast('Por favor, preencha todos os campos obrigatórios.', 'error');
+                return;
+            }
+            
+            try {
+                await registerUser(email, password, name, bio, role, leaderCode);
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            
+            if (!email || !password) {
+                showToast('Por favor, preencha todos os campos.', 'error');
+                return;
+            }
+            
+            try {
+                await loginUser(email, password);
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        async function handleGoogleSignIn() {
+            try {
+                await signInWithGoogle();
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await logoutUser();
+                showAuthScreens();
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        function goBackAuth() {
+            document.getElementById('login-auth').classList.add('hidden');
+            document.getElementById('register-auth').classList.add('hidden');
+            document.querySelector('.auth-container').classList.remove('hidden');
+        }
+
+        async function handleCreatePost() {
+            if (!userData || userData.role !== 'leader') {
+                showToast('Apenas líderes podem criar posts.', 'error');
+                toggleModal('create-post-modal', false);
+                return;
+            }
+            
+            const caption = document.getElementById('post-caption').value.trim();
+            const postType = document.getElementById('post-type').value;
+            const imageFile = document.getElementById('post-image').files[0];
+            const youtubeUrl = document.getElementById('youtube-url').value.trim();
+            
+            if (!caption) {
+                showToast('Adicione uma legenda', 'error');
+                return;
+            }
+            
+            if (postType === 'image' && !imageFile) {
+                showToast('Selecione uma imagem', 'error');
+                return;
+            }
+            
+            if (postType === 'video' && !youtubeUrl) {
+                showToast('Insira um URL do YouTube', 'error');
+                return;
+            }
+            
+            try {
+                await createPost(caption, imageFile, youtubeUrl);
+                
+                // Limpar formulário
+                document.getElementById('post-caption').value = '';
+                document.getElementById('post-image').value = '';
+                document.getElementById('youtube-url').value = '';
+                
+                toggleModal('create-post-modal', false);
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        async function handleCreateStory() {
+            const imageFile = document.getElementById('story-image').files[0];
+            
+            if (!imageFile) {
+                showToast('Selecione uma imagem', 'error');
+                return;
+            }
+            
+            try {
+                await createStory(imageFile);
+                
+                // Limpar formulário
+                document.getElementById('story-image').value = '';
+                
+                toggleModal('create-story-modal', false);
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        async function handleSearch(e) {
+            const query = e.target.value.trim();
+            const resultsContainer = document.getElementById('search-results');
+            
+            if (!query) {
+                resultsContainer.innerHTML = '';
+                return;
+            }
+            
+            try {
+                const postsSnapshot = await db.collection('posts')
+                    .orderBy('createdAt', 'desc')
+                    .get();
+
+                const results = [];
+                
+                for (const doc of postsSnapshot.docs) {
+                    const post = doc.data();
+                    post.id = doc.id;
+                    
+                    // Buscar em legenda
+                    if (post.caption && post.caption.toLowerCase().includes(query.toLowerCase())) {
+                        // Carregar dados do autor
+                        const userDoc = await db.collection('users').doc(post.userId).get();
+                        if (userDoc.exists) {
+                            post.user = userDoc.data();
+                        }
+                        results.push(post);
+                    }
+                }
+                
+                if (results.length === 0) {
+                    resultsContainer.innerHTML = '<p class="text-center text-muted">Nenhum resultado encontrado.</p>';
+                    return;
+                }
+                
+                resultsContainer.innerHTML = '<h3>Resultados da Pesquisa</h3>';
+                
+                results.forEach(post => {
+                    const resultElement = document.createElement('div');
+                    resultElement.className = 'card';
+                    resultElement.innerHTML = `
+                        <div class="post-header">
+                            <div class="post-avatar">
+                                <img src="${post.user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop'}" alt="${post.user?.name}">
+                            </div>
+                            <div class="post-user">
+                                <div class="post-username">${post.user?.name}</div>
+                            </div>
+                        </div>
+                        <p>${post.caption}</p>
+                    `;
+                    resultsContainer.appendChild(resultElement);
+                });
+            } catch (error) {
+                console.error('Erro na pesquisa:', error);
+                showToast('Erro na pesquisa', 'error');
+            }
+        }
     </script>
 </body>
 </html>
