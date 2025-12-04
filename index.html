@@ -1,3030 +1,2407 @@
 <!DOCTYPE html>
-<html lang="pt-MZ">
+<html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IMJA - Ministério dos Justos Aperfeiçoados</title>
-    <link rel="icon" href="https://i.ibb.co/BKqHhW9T/1763640488279.jpg">
+    <title>StreamMoz - A Revolução do Streaming em Moçambique</title>
+    <meta name="description" content="Netflix, Prime Video e muito mais em uma única plataforma. Escolhe o teu plano, paga em meticais e começa a ver agora.">
+    <meta name="theme-color" content="#0f0f1a">
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
     
-    <!-- Ícones -->
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="icons/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="icons/favicon-16x16.png" sizes="16x16">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
-        /* ===== VARIÁVEIS E RESET ===== */
-        :root {
-            --primary: #0095f6;
-            --primary-dark: #1877f2;
-            --bg-dark: #000000;
-            --bg-secondary: #121212;
-            --card-bg: #262626;
-            --card-border: #363636;
-            --text-primary: #f5f5f5;
-            --text-secondary: #a8a8a8;
-            --text-muted: #8e8e8e;
-            --success: #4caf50;
-            --danger: #ed4956;
-            --warning: #f9a825;
-            --stories-gradient: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-            
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.25);
-            
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-        
+        /* Reset e configurações gerais */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
-        
+
+        :root {
+            --primary-bg: #0f0f1a;
+            --secondary-bg: #1a1a2e;
+            --accent-blue: #4a6cf7;
+            --accent-purple: #8a2be2;
+            --accent-red: #e50914;
+            --text-white: #ffffff;
+            --text-light: #e0e0e0;
+            --card-bg: #1e1e2e;
+            --card-hover: #25253a;
+            --gradient-tech: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #2d1b69 100%);
+            --netflix-red: #e50914;
+            --success: #4caf50;
+            --warning: #ff9800;
+        }
+
         body {
-            background: var(--bg-dark);
-            color: var(--text-primary);
+            background-color: var(--primary-bg);
+            color: var(--text-white);
             line-height: 1.6;
             overflow-x: hidden;
         }
-        
-        /* ===== LOADING SCREEN ===== */
-        #loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-dark);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-        
-        .loading-logo {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            overflow: hidden;
-            margin-bottom: 20px;
-            animation: pulse 2s infinite;
-        }
-        
-        .loading-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            border-left-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 16px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(0.95); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(0.95); }
-        }
-        
-        /* ===== UTILITÁRIOS ===== */
-        .hidden {
-            display: none !important;
-        }
-        
-        .text-center {
-            text-align: center;
-        }
-        
-        .text-muted {
-            color: var(--text-muted);
-        }
-        
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 14px;
-        }
-        
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: var(--primary-dark);
-        }
-        
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--card-border);
-            color: var(--text-primary);
-        }
-        
-        .btn-outline:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
-        
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background: #c13540;
-        }
-        
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background: #3d8b40;
-        }
-        
-        .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            border: 1px solid var(--card-border);
-            padding: 16px;
-            box-shadow: var(--shadow);
-        }
-        
-        /* ===== LAYOUT PRINCIPAL ===== */
-        .app-container {
-            display: flex;
-            height: 100vh;
-        }
-        
-        /* ===== NAVBAR LATERAL ===== */
-        .sidebar {
-            width: 244px;
-            background: var(--bg-dark);
-            border-right: 1px solid var(--card-border);
-            padding: 20px 12px;
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            height: 100vh;
-            left: 0;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .sidebar-logo {
-            padding: 25px 12px 16px;
-            margin-bottom: 20px;
-        }
-        
-        .sidebar-logo img {
-            height: 40px;
-            border-radius: 8px;
-        }
-        
-        .nav-menu {
-            list-style: none;
-            flex: 1;
-        }
-        
-        .nav-item {
-            padding: 12px;
-            margin-bottom: 8px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            font-size: 16px;
-        }
-        
-        .nav-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
-        
-        .nav-item.active {
-            font-weight: 600;
-        }
-        
-        .nav-item i {
-            width: 24px;
-            text-align: center;
-            font-size: 20px;
-        }
-        
-        /* ===== CONTEÚDO PRINCIPAL ===== */
-        .main-content {
-            flex: 1;
-            margin-left: 244px;
-            overflow-y: auto;
-            height: 100vh;
-        }
-        
-        .content-area {
-            max-width: 630px;
+
+        .container {
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 30px 20px;
+            padding: 0 20px;
         }
-        
-        /* ===== STORIES ===== */
-        .stories-container {
-            background: var(--card-bg);
-            border-radius: 12px;
-            border: 1px solid var(--card-border);
-            padding: 16px;
-            margin-bottom: 24px;
-            overflow-x: auto;
-        }
-        
-        .stories {
-            display: flex;
-            gap: 16px;
-            padding: 8px 0;
-        }
-        
-        .story {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            min-width: 66px;
-        }
-        
-        .story-avatar {
-            width: 66px;
-            height: 66px;
-            border-radius: 50%;
-            background: var(--stories-gradient);
-            padding: 2px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .story-avatar-inner {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: var(--bg-dark);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border: 2px solid var(--bg-dark);
-        }
-        
-        .story-avatar-inner img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .story-username {
-            font-size: 12px;
-            color: var(--text-primary);
-            max-width: 74px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        
-        /* ===== FEED DE POSTS ===== */
-        .post {
-            background: var(--card-bg);
-            border-radius: 12px;
-            border: 1px solid var(--card-border);
-            margin-bottom: 24px;
-        }
-        
-        .post-header {
-            padding: 14px 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .post-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            overflow: hidden;
-        }
-        
-        .post-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .post-user {
-            flex: 1;
-        }
-        
-        .post-username {
-            font-weight: 600;
-            font-size: 14px;
-        }
-        
-        .post-location {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-        
-        .post-more {
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            cursor: pointer;
-            font-size: 18px;
-            position: relative;
-        }
-        
-        .post-more-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 8px;
-            padding: 8px 0;
-            min-width: 150px;
-            z-index: 10;
-            display: none;
-        }
-        
-        .post-more-menu.show {
-            display: block;
-        }
-        
-        .post-more-item {
-            padding: 10px 16px;
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            text-align: left;
-            width: 100%;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .post-more-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
-        
-        .post-more-item.delete {
-            color: var(--danger);
-        }
-        
-        .post-image {
-            width: 100%;
-            max-height: 600px;
-            object-fit: cover;
-        }
-        
-        .post-video {
-            width: 100%;
-            aspect-ratio: 16/9;
-            background: #000;
-        }
-        
-        .post-actions {
-            padding: 12px 16px;
-            display: flex;
-            gap: 16px;
-        }
-        
-        .post-action {
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            cursor: pointer;
-            font-size: 24px;
-            transition: transform 0.2s;
-        }
-        
-        .post-action:hover {
-            transform: scale(1.1);
-        }
-        
-        .post-action.liked {
-            color: var(--danger);
-        }
-        
-        .post-action.save {
-            margin-left: auto;
-        }
-        
-        .post-likes {
-            padding: 0 16px 8px;
-            font-weight: 600;
-            font-size: 14px;
-        }
-        
-        .post-caption {
-            padding: 0 16px 8px;
-            font-size: 14px;
-        }
-        
-        .post-caption .username {
-            font-weight: 600;
-            margin-right: 4px;
-        }
-        
-        .post-comments {
-            padding: 0 16px 8px;
-            font-size: 14px;
-            color: var(--text-secondary);
-            max-height: 120px;
-            overflow-y: auto;
-        }
-        
-        .comment {
-            margin-bottom: 8px;
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-        }
-        
-        .comment-username {
-            font-weight: 600;
-            font-size: 13px;
-        }
-        
-        .comment-text {
-            font-size: 13px;
-            flex: 1;
-        }
-        
-        .post-time {
-            padding: 0 16px 12px;
-            font-size: 10px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-        }
-        
-        .comment-input {
-            padding: 12px 16px;
-            border-top: 1px solid var(--card-border);
-            display: flex;
-            gap: 12px;
-        }
-        
-        .comment-input input {
-            flex: 1;
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            font-size: 14px;
-        }
-        
-        .comment-input input:focus {
-            outline: none;
-        }
-        
-        .comment-input button {
-            background: none;
-            border: none;
-            color: var(--primary);
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        /* ===== BARRA INFERIOR MOBILE ===== */
-        .bottom-nav {
+
+        /* Header */
+        header {
+            background-color: rgba(15, 15, 26, 0.95);
+            backdrop-filter: blur(10px);
             position: fixed;
-            bottom: 0;
-            left: 0;
             width: 100%;
-            background: var(--bg-dark);
-            border-top: 1px solid var(--card-border);
-            padding: 12px 20px;
-            display: none;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 100;
-        }
-        
-        .bottom-nav-item {
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            font-size: 24px;
-            cursor: pointer;
-            position: relative;
-        }
-        
-        .bottom-nav-item.active {
-            color: var(--primary);
-        }
-        
-        .mobile-more-menu {
-            position: absolute;
-            bottom: 100%;
-            left: 0;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 8px;
-            padding: 8px 0;
-            min-width: 150px;
-            z-index: 10;
-            display: none;
-        }
-        
-        .mobile-more-menu.show {
-            display: block;
-        }
-        
-        .mobile-more-item {
-            padding: 10px 16px;
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            text-align: left;
-            width: 100%;
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        /* ===== SEÇÃO DE PESQUISA ===== */
-        #search-content {
-            display: none;
-        }
-        
-        .search-container {
-            background: var(--card-bg);
-            border-radius: 12px;
-            border: 1px solid var(--card-border);
-            padding: 16px;
-            margin-bottom: 24px;
-        }
-        
-        .search-input {
-            width: 100%;
-            padding: 12px 16px;
-            border-radius: 8px;
-            border: 1px solid var(--card-border);
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-size: 14px;
-        }
-        
-        .search-input::placeholder {
-            color: var(--text-muted);
-            font-style: italic;
-        }
-        
-        /* ===== SEÇÃO DE PERFIL ===== */
-        #profile-content {
-            display: none;
-        }
-        
-        .profile-header {
-            background: var(--card-bg);
-            border-radius: 12px;
-            border: 1px solid var(--card-border);
-            padding: 24px;
-            margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            gap: 24px;
-        }
-        
-        .profile-avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 3px solid var(--primary);
-        }
-        
-        .profile-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .profile-info {
-            flex: 1;
-        }
-        
-        .profile-name {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        
-        .profile-bio {
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-        }
-        
-        .profile-stats {
-            display: flex;
-            gap: 20px;
-        }
-        
-        .profile-stat {
-            text-align: center;
-        }
-        
-        .stat-value {
-            font-weight: 600;
-            font-size: 18px;
-        }
-        
-        .stat-label {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-        
-        /* ===== IA NO PERFIL ===== */
-        .ai-section {
-            background: var(--card-bg);
-            border-radius: 12px;
-            border: 1px solid var(--card-border);
-            padding: 16px;
-            margin-bottom: 24px;
-        }
-        
-        .ai-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-        
-        .ai-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
-        
-        .ai-title {
-            font-size: 18px;
-            font-weight: 600;
-        }
-        
-        .ai-description {
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-            font-size: 14px;
-        }
-        
-        .ai-input-container {
-            display: flex;
-            gap: 12px;
-        }
-        
-        .ai-input {
-            flex: 1;
-            padding: 12px 16px;
-            border-radius: 20px;
-            border: 1px solid var(--card-border);
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-size: 14px;
-        }
-        
-        .ai-send-btn {
-            background: var(--primary);
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            cursor: pointer;
-        }
-        
-        .ai-response {
-            margin-top: 16px;
-            padding: 16px;
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            font-size: 14px;
-            line-height: 1.5;
-            display: none;
-        }
-        
-        .ai-response.show {
-            display: block;
-        }
-        
-        /* ===== MODAIS ===== */
-        .modal-backdrop {
-            position: fixed;
             top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
             z-index: 1000;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
         }
-        
-        .modal-content {
-            background: var(--card-bg);
-            border-radius: 12px;
-            max-width: 400px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
+
+        header.scrolled {
+            padding: 10px 0;
+            background-color: rgba(15, 15, 26, 0.98);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
         }
-        
-        .modal-header {
-            padding: 16px;
-            border-bottom: 1px solid var(--card-border);
+
+        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
-        .close-btn {
-            background: none;
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 8px;
+            font-size: 1.5rem;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 30px;
+        }
+
+        nav ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        nav ul li a:hover {
+            color: var(--accent-blue);
+        }
+
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            transition: width 0.3s ease;
+        }
+
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+
+        .btn {
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            color: white;
             border: none;
-            color: var(--text-primary);
-            font-size: 24px;
+            box-shadow: 0 4px 15px rgba(74, 108, 247, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 108, 247, 0.4);
+        }
+
+        .btn-netflix {
+            background: var(--netflix-red);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);
+        }
+
+        .btn-netflix:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(229, 9, 20, 0.4);
+            background: #f40612;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-white);
+            border: 1px solid var(--accent-blue);
+        }
+
+        .btn-outline:hover {
+            background: rgba(74, 108, 247, 0.1);
+        }
+
+        .mobile-menu {
+            display: none;
+            font-size: 1.5rem;
             cursor: pointer;
         }
-        
-        .modal-body {
-            padding: 16px;
+
+        /* Hero Section */
+        .hero {
+            background: var(--gradient-tech);
+            padding: 150px 0 100px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
         }
-        
-        /* ===== CHAT ===== */
-        .chat-modal {
-            max-width: 400px;
-            height: 600px;
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 20%, rgba(74, 108, 247, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(138, 43, 226, 0.1) 0%, transparent 50%);
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+            line-height: 1.2;
+            background: linear-gradient(90deg, #fff, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: textGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes textGlow {
+            0% { text-shadow: 0 0 10px rgba(74, 108, 247, 0.5); }
+            100% { text-shadow: 0 0 20px rgba(138, 43, 226, 0.7), 0 0 30px rgba(74, 108, 247, 0.5); }
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
             display: flex;
-            flex-direction: column;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
         }
-        
-        .chat-messages {
-            flex: 1;
-            padding: 16px;
-            overflow-y: auto;
+
+        .hero-image {
+            margin-top: 60px;
+            position: relative;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            transition: transform 0.5s ease;
+        }
+
+        .hero-image:hover {
+            transform: scale(1.02);
+        }
+
+        .hero-image img {
+            width: 100%;
+            display: block;
+        }
+
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .floating-element {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: rgba(74, 108, 247, 0.1);
+            border-radius: 10px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-element:nth-child(1) {
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-element:nth-child(2) {
+            top: 20%;
+            right: 15%;
+            animation-delay: 1s;
+        }
+
+        .floating-element:nth-child(3) {
+            bottom: 15%;
+            left: 15%;
+            animation-delay: 2s;
+        }
+
+        .floating-element:nth-child(4) {
+            bottom: 25%;
+            right: 10%;
+            animation-delay: 3s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        /* Pricing Section */
+        .pricing {
+            padding: 100px 0;
+            background-color: var(--secondary-bg);
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .section-title p {
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .pricing-cards {
             display: flex;
-            flex-direction: column;
-            gap: 12px;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
         }
-        
-        .message {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            font-size: 14px;
-            line-height: 1.4;
+
+        .pricing-card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 40px 30px;
+            width: 280px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
         }
-        
-        .message.sent {
-            background: var(--primary);
+
+        .pricing-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            background-color: var(--card-hover);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .plan-price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 20px 0;
+            color: var(--accent-blue);
+        }
+
+        .plan-period {
+            font-size: 1rem;
+            color: var(--text-light);
+        }
+
+        .plan-features {
+            list-style: none;
+            margin: 25px 0 30px;
+        }
+
+        .plan-features li {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .plan-features li i {
+            color: var(--accent-blue);
+            margin-right: 10px;
+            font-size: 0.9rem;
+        }
+
+        .pricing-card.featured {
+            transform: scale(1.05);
+            border: 1px solid rgba(74, 108, 247, 0.3);
+        }
+
+        .pricing-card.featured:hover {
+            transform: scale(1.05) translateY(-10px);
+        }
+
+        .featured-badge {
+            position: absolute;
+            top: 20px;
+            right: -30px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
             color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 4px;
+            padding: 5px 40px;
+            transform: rotate(45deg);
+            font-size: 0.8rem;
+            font-weight: 600;
         }
-        
-        .message.received {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
-        }
-        
-        .chat-input-container {
-            padding: 16px;
-            border-top: 1px solid var(--card-border);
-            display: flex;
-            gap: 12px;
-        }
-        
-        .chat-input {
-            flex: 1;
-            padding: 12px 16px;
+
+        .netflix-badge {
+            background: var(--netflix-red);
+            color: white;
+            padding: 5px 15px;
             border-radius: 20px;
-            border: 1px solid var(--card-border);
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-size: 14px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 10px;
         }
-        
-        .send-btn {
-            background: var(--primary);
-            border: none;
+
+        /* Netflix Content Section */
+        .netflix-content {
+            padding: 80px 0;
+            background: var(--primary-bg);
+        }
+
+        .content-slider {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding: 20px 0;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-blue) var(--secondary-bg);
+        }
+
+        .content-slider::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .content-slider::-webkit-scrollbar-track {
+            background: var(--secondary-bg);
+            border-radius: 10px;
+        }
+
+        .content-slider::-webkit-scrollbar-thumb {
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 10px;
+        }
+
+        .content-item {
+            min-width: 200px;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .content-item:hover {
+            transform: scale(1.05);
+        }
+
+        .content-item img {
+            width: 100%;
+            display: block;
+            border-radius: 10px;
+        }
+
+        .content-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            padding: 20px 10px 10px;
+            transform: translateY(10px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .content-item:hover .content-overlay {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 40px 20px;
+            border-radius: 15px;
+            background-color: var(--card-bg);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(74, 108, 247, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .feature-card:hover::before {
+            left: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background-color: var(--card-hover);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 25px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            cursor: pointer;
+            font-size: 2rem;
+            transition: transform 0.3s ease;
         }
-        
-        /* ===== TELAS DE AUTENTICAÇÃO ===== */
-        #auth-screens {
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) rotate(10deg);
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .feature-card p {
+            color: var(--text-light);
+        }
+
+        /* Payment Section */
+        .payment-section {
+            padding: 100px 0;
+            background-color: var(--secondary-bg);
+        }
+
+        .payment-container {
+            max-width: 500px;
+            width: 100%;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin: 0 auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .payment-logo {
+            width: 150px;
+            margin: 0 auto 20px;
+            display: block;
+        }
+
+        .payment-title {
+            text-align: center;
+            color: var(--netflix-red);
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .payment-subtitle {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--text-light);
+            font-size: 16px;
+        }
+
+        .payment-card {
+            background-color: var(--secondary-bg);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--netflix-red);
+        }
+
+        .payment-card-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .payment-card-title i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .payment-price {
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+            color: var(--text-white);
+        }
+
+        .payment-features {
+            list-style-type: none;
+            margin: 15px 0;
+        }
+
+        .payment-features li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .payment-features li:before {
+            content: "✓";
+            color: var(--success);
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .payment-method {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .payment-method:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .payment-method.selected {
+            border: 2px solid var(--netflix-red);
+            background-color: rgba(229, 9, 20, 0.1);
+        }
+
+        .payment-icon {
+            font-size: 30px;
+            margin-right: 15px;
+        }
+
+        .payment-info {
+            flex-grow: 1;
+        }
+
+        .payment-name {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .payment-desc {
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .payment-instructions {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .payment-instructions.active {
+            display: block;
+        }
+
+        .payment-step {
+            display: flex;
+            margin-bottom: 15px;
+            align-items: flex-start;
+        }
+
+        .payment-step-number {
+            background-color: var(--netflix-red);
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .payment-step-content {
+            flex-grow: 1;
+        }
+
+        .payment-reference-box {
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+            border: 1px dashed var(--netflix-red);
+        }
+
+        .payment-reference {
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: var(--text-white);
+            margin: 10px 0;
+        }
+
+        .payment-timer {
+            text-align: center;
+            font-size: 14px;
+            margin: 10px 0;
+            color: #aaa;
+        }
+
+        .payment-timer-expired {
+            color: var(--netflix-red);
+            font-weight: bold;
+        }
+
+        .payment-contact-info {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .payment-success-message {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(76, 175, 80, 0.1);
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid var(--success);
+        }
+
+        .payment-success-icon {
+            font-size: 50px;
+            color: var(--success);
+            margin-bottom: 15px;
+        }
+
+        .payment-loader {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .payment-loader-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid var(--netflix-red);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            color: var(--netflix-red);
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--primary-bg);
+            padding: 60px 0 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .footer-logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+        }
+
+        .footer-column h4 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--text-white);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-column ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-column ul li a:hover {
+            color: var(--accent-blue);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--secondary-bg);
+            color: var(--text-white);
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            transform: translateY(-3px);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--bg-dark);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
             justify-content: center;
             align-items: center;
-            padding: 20px;
         }
-        
-        .auth-container {
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-        }
-        
-        .auth-logo {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            overflow: hidden;
-            margin: 0 auto 20px;
-        }
-        
-        .auth-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .auth-options {
-            display: flex;
-            gap: 12px;
-            margin-top: 24px;
-        }
-        
-        .auth-options .btn {
-            flex: 1;
-        }
-        
-        .form-group {
-            margin-bottom: 16px;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 12px 16px;
-            border-radius: 8px;
-            border: 1px solid var(--card-border);
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-size: 14px;
-        }
-        
-        .form-select {
-            width: 100%;
-            padding: 12px 16px;
-            border-radius: 8px;
-            border: 1px solid var(--card-border);
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-size: 14px;
-        }
-        
-        /* ===== SEÇÃO SOBRE O MINISTÉRIO ===== */
-        #about-content {
-            display: none;
-        }
-        
-        .about-section {
+
+        .modal-content {
             background: var(--card-bg);
-            border-radius: 12px;
-            border: 1px solid var(--card-border);
-            padding: 24px;
-            margin-bottom: 24px;
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            animation: modalFadeIn 0.5s ease;
         }
-        
-        .about-section h2 {
-            margin-bottom: 16px;
-            color: var(--primary);
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        
-        .about-section p {
-            margin-bottom: 16px;
-            line-height: 1.6;
-        }
-        
-        .about-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-top: 20px;
-        }
-        
-        .about-card {
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            padding: 16px;
-            text-align: center;
-        }
-        
-        .about-card i {
-            font-size: 24px;
-            color: var(--primary);
-            margin-bottom: 8px;
-        }
-        
-        .about-card h3 {
-            margin-bottom: 8px;
-        }
-        
-        .about-card p {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-        
-        .team-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .team-member {
-            text-align: center;
-        }
-        
-        .team-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            overflow: hidden;
-            margin: 0 auto 12px;
-            border: 2px solid var(--primary);
-        }
-        
-        .team-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .team-name {
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-        
-        .team-role {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-        
-        /* ===== PAINEL DE ADMINISTRAÇÃO ===== */
-        #admin-content {
-            display: none;
-        }
-        
-        .admin-section {
-            background: var(--card-bg);
-            border-radius: 12px;
-            border: 1px solid var(--card-border);
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-        
-        .admin-section h2 {
-            margin-bottom: 16px;
-            color: var(--primary);
-        }
-        
-        .admin-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-top: 20px;
-        }
-        
-        .admin-card {
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
             cursor: pointer;
-            transition: transform 0.2s;
+            color: var(--text-light);
+            transition: color 0.3s ease;
         }
-        
-        .admin-card:hover {
-            transform: translateY(-5px);
+
+        .close-modal:hover {
+            color: var(--accent-red);
         }
-        
-        .admin-card i {
-            font-size: 32px;
-            color: var(--primary);
-            margin-bottom: 12px;
+
+        /* Nova IA Gemini Assistant */
+        .ai-assistant-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(74, 108, 247, 0.4);
+            z-index: 9999;
+            transition: all 0.3s ease;
         }
-        
-        .admin-card h3 {
-            margin-bottom: 8px;
+
+        .ai-assistant-btn:hover {
+            transform: scale(1.1);
         }
-        
-        .admin-card p {
-            font-size: 14px;
-            color: var(--text-secondary);
+
+        .ai-chat-widget {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--accent-blue);
+            display: flex;
+            flex-direction: column;
+            z-index: 10000;
         }
-        
-        /* ===== RESPONSIVIDADE ===== */
-        @media (max-width: 1260px) {
-            .sidebar {
-                width: 72px;
-            }
-            
-            .sidebar .nav-text {
-                display: none;
-            }
-            
-            .main-content {
-                margin-left: 72px;
-            }
-            
-            .sidebar-logo img {
-                height: 30px;
-            }
+
+        .ai-chat-header {
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            color: white;
+            padding: 15px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        
-        @media (max-width: 768px) {
-            .sidebar {
-                display: none;
-            }
-            
-            .main-content {
-                margin-left: 0;
-                padding-bottom: 80px;
-            }
-            
-            .bottom-nav {
-                display: flex;
-            }
-            
-            .profile-header {
-                flex-direction: column;
-                text-align: center;
-            }
+
+        .ai-chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
-        
-        /* ===== ANIMAÇÕES ===== */
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
+
+        .ai-message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            margin-bottom: 10px;
+            line-height: 1.4;
         }
-        
+
+        .ai-user-message {
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .ai-bot-message {
+            background: var(--secondary-bg);
+            color: var(--text-white);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            border: 1px solid var(--accent-blue);
+        }
+
+        .ai-chat-input-container {
+            padding: 15px;
+            border-top: 1px solid var(--secondary-bg);
+            display: flex;
+            position: relative;
+        }
+
+        .ai-chat-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 25px;
+            border: 1px solid var(--secondary-bg);
+            background: var(--primary-bg);
+            color: var(--text-white);
+            outline: none;
+        }
+
+        .ai-send-btn {
+            position: absolute;
+            right: 25px;
+            bottom: 25px;
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ai-typing {
+            display: none;
+            align-self: flex-start;
+            background: var(--secondary-bg);
+            color: var(--text-white);
+            padding: 10px 15px;
+            border-radius: 18px;
+            border-bottom-left-radius: 5px;
+            font-style: italic;
+            border: 1px solid var(--accent-blue);
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--netflix-red);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            display: block;
+            animation: fadeIn 0.5s, fadeOut 0.5s 2.5s;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
-        /* ===== MENSAGENS ===== */
-        .toast {
+
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(20px); }
+        }
+
+        /* PWA Install Prompt */
+        .pwa-install-prompt {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--success);
+            bottom: 20px;
+            left: 20px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--accent-blue);
+            z-index: 9998;
+            max-width: 300px;
+            display: none;
+        }
+
+        .pwa-install-prompt.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        .pwa-install-prompt p {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .pwa-install-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .pwa-install-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .pwa-install-confirm {
+            background: var(--accent-blue);
             color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            z-index: 1001;
-            animation: slideInRight 0.3s ease-out;
         }
-        
-        .toast.error {
-            background: var(--danger);
+
+        .pwa-install-cancel {
+            background: transparent;
+            color: var(--text-light);
+            border: 1px solid var(--text-light);
         }
-        
-        .toast.info {
-            background: var(--primary);
+
+        /* Responsividade */
+        @media (max-width: 992px) {
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+            
+            .pricing-card.featured {
+                transform: scale(1);
+            }
+            
+            .pricing-card.featured:hover {
+                transform: translateY(-10px);
+            }
         }
-        
-        @keyframes slideInRight {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+
+        @media (max-width: 768px) {
+            nav ul {
+                display: none;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: var(--primary-bg);
+                flex-direction: column;
+                padding: 20px;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+                border-top: 1px solid rgba(255, 255, 255, 0.05);
+            }
+            
+            nav ul.active {
+                display: flex;
+            }
+            
+            nav ul li {
+                margin: 10px 0;
+            }
+            
+            .mobile-menu {
+                display: block;
+            }
+            
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 250px;
+                text-align: center;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 40px;
+            }
+
+            .ai-chat-widget {
+                width: 300px;
+                height: 400px;
+                right: 10px;
+                bottom: 80px;
+            }
+
+            .pwa-install-prompt {
+                left: 10px;
+                right: 10px;
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero {
+                padding: 120px 0 60px;
+            }
+            
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .section-title h2 {
+                font-size: 2rem;
+            }
+            
+            .pricing-card {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .payment-container {
+                padding: 20px;
+            }
+            
+            .payment-price {
+                font-size: 28px;
+            }
+        }
+
+        /* Animações */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            opacity: 0;
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+
+        /* Easter Egg */
+        .easter-egg {
+            position: fixed;
+            bottom: 90px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(74, 108, 247, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .easter-egg:hover {
+            transform: scale(1.1);
+            background: var(--accent-purple);
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: var(--accent-blue);
+            opacity: 0;
+            z-index: 9999;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
-    <!-- TELA DE CARREGAMENTO -->
-    <div id="loading-screen">
-        <div class="loading-logo">
-            <img src="https://i.ibb.co/BKqHhW9T/1763640488279.jpg" alt="IMJA Logo">
+    <!-- PWA Install Prompt -->
+    <div class="pwa-install-prompt" id="pwaInstallPrompt">
+        <p>Instalar o StreamMoz para uma experiência melhor?</p>
+        <div class="pwa-install-buttons">
+            <button class="pwa-install-btn pwa-install-confirm" id="pwaInstallConfirm">Instalar</button>
+            <button class="pwa-install-btn pwa-install-cancel" id="pwaInstallCancel">Agora não</button>
         </div>
-        <div class="loading-spinner"></div>
-        <p>Carregando IMJA...</p>
     </div>
 
-    <!-- TELAS DE AUTENTICAÇÃO -->
-    <div id="auth-screens" class="hidden">
-        <div class="auth-container fade-in">
-            <div class="auth-logo">
-                <img src="https://i.ibb.co/BKqHhW9T/1763640488279.jpg" alt="IMJA Logo">
-            </div>
-            <h1>Bem-vindo ao IMJA</h1>
-            <p class="text-muted">Ministério dos Justos Aperfeiçoados</p>
-            
-            <div class="auth-options">
-                <button class="btn btn-primary" id="show-login-btn">
-                    <i class="fas fa-sign-in-alt"></i> Entrar
-                </button>
-                <button class="btn btn-outline" id="show-register-btn">
-                    <i class="fas fa-user-plus"></i> Registrar
-                </button>
-            </div>
-            
-            <div class="auth-options">
-                <button class="btn btn-outline" id="google-signin-btn">
-                    <i class="fab fa-google"></i> Entrar com Google
-                </button>
+    <!-- Nova IA Gemini Assistant -->
+    <div class="ai-assistant-btn" id="aiAssistantBtn">
+        <i class="fas fa-robot" style="color: white; font-size: 24px;"></i>
+    </div>
+
+    <div class="ai-chat-widget" id="aiChatWidget" style="display: none;">
+        <div class="ai-chat-header">
+            <h4 style="margin: 0;">🤖 Assistente StreamMoz</h4>
+            <button id="closeAiChat" style="background: none; border: none; color: white; cursor: pointer;">×</button>
+        </div>
+        <div class="ai-chat-messages" id="aiChatMessages">
+            <div class="ai-message ai-bot-message">
+                Olá! Sou a assistente virtual da StreamMoz. Como posso ajudar-te hoje? 🤗
             </div>
         </div>
-
-        <!-- Formulário de Login -->
-        <div id="login-auth" class="auth-container hidden">
-            <div class="auth-logo">
-                <img src="https://i.ibb.co/BKqHhW9T/1763640488279.jpg" alt="IMJA Logo">
-            </div>
-            <h2>Entrar na sua conta</h2>
-            
-            <div class="form-group">
-                <input type="email" id="login-email" class="form-input" placeholder="Email">
-            </div>
-            <div class="form-group">
-                <input type="password" id="login-password" class="form-input" placeholder="Senha">
-            </div>
-            <button class="btn btn-primary" id="login-btn">
-                <i class="fas fa-sign-in-alt"></i> Entrar
-            </button>
-            <button class="btn btn-outline" id="back-from-login-btn">
-                <i class="fas fa-arrow-left"></i> Voltar
-            </button>
-        </div>
-
-        <!-- Formulário de Registro -->
-        <div id="register-auth" class="auth-container hidden">
-            <div class="auth-logo">
-                <img src="https://i.ibb.co/BKqHhW9T/1763640488279.jpg" alt="IMJA Logo">
-            </div>
-            <h2>Criar nova conta</h2>
-            
-            <div class="form-group">
-                <input type="text" id="register-name" class="form-input" placeholder="Nome completo">
-            </div>
-            <div class="form-group">
-                <input type="email" id="register-email" class="form-input" placeholder="Email">
-            </div>
-            <div class="form-group">
-                <input type="password" id="register-password" class="form-input" placeholder="Senha">
-            </div>
-            <div class="form-group">
-                <input type="text" id="register-bio" class="form-input" placeholder="Bio (opcional)">
-            </div>
-            <div class="form-group">
-                <select id="register-role" class="form-select">
-                    <option value="member">Membro</option>
-                    <option value="leader">Líder</option>
-                </select>
-            </div>
-            <div class="form-group hidden" id="leader-code-group">
-                <input type="password" id="leader-code" class="form-input" placeholder="Código de líder">
-            </div>
-            <button class="btn btn-primary" id="register-btn">
-                <i class="fas fa-user-plus"></i> Criar Conta
-            </button>
-            <button class="btn btn-outline" id="back-from-register-btn">
-                <i class="fas fa-arrow-left"></i> Voltar
+        <div class="ai-typing" id="aiTyping">Digitando...</div>
+        <div class="ai-chat-input-container">
+            <input type="text" class="ai-chat-input" id="aiChatInput" placeholder="Pergunte sobre planos, pagamentos...">
+            <button class="ai-send-btn" id="aiSendBtn">
+                <i class="fas fa-paper-plane"></i>
             </button>
         </div>
     </div>
 
-    <!-- APLICAÇÃO PRINCIPAL -->
-    <div class="app-container hidden" id="main-app">
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
-            <div class="sidebar-logo">
-                <img src="https://i.ibb.co/BKqHhW9T/1763640488279.jpg" alt="IMJA">
+    <!-- Header -->
+    <header id="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-play-circle"></i>
+                    StreamMoz
+                </div>
+                <nav>
+                    <ul id="navMenu">
+                        <li><a href="#planos">Planos</a></li>
+                        <li><a href="#conteudo">Conteúdo</a></li>
+                        <li><a href="#vantagens">Vantagens</a></li>
+                        <li><a href="#pagamento">Pagamento</a></li>
+                        <li><a href="#" class="btn btn-outline">Entrar</a></li>
+                    </ul>
+                </nav>
+                
+                <div class="mobile-menu" id="mobileMenu">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="fade-in">A Revolução do Streaming Chegou a Moçambique!</h1>
+                <p class="fade-in delay-1">Netflix, Prime Video e muito mais em uma única plataforma. Escolhe o teu plano, paga em meticais e começa a ver agora.</p>
+                <div class="hero-buttons fade-in delay-2">
+                    <a href="#planos" class="btn btn-primary">Explorar Planos</a>
+                    <a href="#pagamento" class="btn btn-netflix">Pagar com Emola</a>
+                </div>
+                <div class="hero-image fade-in delay-3">
+                    <img src="https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1469&q=80" alt="Interface do StreamMoz">
+                    <div class="floating-elements">
+                        <div class="floating-element"></div>
+                        <div class="floating-element"></div>
+                        <div class="floating-element"></div>
+                        <div class="floating-element"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing" id="planos">
+        <div class="container">
+            <div class="section-title">
+                <h2>Planos de Assinatura</h2>
+                <p>Escolhe o plano que melhor se adapta às tuas necessidades e começa a desfrutar de conteúdo ilimitado.</p>
+            </div>
+            <div class="pricing-cards">
+                <!-- Plano Básico -->
+                <div class="pricing-card fade-in">
+                    <div class="netflix-badge">Netflix Básico</div>
+                    <h3 class="plan-name">Básico</h3>
+                    <div class="plan-price">299 <span class="plan-period">MZN/mês</span></div>
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check"></i> 1 dispositivo simultâneo</li>
+                        <li><i class="fas fa-check"></i> Qualidade padrão (480p)</li>
+                        <li><i class="fas fa-check"></i> Catálogo Netflix completo</li>
+                        <li><i class="fas fa-check"></i> Suporte por email</li>
+                    </ul>
+                    <a href="#pagamento" class="btn btn-outline">Assinar Agora</a>
+                </div>
+
+                <!-- Plano Padrão -->
+                <div class="pricing-card featured fade-in delay-1">
+                    <div class="featured-badge">Popular</div>
+                    <div class="netflix-badge">Netflix + Prime Video</div>
+                    <h3 class="plan-name">Padrão</h3>
+                    <div class="plan-price">600 <span class="plan-period">MZN/mês</span></div>
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check"></i> 2 dispositivos simultâneos</li>
+                        <li><i class="fas fa-check"></i> Qualidade HD (1080p)</li>
+                        <li><i class="fas fa-check"></i> Netflix + Prime Video</li>
+                        <li><i class="fas fa-check"></i> Suporte prioritário</li>
+                        <li><i class="fas fa-check"></i> Sem anúncios</li>
+                    </ul>
+                    <a href="#pagamento" class="btn btn-primary">Assinar Agora</a>
+                </div>
+
+                <!-- Plano Premium -->
+                <div class="pricing-card fade-in delay-2">
+                    <div class="netflix-badge">Netflix Premium</div>
+                    <h3 class="plan-name">Premium</h3>
+                    <div class="plan-price">1 000 <span class="plan-period">MZN/mês</span></div>
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check"></i> 4 dispositivos simultâneos</li>
+                        <li><i class="fas fa-check"></i> Qualidade 4K Ultra HD</li>
+                        <li><i class="fas fa-check"></i> Catálogo completo</li>
+                        <li><i class="fas fa-check"></i> Downloads offline</li>
+                        <li><i class="fas fa-check"></i> Suporte 24/7</li>
+                        <li><i class="fas fa-check"></i> Sem anúncios</li>
+                    </ul>
+                    <a href="#pagamento" class="btn btn-outline">Assinar Agora</a>
+                </div>
+
+                <!-- Plano Família -->
+                <div class="pricing-card fade-in delay-3">
+                    <div class="netflix-badge">Combo Completo</div>
+                    <h3 class="plan-name">Família</h3>
+                    <div class="plan-price">1 200 <span class="plan-period">MZN/mês</span></div>
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check"></i> 6 dispositivos simultâneos</li>
+                        <li><i class="fas fa-check"></i> Qualidade 4K Ultra HD</li>
+                        <li><i class="fas fa-check"></i> Netflix + Prime Video + HBO</li>
+                        <li><i class="fas fa-check"></i> Downloads offline</li>
+                        <li><i class="fas fa-check"></i> Perfis personalizados</li>
+                        <li><i class="fas fa-check"></i> Controle parental</li>
+                        <li><i class="fas fa-check"></i> Suporte 24/7</li>
+                    </ul>
+                    <a href="#pagamento" class="btn btn-outline">Assinar Agora</a>
+                </div>
+            </div>
+
+            <!-- Pacote Prime Video -->
+            <div class="section-title" style="margin-top: 80px;">
+                <h2>Pacote Especial Prime Video</h2>
+                <p>Desfruta do catálogo completo da Amazon Prime Video por um preço especial</p>
+            </div>
+            <div class="pricing-cards">
+                <div class="pricing-card" style="width: 350px; margin: 0 auto;">
+                    <div class="netflix-badge" style="background: #00A8E1;">Prime Video</div>
+                    <h3 class="plan-name">Exclusivo</h3>
+                    <div class="plan-price">250 <span class="plan-period">MZN/mês</span></div>
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check"></i> Catálogo completo Prime Video</li>
+                        <li><i class="fas fa-check"></i> Qualidade 4K Ultra HD</li>
+                        <li><i class="fas fa-check"></i> 3 dispositivos simultâneos</li>
+                        <li><i class="fas fa-check"></i> Downloads offline</li>
+                        <li><i class="fas fa-check"></i> Conteúdo exclusivo Amazon</li>
+                        <li><i class="fas fa-check"></i> Sem compromisso</li>
+                    </ul>
+                    <a href="#pagamento" class="btn btn-primary" style="background: #00A8E1;">Assinar Agora</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Netflix Content Section -->
+    <section class="netflix-content" id="conteudo">
+        <div class="container">
+            <div class="section-title">
+                <h2>Conteúdo Exclusivo Netflix</h2>
+                <p>Descobre as séries e filmes mais populares disponíveis na nossa plataforma</p>
+            </div>
+            <div class="content-slider">
+                <div class="content-item">
+                    <img src="https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" alt="Stranger Things">
+                    <div class="content-overlay">
+                        <h4>Stranger Things</h4>
+                        <p>Série • 4 Temporadas</p>
+                    </div>
+                </div>
+                <div class="content-item">
+                    <img src="https://images.unsplash.com/photo-1594909122845-11baa439b7bf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="The Crown">
+                    <div class="content-overlay">
+                        <h4>The Crown</h4>
+                        <p>Série • 6 Temporadas</p>
+                    </div>
+                </div>
+                <div class="content-item">
+                    <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1450&q=80" alt="Movie Night">
+                    <div class="content-overlay">
+                        <h4>Filmes Exclusivos</h4>
+                        <p>Catálogo Completo</p>
+                    </div>
+                </div>
+                <div class="content-item">
+                    <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Documentaries">
+                    <div class="content-overlay">
+                        <h4>Documentários</h4>
+                        <p>Conteúdo Educativo</p>
+                    </div>
+                </div>
+                <div class="content-item">
+                    <img src="https://images.unsplash.com/photo-1489599809505-f2d4c65055d9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1474&q=80" alt="Animated Series">
+                    <div class="content-overlay">
+                        <h4>Animação</h4>
+                        <p>Para Toda a Família</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="vantagens">
+        <div class="container">
+            <div class="section-title">
+                <h2>Porquê Escolher o StreamMoz?</h2>
+                <p>Descobre as vantagens exclusivas da nossa plataforma de streaming.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                    <h3>Sem Anúncios</h3>
+                    <p>Desfruta de conteúdo ininterrupto sem anúncios em todos os nossos planos, exceto o Básico.</p>
+                </div>
+                <div class="feature-card fade-in delay-1">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Multiplataforma</h3>
+                    <p>Acede ao StreamMoz em qualquer dispositivo: TV, smartphone, tablet ou computador.</p>
+                </div>
+                <div class="feature-card fade-in delay-2">
+                    <div class="feature-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <h3>Downloads Offline</h3>
+                    <p>Faz download dos teus conteúdos favoritos e assiste mesmo sem ligação à internet.</p>
+                </div>
+                <div class="feature-card fade-in delay-3">
+                    <div class="feature-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3>Suporte 24/7</h3>
+                    <p>Nossa equipa de suporte está disponível 24 horas por dia, 7 dias por semana para te ajudar.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Payment Section -->
+    <section class="payment-section" id="pagamento">
+        <div class="container">
+            <div class="section-title">
+                <h2>Pagamento via Emola</h2>
+                <p>Pague de forma rápida e segura usando a aplicação Emola</p>
             </div>
             
-            <ul class="nav-menu">
-                <li class="nav-item active" data-section="feed">
-                    <i class="fas fa-home"></i>
-                    <span class="nav-text">Página Inicial</span>
-                </li>
-                <li class="nav-item" data-section="search">
-                    <i class="fas fa-search"></i>
-                    <span class="nav-text">Pesquisar</span>
-                </li>
-                <li class="nav-item" data-section="messages">
-                    <i class="fas fa-comment"></i>
-                    <span class="nav-text">Mensagens</span>
-                </li>
-                <li class="nav-item" data-section="notifications">
-                    <i class="fas fa-heart"></i>
-                    <span class="nav-text">Notificações</span>
-                </li>
-                <li class="nav-item" data-section="profile">
-                    <i class="fas fa-user"></i>
-                    <span class="nav-text">Perfil</span>
-                </li>
-                <li class="nav-item" data-section="about">
-                    <i class="fas fa-church"></i>
-                    <span class="nav-text">Sobre o IMJA</span>
-                </li>
-                <li class="nav-item hidden" id="admin-nav" data-section="admin">
-                    <i class="fas fa-crown"></i>
-                    <span class="nav-text">Painel Admin</span>
-                </li>
-                <li class="nav-item" id="ai-chat-btn">
-                    <i class="fas fa-robot"></i>
-                    <span class="nav-text">IMJA Assistant</span>
-                </li>
-                <li class="nav-item hidden" id="create-post-nav">
-                    <i class="fas fa-plus-square"></i>
-                    <span class="nav-text">Criar</span>
-                </li>
-            </ul>
-            
-            <div class="nav-item" id="logout-btn">
-                <i class="fas fa-sign-out-alt"></i>
-                <span class="nav-text">Sair</span>
-            </div>
-        </aside>
-
-        <!-- CONTEÚDO PRINCIPAL -->
-        <main class="main-content">
-            <div class="content-area">
-                <!-- FEED DE POSTS -->
-                <div id="feed-content">
-                    <!-- STORIES -->
-                    <div class="stories-container">
-                        <div class="stories" id="stories-list">
-                            <!-- Stories serão carregados via JavaScript -->
-                        </div>
+            <div class="payment-container">
+                <h2 class="payment-title">Netflix Premium</h2>
+                <p class="payment-subtitle">Assista a séries e filmes quando quiser, onde quiser</p>
+                
+                <div class="payment-card">
+                    <div class="payment-card-title">
+                        <i>🎬</i>Escolha o seu plano, por exempl Plano Premium
                     </div>
-
-                    <!-- POSTS -->
-                    <div id="posts-container">
-                        <!-- Posts serão carregados aqui via JavaScript -->
-                    </div>
+                    <div class="payment-price">600 MT / mês</div>
+                    <ul class="payment-features">
+                        <li>4 dispositivos simultâneos</li>
+                        <li>Qualidade 4K Ultra HD + HDR</li>
+                        <li>Baixe em até 4 dispositivos</li>
+                        <li>Assista no seu TV, computador, tablet ou celular</li>
+                        <li>Cancelamento a qualquer momento</li>
+                    </ul>
                 </div>
-
-                <!-- SEÇÃO DE PESQUISA -->
-                <div id="search-content" class="hidden">
-                    <div class="search-container">
-                        <input type="text" class="search-input" id="search-input" placeholder="Buscar e acharão; pedirão, e dar-se-lhes-á; baterão, e abrir-se-lhes-á. - Mateus 7:7">
+                
+                <div class="payment-method selected" id="emola-method">
+                    <div class="payment-icon">📱</div>
+                    <div class="payment-info">
+                        <div class="payment-name">Pagamento via Emola</div>
+                        <div class="payment-desc">Rápido, seguro e sem complicações</div>
                     </div>
-                    <div id="search-results">
-                        <!-- Resultados da pesquisa serão exibidos aqui -->
-                    </div>
+                    <div class="checkmark">✓</div>
                 </div>
-
-                <!-- SEÇÃO DE PERFIL -->
-                <div id="profile-content" class="hidden">
-                    <div class="profile-header">
-                        <div class="profile-avatar">
-                            <img id="profile-avatar-img" src="" alt="Perfil">
-                        </div>
-                        <div class="profile-info">
-                            <h1 class="profile-name" id="profile-name"></h1>
-                            <p class="profile-bio" id="profile-bio"></p>
-                            <div class="profile-stats">
-                                <div class="profile-stat">
-                                    <div class="stat-value" id="stat-posts">0</div>
-                                    <div class="stat-label">Publicações</div>
-                                </div>
-                                <div class="profile-stat">
-                                    <div class="stat-value" id="stat-followers">0</div>
-                                    <div class="stat-label">Seguidores</div>
-                                </div>
-                                <div class="profile-stat">
-                                    <div class="stat-value" id="stat-following">0</div>
-                                    <div class="stat-label">Seguindo</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- IA NO PERFIL -->
-                    <div class="ai-section">
-                        <div class="ai-header">
-                            <div class="ai-icon">
-                                <i class="fas fa-robot"></i>
-                            </div>
-                            <div class="ai-title">IMJA Assistant</div>
-                        </div>
-                        <p class="ai-description">Faça perguntas sobre a Bíblia, doutrina cristã ou peça orientação espiritual. Nossa IA está aqui para ajudar!</p>
-                        <div class="ai-input-container">
-                            <input type="text" class="ai-input" id="profile-ai-input" placeholder="Digite sua pergunta...">
-                            <button class="ai-send-btn" id="profile-ai-send-btn">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
-                        </div>
-                        <div class="ai-response" id="profile-ai-response"></div>
-                    </div>
-
-                    <!-- POSTS DO PERFIL -->
-                    <div id="profile-posts">
-                        <!-- Posts do usuário serão carregados aqui -->
-                    </div>
-                </div>
-
-                <!-- SEÇÃO SOBRE O MINISTÉRIO -->
-                <div id="about-content" class="hidden">
-                    <div class="about-section">
-                        <h2>Sobre o IMJA</h2>
-                        <p>O Ministério dos Justos Aperfeiçoados (IMJA) é uma igreja cristã comprometida com o ensino bíblico, o crescimento espiritual e o serviço à comunidade.</p>
-                        <p>Fundada com a missão de levar a Palavra de Deus a todos os povos, nossa igreja tem se dedicado a formar discípulos de Cristo através do ensino sólido, da adoração genuína e do amor prático.</p>
-                        
-                        <div class="about-grid">
-                            <div class="about-card">
-                                <i class="fas fa-cross"></i>
-                                <h3>Nossa Missão</h3>
-                                <p>Levar pessoas a um relacionamento transformador com Jesus Cristo</p>
-                            </div>
-                            <div class="about-card">
-                                <i class="fas fa-eye"></i>
-                                <h3>Nossa Visão</h3>
-                                <p>Ser uma comunidade de fé que impacta vidas e transforma a sociedade</p>
-                            </div>
-                            <div class="about-card">
-                                <i class="fas fa-heart"></i>
-                                <h3>Nossos Valores</h3>
-                                <p>Fé, Amor, Esperança, Integridade e Serviço</p>
-                            </div>
-                        </div>
+                
+                <div class="payment-instructions active" id="emola-instructions">
+                    <h3>Como pagar com Emola:</h3>
+                    
+                    <div class="payment-step">
+                        <div class="payment-step-number">1</div>
+                        <div class="payment-step-content">Abra a aplicação Emola no seu telefone</div>
                     </div>
                     
-                    <div class="about-section">
-                        <h2>Nossa Equipa Ministerial</h2>
-                        <div class="team-grid">
-                            <div class="team-member">
-                                <div class="team-avatar">
-                                    <img src="https://i.ibb.co/217bqP6S/20251125-113629.jpg" alt="Apóstolo Hipólito">
-                                </div>
-                                <div class="team-name">Apóstolo Hipólito</div>
-                                <div class="team-role">Líder Fundador</div>
-                            </div>
-                            <div class="team-member">
-                                <div class="team-avatar">
-                                    <img src="https://i.ibb.co/zhbGHsmM/20251125-113655.jpg" alt="Pastora Arlégia">
-                                </div>
-                                <div class="team-name">Pastora Arlégia</div>
-                                <div class="team-role">Co-pastora</div>
-                            </div>
-                        </div>
+                    <div class="payment-step">
+                        <div class="payment-step-number">2</div>
+                        <div class="payment-step-content">Selecione a opção "Enviar Dinheiro"</div>
                     </div>
                     
-                    <div class="about-section">
-                        <h2>Horários de Culto</h2>
-                        <div class="about-grid">
-                            <div class="about-card">
-                                <i class="fas fa-sun"></i>
-                                <h3>Domingo</h3>
-                                <p>09:00 - Culto de Adoração</p>
-                                <p>18:00 - Culto da Família</p>
-                            </div>
-                            <div class="about-card">
-                                <i class="fas fa-pray"></i>
-                                <h3>Quarta-feira</h3>
-                                <p>18:00 - Estudo Bíblico</p>
-                            </div>
-                            <div class="about-card">
-                                <i class="fas fa-fire"></i>
-                                <h3>Sexta-feira</h3>
-                                <p>18:00 - Culto de Oração</p>
-                            </div>
-                        </div>
+                    <div class="payment-step">
+                        <div class="payment-step-number">3</div>
+                        <div class="payment-step-content">Digite o número: <strong>868369009</strong></div>
                     </div>
                     
-                    <div class="about-section">
-                        <h2>Contactos</h2>
-                        <div class="about-grid">
-                            <div class="about-card">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <h3>Endereço</h3>
-                                <p>Av. Principal, Marracuene</p>
-                            </div>
-                            <div class="about-card">
-                                <i class="fas fa-phone"></i>
-                                <h3>Telefone</h3>
-                                <p>+258 84 123 4567</p>
-                            </div>
-                            <div class="about-card">
-                                <i class="fas fa-envelope"></i>
-                                <h3>Email</h3>
-                                <p>info@imja.org</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- PAINEL DE ADMINISTRAÇÃO -->
-                <div id="admin-content" class="hidden">
-                    <div class="admin-section">
-                        <h2>Painel de Administração</h2>
-                        <p>Bem-vindo ao painel de administração do IMJA. Aqui você pode gerenciar o conteúdo e os membros da igreja.</p>
-                        
-                        <div class="admin-grid">
-                            <div class="admin-card" id="admin-create-post">
-                                <i class="fas fa-plus-circle"></i>
-                                <h3>Criar Post</h3>
-                                <p>Criar nova publicação para o feed</p>
-                            </div>
-                            <div class="admin-card" id="admin-create-event">
-                                <i class="fas fa-calendar-plus"></i>
-                                <h3>Agendar Evento</h3>
-                                <p>Adicionar evento à agenda da igreja</p>
-                            </div>
-                            <div class="admin-card" id="admin-verse-day">
-                                <i class="fas fa-bible"></i>
-                                <h3>Versículo do Dia</h3>
-                                <p>Definir versículo bíblico do dia</p>
-                            </div>
-                            <div class="admin-card" id="admin-manage-members">
-                                <i class="fas fa-users"></i>
-                                <h3>Gerenciar Membros</h3>
-                                <p>Ver e gerenciar membros da igreja</p>
-                            </div>
-                        </div>
+                    <div class="payment-step">
+                        <div class="payment-step-number">4</div>
+                        <div class="payment-step-content">Insira o valor: <strong>Dependendo do pacote</strong></div>
                     </div>
                     
-                    <div class="admin-section">
-                        <h2>Publicações Recentes</h2>
-                        <div id="admin-posts">
-                            <!-- Posts serão carregados aqui -->
-                        </div>
+                    <div class="payment-step">
+                        <div class="payment-step-number">5</div>
+                        <div class="payment-step-content">Adicione a referência abaixo na descrição</div>
+                    </div>
+                    
+                    <div class="payment-reference-box">
+                        <div>Sua referência única:</div>
+                        <div class="payment-reference" id="reference-code">NFLX-5A8B</div>
+                        <div class="payment-timer" id="timer">Válido por: <span id="time-left">15:00</span></div>
+                        <button class="copy-btn" onclick="copyReference()">📋 Copiar</button>
+                    </div>
+                    
+                    <div class="payment-step">
+                        <div class="payment-step-number">6</div>
+                        <div class="payment-step-content">Confirme e complete a transação</div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" id="generate-btn" onclick="generateNewReference()" style="width: 100%; margin-bottom: 10px;">🔄 Gerar Nova Referência</button>
+                <button class="btn btn-netflix" onclick="contactWhatsApp()" style="width: 100%; margin-bottom: 10px;">💬 Confirmar Pagamento via WhatsApp</button>
+                <button class="btn btn-outline" onclick="checkPaymentStatus()" style="width: 100%;">✅ Já Efetuei o Pagamento</button>
+                
+                <div class="payment-loader" id="loader">
+                    <div class="payment-loader-spinner"></div>
+                    <p>Verificando pagamento...</p>
+                </div>
+                
+                <div class="payment-success-message" id="success-message">
+                    <div class="payment-success-icon">✅</div>
+                    <h3>Pagamento Confirmado!</h3>
+                    <p>Sua Netflix Premium foi ativada com sucesso.</p>
+                    <p>Você receberá os detalhes de acesso em breve.</p>
+                </div>
+                
+                <div class="payment-contact-info">
+                    <p><strong>Precisa de ajuda?</strong></p>
+                    <p>WhatsApp: +258 85 017 2093</p>
+                    <p>Atendimento 24/7</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <div class="footer-logo">StreamMoz</div>
+                    <p>O melhor serviço de streaming em Moçambique, com conteúdo diversificado e qualidade excecional.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Empresa</h4>
+                        <ul>
+                            <li><a href="#">Sobre Nós</a></li>
+                            <li><a href="#">Carreiras</a></li>
+                            <li><a href="#">Imprensa</a></li>
+                            <li><a href="#">Novidades</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Suporte</h4>
+                        <ul>
+                            <li><a href="#">Ajuda</a></li>
+                            <li><a href="#">Contactos</a></li>
+                            <li><a href="#">FAQ</a></li>
+                            <li><a href="#">Dispositivos Compatíveis</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Legal</h4>
+                        <ul>
+                            <li><a href="#">Termos de Uso</a></li>
+                            <li><a href="#">Política de Privacidade</a></li>
+                            <li><a href="#">Cookies</a></li>
+                            <li><a href="#">Informações Legais</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>
-        </main>
-
-        <!-- BARRA INFERIOR MOBILE -->
-        <nav class="bottom-nav">
-            <button class="bottom-nav-item active" data-section="feed">
-                <i class="fas fa-home"></i>
-            </button>
-            <button class="bottom-nav-item" data-section="search">
-                <i class="fas fa-search"></i>
-            </button>
-            <button class="bottom-nav-item hidden" id="create-post-mobile">
-                <i class="fas fa-plus-square"></i>
-            </button>
-            <button class="bottom-nav-item" data-section="notifications">
-                <i class="fas fa-heart"></i>
-            </button>
-            <button class="bottom-nav-item" id="mobile-more-btn">
-                <i class="fas fa-ellipsis-h"></i>
-                <div class="mobile-more-menu">
-                    <button class="mobile-more-item" data-section="profile">
-                        <i class="fas fa-user"></i> Perfil
-                    </button>
-                    <button class="mobile-more-item" data-section="about">
-                        <i class="fas fa-church"></i> Sobre o IMJA
-                    </button>
-                    <button class="mobile-more-item hidden" id="admin-mobile" data-section="admin">
-                        <i class="fas fa-crown"></i> Painel Admin
-                    </button>
-                    <button class="mobile-more-item" id="mobile-ai-chat-btn">
-                        <i class="fas fa-robot"></i> IMJA Assistant
-                    </button>
-                    <button class="mobile-more-item" id="mobile-logout-btn">
-                        <i class="fas fa-sign-out-alt"></i> Sair
-                    </button>
-                </div>
-            </button>
-        </nav>
-    </div>
-
-    <!-- MODAL CRIAR POST -->
-    <div id="create-post-modal" class="modal-backdrop hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Criar nova publicação</h3>
-                <button class="close-btn" data-modal="create-post-modal">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <textarea id="post-caption" class="form-input" placeholder="Escreva uma legenda..." rows="4"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="post-type">Tipo de publicação:</label>
-                    <select id="post-type" class="form-select">
-                        <option value="image">Imagem</option>
-                        <option value="video">Vídeo do YouTube</option>
-                    </select>
-                </div>
-                <div class="form-group" id="image-upload-group">
-                    <input type="file" id="post-image" accept="image/*" class="form-input">
-                </div>
-                <div class="form-group hidden" id="video-url-group">
-                    <input type="text" id="youtube-url" class="form-input" placeholder="Cole o URL ou ID do vídeo do YouTube">
-                </div>
-                <button class="btn btn-primary" id="publish-post-btn">
-                    <i class="fas fa-share"></i> Publicar
-                </button>
+            <div class="footer-bottom">
+                <p>&copy; 2025 StreamMoz. Todos os direitos reservados.</p>
             </div>
         </div>
-    </div>
+    </footer>
 
-    <!-- MODAL CHAT IA -->
-    <div id="ai-chat-modal" class="modal-backdrop hidden">
-        <div class="modal-content chat-modal">
-            <div class="modal-header">
-                <h3>IMJA Assistant</h3>
-                <button class="close-btn" data-modal="ai-chat-modal">×</button>
-            </div>
-            <div class="chat-messages" id="ai-chat-messages">
-                <div class="message received">
-                    Olá! Sou o IMJA Assistant. Como posso ajudá-lo hoje com questões bíblicas ou espirituais?
-                </div>
-            </div>
-            <div class="chat-input-container">
-                <input type="text" id="ai-chat-input" class="chat-input" placeholder="Digite sua mensagem...">
-                <button class="send-btn" id="send-ai-message-btn">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL CRIAR HISTÓRIA -->
-    <div id="create-story-modal" class="modal-backdrop hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Criar Nova História</h3>
-                <button class="close-btn" data-modal="create-story-modal">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <input type="file" id="story-image" accept="image/*" class="form-input">
-                </div>
-                <button class="btn btn-primary" id="publish-story-btn">
-                    <i class="fas fa-share"></i> Publicar História
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- TOAST CONTAINER -->
-    <div id="toast-container"></div>
+    <!-- Notification -->
+    <div class="notification" id="notification">Referência copiada para a área de transferência!</div>
 
     <script>
-        // ===== CONFIGURAÇÃO FIREBASE =====
-        const firebaseConfig = {
-            apiKey: "AIzaSyBgWfocz6rpycz3SiJJ39Nfc1gNUd6kafk",
-            authDomain: "imjachurch.firebaseapp.com",
-            databaseURL: "https://imjachurch-default-rtdb.firebaseio.com",
-            projectId: "imjachurch",
-            storageBucket: "imjachurch.firebasestorage.app",
-            messagingSenderId: "145864254479",
-            appId: "1:145864254479:web:65699f2c770e212bda2f7a",
-            measurementId: "G-CNK7QFG3YF"
-        };
+        // Configurações
+        const emolaNumber = "868369009";
+        const whatsappNumber = "258850172093";
+        const price = "600 MT";
+        let referenceCode = "NFLX-5A8B";
+        let timerInterval;
+        let timeLeft = 15 * 60; // 15 minutos em segundos
+        
+        // Elementos DOM
+        const referenceElement = document.getElementById('reference-code');
+        const timerElement = document.getElementById('time-left');
+        const loaderElement = document.getElementById('loader');
+        const successElement = document.getElementById('success-message');
+        const notificationElement = document.getElementById('notification');
+        const generateBtn = document.getElementById('generate-btn');
+        
+        // =============================================
+        // NOVA IA GEMINI MELHORADA
+        // =============================================
+        
+        // Configuração da API Gemini
+        const GEMINI_API_KEY = "AIzaSyDF1VXR4kRgqUtJlq5hqCdlb_ZBZ9pDY38";
+        const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 
-        // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const storage = firebase.storage();
-
-        // ===== CONFIGURAÇÃO GEMINI AI =====
-        const GEMINI_API_KEY = "AIzaSyAHBAXEZ3O-ZntzRI-6FfIYv3TvrRNhPRI";
-        const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
-
-        // ===== ESTADO DA APLICAÇÃO =====
-        let currentUser = null;
-        let userData = null;
-        let postsListener = null;
-        let storiesListener = null;
-        let profilePostsListener = null;
-
-        // ===== INICIALIZAÇÃO =====
-        document.addEventListener('DOMContentLoaded', function() {
-            // Simular tempo de carregamento
-            setTimeout(() => {
-                document.getElementById('loading-screen').classList.add('hidden');
-                initApp();
-            }, 2000);
-        });
-
-        // ===== FUNÇÕES PRINCIPAIS =====
-        async function initApp() {
-            try {
-                const isAuthenticated = await initAuth();
-                
-                if (isAuthenticated) {
-                    showMainApp();
-                } else {
-                    showAuthScreens();
-                }
-                
-                setupEventListeners();
-                
-            } catch (error) {
-                console.error('Erro ao inicializar aplicação:', error);
-                showToast('Erro ao carregar aplicação', 'error');
-            }
-        }
-
-        // ===== AUTENTICAÇÃO =====
-        async function initAuth() {
-            return new Promise((resolve) => {
-                auth.onAuthStateChanged(async (user) => {
-                    if (user) {
-                        await loadUserData(user.uid);
-                        resolve(true);
-                    } else {
-                        currentUser = null;
-                        userData = null;
-                        resolve(false);
-                    }
-                });
-            });
-        }
-
-        async function loadUserData(uid) {
-            try {
-                const userDoc = await db.collection('users').doc(uid).get();
-                
-                if (userDoc.exists) {
-                    userData = userDoc.data();
-                    currentUser = auth.currentUser;
-                    return userData;
-                } else {
-                    // Criar documento do usuário se não existir
-                    const newUserData = {
-                        uid: uid,
-                        name: currentUser.displayName || 'Usuário IMJA',
-                        email: currentUser.email,
-                        role: 'member',
-                        bio: 'Membro do IMJA - Ministério dos Justos Aperfeiçoados',
-                        avatar: currentUser.photoURL || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop',
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        followers: 0,
-                        following: 0,
-                        posts: 0
-                    };
-                    
-                    await db.collection('users').doc(uid).set(newUserData);
-                    userData = newUserData;
-                    return userData;
-                }
-            } catch (error) {
-                console.error('Erro ao carregar dados do usuário:', error);
-                throw error;
-            }
-        }
-
-        async function registerUser(email, password, name, bio = '', role = 'member', leaderCode = '') {
-            try {
-                if (role === 'leader' && leaderCode !== 'IMJA2030') {
-                    throw new Error('Código de líder incorreto.');
-                }
-
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-
-                // Atualizar perfil
-                await user.updateProfile({
-                    displayName: name
-                });
-
-                // Criar dados do usuário no Firestore
-                const userData = {
-                    uid: user.uid,
-                    name: name,
-                    email: email,
-                    role: role,
-                    bio: bio || (role === 'leader' ? 'Líder do IMJA' : 'Membro do IMJA'),
-                    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    followers: 0,
-                    following: 0,
-                    posts: 0
+        // Sistema de Memória da IA
+        class StreamMozAI {
+            constructor() {
+                this.conversationHistory = [];
+                this.userPreferences = {
+                    interests: [],
+                    planPreference: null,
+                    paymentMethod: null,
+                    previousQueries: []
                 };
-
-                await db.collection('users').doc(user.uid).set(userData);
-                
-                showToast('Conta criada com sucesso!', 'success');
-                return userCredential;
-            } catch (error) {
-                console.error('Erro no registro:', error);
-                throw error;
+                this.isActive = false;
             }
-        }
 
-        async function loginUser(email, password) {
-            try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                showToast('Login realizado com sucesso!', 'success');
-                return userCredential;
-            } catch (error) {
-                console.error('Erro no login:', error);
-                throw error;
-            }
-        }
+            // INSTRUÇÕES COMPORTAMENTAIS PARA A IA
+            getSystemPrompt() {
+                return `
+                VOCÊ É A ASSISTENTE VIRTUAL DO STREAMMOZ - REVOLUÇÃO DO STREAMING EM MOÇAMBIQUE
 
-        async function signInWithGoogle() {
-            try {
-                const provider = new firebase.auth.GoogleAuthProvider();
-                const userCredential = await auth.signInWithPopup(provider);
-                showToast('Login com Google realizado!', 'success');
-                return userCredential;
-            } catch (error) {
-                console.error('Erro no login com Google:', error);
-                throw error;
-            }
-        }
+                ## SEU COMPORTAMENTO:
+                - 🤝 Atendimento personalizado e acolhedor
+                - 💡 Proativa em sugerir soluções
+                - 🎯 Objetiva e direta nas respostas
+                - 🇲🇿 Usa português de Moçambique naturalmente
+                - 😊 Tom amigável e profissional
 
-        async function logoutUser() {
-            try {
-                // Parar todos os listeners
-                stopFeedListener();
-                stopStoriesListener();
-                stopProfilePostsListener();
-                
-                await auth.signOut();
-                currentUser = null;
-                userData = null;
-                showToast('Sessão terminada com sucesso!', 'success');
-            } catch (error) {
-                console.error('Erro no logout:', error);
-                throw error;
-            }
-        }
+                ## SEUS CONHECIMENTOS:
+                PLANOS DE ASSINATURA:
+                • Básico: 299 MZN/mês (Netflix - 1 dispositivo)
+                • Padrão: 600 MZN/mês (Netflix + Prime Video - 2 dispositivos)
+                • Premium: 1.000 MZN/mês (Netflix Premium - 4 dispositivos)
+                • Família: 1.200 MZN/mês (Netflix + Prime Video + HBO - 6 dispositivos)
+                • Prime Video Exclusivo: 250 MZN/mês
 
-        // ===== UI E NAVEGAÇÃO =====
-        function showMainApp() {
-            document.getElementById('auth-screens').classList.add('hidden');
-            document.getElementById('main-app').classList.remove('hidden');
-            
-            setupUserRoleUI();
-            loadInitialContent();
-        }
+                CONTEÚDO DISPONÍVEL:
+                • Netflix completo
+                • Amazon Prime Video
+                • HBO Max
+                • Séries, filmes, documentários, animação
 
-        function showAuthScreens() {
-            document.getElementById('auth-screens').classList.remove('hidden');
-            document.getElementById('main-app').classList.add('hidden');
-        }
+                FORMAS DE PAGAMENTO:
+                • Emola: 868369009
+                • Referência única para cada transação
+                • WhatsApp de suporte: +258 85 017 2093
 
-        function setupUserRoleUI() {
-            if (userData && userData.role === 'leader') {
-                document.getElementById('create-post-nav').classList.remove('hidden');
-                document.getElementById('create-post-mobile').classList.remove('hidden');
-                document.getElementById('admin-nav').classList.remove('hidden');
-                document.getElementById('admin-mobile').classList.remove('hidden');
-            } else {
-                document.getElementById('create-post-nav').classList.add('hidden');
-                document.getElementById('create-post-mobile').classList.add('hidden');
-                document.getElementById('admin-nav').classList.add('hidden');
-                document.getElementById('admin-mobile').classList.add('hidden');
-            }
-        }
+                ## SUAS CAPACIDADES:
+                1. RECOMENDAÇÃO INTELIGENTE de planos baseado no perfil do usuário
+                2. ASSISTÊNCIA DE PAGAMENTO passo a passo
+                3. SUGESTÃO DE CONTEÚDO personalizada
+                4. SUPORTE TÉCNICO 24/7
+                5. LEMBRAR preferências e histórico do usuário
 
-        function loadInitialContent() {
-            loadFeed();
-            loadStories();
-        }
+                ## REGRAS IMPORTANTES:
+                ✅ SEMPRE confirme o entendimento da pergunta
+                ✅ OFEREÇA opções quando relevante
+                ✅ ANTECIPE necessidades do usuário
+                ✅ MANTENHA o contexto da conversa
+                ✅ USE emojis moderadamente para tornar a conversa mais amigável
 
-        function showSection(sectionId) {
-            // Ocultar todas as seções
-            const sections = ['feed', 'search', 'profile', 'about', 'admin'];
-            sections.forEach(section => {
-                const element = document.getElementById(`${section}-content`);
-                if (element) element.classList.add('hidden');
-            });
-            
-            // Mostrar seção selecionada
-            const targetSection = document.getElementById(`${sectionId}-content`);
-            if (targetSection) targetSection.classList.remove('hidden');
-            
-            // Atualizar navegação ativa
-            updateActiveNavigation(sectionId);
-            
-            // Carregar conteúdo específico da seção
-            if (sectionId === 'profile') {
-                loadProfile();
-            } else if (sectionId === 'feed') {
-                loadFeed();
-            }
-        }
-
-        function updateActiveNavigation(activeSection) {
-            // Sidebar
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            
-            const activeNavItem = document.querySelector(`.nav-item[data-section="${activeSection}"]`);
-            if (activeNavItem) {
-                activeNavItem.classList.add('active');
-            }
-            
-            // Mobile navigation
-            document.querySelectorAll('.bottom-nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            
-            const activeBottomNav = document.querySelector(`.bottom-nav-item[data-section="${activeSection}"]`);
-            if (activeBottomNav) {
-                activeBottomNav.classList.add('active');
-            }
-        }
-
-        function toggleModal(modalId, show = true) {
-            const modal = document.getElementById(modalId);
-            if (show) {
-                modal.classList.remove('hidden');
-            } else {
-                modal.classList.add('hidden');
-            }
-        }
-
-        function closeAllModals() {
-            document.querySelectorAll('.modal-backdrop').forEach(modal => {
-                modal.classList.add('hidden');
-            });
-        }
-
-        function togglePostType() {
-            const postType = document.getElementById('post-type').value;
-            const imageUploadGroup = document.getElementById('image-upload-group');
-            const videoUrlGroup = document.getElementById('video-url-group');
-            
-            if (postType === 'image') {
-                imageUploadGroup.classList.remove('hidden');
-                videoUrlGroup.classList.add('hidden');
-            } else {
-                imageUploadGroup.classList.add('hidden');
-                videoUrlGroup.classList.remove('hidden');
-            }
-        }
-
-        // ===== FEED E POSTS =====
-        async function loadFeed() {
-            const postsContainer = document.getElementById('posts-container');
-            
-            try {
-                // Limpar listener anterior se existir
-                if (postsListener) {
-                    postsListener();
-                }
-
-                postsListener = db.collection('posts')
-                    .orderBy('createdAt', 'desc')
-                    .limit(20)
-                    .onSnapshot(async (snapshot) => {
-                        postsContainer.innerHTML = '';
-                        
-                        if (snapshot.empty) {
-                            postsContainer.innerHTML = `
-                                <div class="card text-center">
-                                    <p class="text-muted">Nenhuma publicação ainda. Seja o primeiro a compartilhar!</p>
-                                </div>
-                            `;
-                            return;
-                        }
-
-                        const posts = [];
-                        
-                        for (const doc of snapshot.docs) {
-                            const post = doc.data();
-                            post.id = doc.id;
-                            
-                            // Carregar dados do autor
-                            const userDoc = await db.collection('users').doc(post.userId).get();
-                            if (userDoc.exists) {
-                                post.user = userDoc.data();
-                            }
-                            
-                            // Carregar contagem de likes
-                            const likesSnapshot = await db.collection('likes')
-                                .where('postId', '==', post.id)
-                                .get();
-                            post.likesCount = likesSnapshot.size;
-                            
-                            // Verificar se usuário atual curtiu
-                            if (auth.currentUser) {
-                                const userLike = await db.collection('likes')
-                                    .where('postId', '==', post.id)
-                                    .where('userId', '==', auth.currentUser.uid)
-                                    .get();
-                                post.userLiked = !userLike.empty;
-                            }
-                            
-                            posts.push(post);
-                        }
-                        
-                        // Renderizar posts
-                        posts.forEach(post => {
-                            renderPost(post, postsContainer);
-                        });
-                    }, error => {
-                        console.error('Erro ao carregar posts:', error);
-                        showToast('Erro ao carregar feed', 'error');
-                    });
-
-            } catch (error) {
-                console.error('Erro ao carregar feed:', error);
-                showToast('Erro ao carregar feed', 'error');
-            }
-        }
-
-        function stopFeedListener() {
-            if (postsListener) {
-                postsListener();
-                postsListener = null;
-            }
-        }
-
-        async function createPost(caption, imageFile = null, youtubeUrl = null) {
-            try {
-                const user = auth.currentUser;
-                if (!user) throw new Error('Usuário não autenticado');
-
-                let mediaUrl = null;
-                let mediaType = 'text';
-
-                // Upload de imagem se fornecida
-                if (imageFile) {
-                    const storageRef = storage.ref();
-                    const fileRef = storageRef.child(`posts/${user.uid}/${Date.now()}_${imageFile.name}`);
-                    
-                    const snapshot = await fileRef.put(imageFile);
-                    mediaUrl = await snapshot.ref.getDownloadURL();
-                    mediaType = 'image';
-                }
-                
-                // Processar URL do YouTube
-                let youtubeId = null;
-                if (youtubeUrl) {
-                    youtubeId = extractYouTubeId(youtubeUrl);
-                    if (youtubeId) {
-                        mediaType = 'video';
-                        mediaUrl = `https://www.youtube.com/embed/${youtubeId}`;
-                    }
-                }
-
-                // Criar documento do post
-                const postData = {
-                    userId: user.uid,
-                    caption: caption,
-                    mediaUrl: mediaUrl,
-                    mediaType: mediaType,
-                    youtubeId: youtubeId,
-                    likesCount: 0,
-                    commentsCount: 0,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-
-                const postRef = await db.collection('posts').add(postData);
-                
-                // Atualizar contador de posts do usuário
-                await db.collection('users').doc(user.uid).update({
-                    posts: firebase.firestore.FieldValue.increment(1)
-                });
-
-                showToast('Publicação criada com sucesso!', 'success');
-                return postRef.id;
-            } catch (error) {
-                console.error('Erro ao criar post:', error);
-                showToast('Erro ao criar publicação', 'error');
-                throw error;
-            }
-        }
-
-        function extractYouTubeId(url) {
-            const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[7].length === 11) ? match[7] : null;
-        }
-
-        function renderPost(post, container) {
-            const postElement = document.createElement('div');
-            postElement.className = 'post fade-in';
-            postElement.dataset.postId = post.id;
-
-            let mediaContent = '';
-            if (post.mediaType === 'video' && post.youtubeId) {
-                mediaContent = `
-                    <div class="post-video">
-                        <iframe 
-                            width="100%" 
-                            height="100%" 
-                            src="https://www.youtube.com/embed/${post.youtubeId}" 
-                            frameborder="0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowfullscreen
-                            loading="lazy">
-                        </iframe>
-                    </div>
+                Responda sempre em português de Moçambique de forma natural e útil.
                 `;
-            } else if (post.mediaType === 'image' && post.mediaUrl) {
-                mediaContent = `<img src="${post.mediaUrl}" class="post-image" alt="Post" loading="lazy">`;
             }
 
-            const timeAgo = formatTimeAgo(post.createdAt?.toDate());
-
-            postElement.innerHTML = `
-                <div class="post-header">
-                    <div class="post-avatar">
-                        <img src="${post.user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop'}" alt="${post.user?.name}" loading="lazy">
-                    </div>
-                    <div class="post-user">
-                        <div class="post-username">${post.user?.name || 'Usuário'}</div>
-                        <div class="post-location">${post.user?.bio || 'IMJA'}</div>
-                    </div>
-                    <div class="post-more-container">
-                        <button class="post-more">⋯</button>
-                        <div class="post-more-menu">
-                            ${auth.currentUser && auth.currentUser.uid === post.userId ? 
-                                `<button class="post-more-item delete" data-post-id="${post.id}">Excluir</button>` : ''}
-                            <button class="post-more-item report" data-post-id="${post.id}">Reportar</button>
-                        </div>
-                    </div>
-                </div>
-                ${mediaContent}
-                <div class="post-actions">
-                    <button class="post-action ${post.userLiked ? 'liked' : ''}" data-post-id="${post.id}">
-                        <i class="${post.userLiked ? 'fas' : 'far'} fa-heart"></i>
-                    </button>
-                    <button class="post-action" data-post-id="${post.id}">
-                        <i class="far fa-comment"></i>
-                    </button>
-                    <button class="post-action"><i class="far fa-paper-plane"></i></button>
-                    <button class="post-action save"><i class="far fa-bookmark"></i></button>
-                </div>
-                <div class="post-likes">${post.likesCount || 0} curtidas</div>
-                <div class="post-caption">
-                    <span class="username">${post.user?.name || 'Usuário'}</span>
-                    ${post.caption}
-                </div>
-                <div class="post-comments" id="comments-${post.id}">
-                    <!-- Comentários serão carregados via JavaScript -->
-                </div>
-                <div class="post-time">${timeAgo}</div>
-                <div class="comment-input">
-                    <input type="text" id="comment-input-${post.id}" placeholder="Adicione um comentário...">
-                    <button data-post-id="${post.id}">Publicar</button>
-                </div>
-            `;
-
-            container.appendChild(postElement);
-            setupPostEventListeners(postElement, post);
-        }
-
-        function setupPostEventListeners(postElement, post) {
-            // Like button
-            const likeBtn = postElement.querySelector('.post-action:first-child');
-            likeBtn.addEventListener('click', () => toggleLike(post.id));
-
-            // Comment button
-            const commentBtn = postElement.querySelector('.post-action:nth-child(2)');
-            commentBtn.addEventListener('click', () => {
-                const commentInput = postElement.querySelector(`#comment-input-${post.id}`);
-                commentInput.focus();
-            });
-
-            // Comment input
-            const commentInput = postElement.querySelector(`#comment-input-${post.id}`);
-            const commentBtnSend = postElement.querySelector('.comment-input button');
-            
-            const sendComment = () => {
-                const text = commentInput.value.trim();
-                if (text) {
-                    addComment(post.id, text);
-                    commentInput.value = '';
-                }
-            };
-
-            commentInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') sendComment();
-            });
-            commentBtnSend.addEventListener('click', sendComment);
-
-            // More options menu
-            const moreBtn = postElement.querySelector('.post-more');
-            const moreMenu = postElement.querySelector('.post-more-menu');
-            
-            moreBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                moreMenu.classList.toggle('show');
-            });
-
-            // Delete post
-            const deleteBtn = postElement.querySelector('.post-more-item.delete');
-            if (deleteBtn) {
-                deleteBtn.addEventListener('click', () => deletePost(post.id));
-            }
-
-            // Report post
-            const reportBtn = postElement.querySelector('.post-more-item.report');
-            reportBtn.addEventListener('click', () => reportPost(post.id));
-
-            // Fechar menu ao clicar fora
-            document.addEventListener('click', () => {
-                moreMenu.classList.remove('show');
-            });
-        }
-
-        async function deletePost(postId) {
-            try {
-                if (!confirm('Tem certeza que deseja excluir este post?')) return;
-
-                const postDoc = await db.collection('posts').doc(postId).get();
-                if (!postDoc.exists) throw new Error('Post não encontrado');
-
-                const post = postDoc.data();
-                
-                // Verificar se o usuário é o autor
-                if (post.userId !== auth.currentUser.uid) {
-                    throw new Error('Apenas o autor pode excluir o post');
-                }
-
-                // Excluir post
-                await db.collection('posts').doc(postId).delete();
-
-                // Excluir mídia do storage se existir
-                if (post.mediaUrl && post.mediaType === 'image') {
-                    const storageRef = storage.refFromURL(post.mediaUrl);
-                    await storageRef.delete();
-                }
-
-                // Atualizar contador de posts do usuário
-                await db.collection('users').doc(auth.currentUser.uid).update({
-                    posts: firebase.firestore.FieldValue.increment(-1)
-                });
-
-                showToast('Post excluído com sucesso!', 'success');
-            } catch (error) {
-                console.error('Erro ao excluir post:', error);
-                showToast('Erro ao excluir post', 'error');
-            }
-        }
-
-        async function reportPost(postId) {
-            try {
-                await db.collection('reports').add({
-                    postId: postId,
-                    userId: auth.currentUser.uid,
-                    reason: 'Reportado pelo usuário',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                showToast('Post reportado. Obrigado por nos ajudar!', 'info');
-            } catch (error) {
-                console.error('Erro ao reportar post:', error);
-                showToast('Erro ao reportar post', 'error');
-            }
-        }
-
-        // ===== STORIES =====
-        async function loadStories() {
-            const storiesContainer = document.getElementById('stories-list');
-            
-            try {
-                // Limpar listener anterior se existir
-                if (storiesListener) {
-                    storiesListener();
-                }
-
-                // Buscar stories das últimas 24 horas
-                const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-                
-                storiesListener = db.collection('stories')
-                    .where('createdAt', '>', twentyFourHoursAgo)
-                    .orderBy('createdAt', 'desc')
-                    .onSnapshot(async (snapshot) => {
-                        storiesContainer.innerHTML = '';
-                        
-                        if (snapshot.empty) {
-                            // Adicionar botão para criar story se não houver stories
-                            if (auth.currentUser) {
-                                storiesContainer.innerHTML = `
-                                    <div class="story" id="create-story-btn">
-                                        <div class="story-avatar">
-                                            <div class="story-avatar-inner">
-                                                <i class="fas fa-plus"></i>
-                                            </div>
-                                        </div>
-                                        <div class="story-username">Criar</div>
-                                    </div>
-                                `;
-                            }
-                            return;
-                        }
-
-                        const storiesByUser = new Map();
-                        
-                        // Agrupar stories por usuário (apenas o mais recente)
-                        snapshot.docs.forEach(doc => {
-                            const story = doc.data();
-                            story.id = doc.id;
-                            
-                            if (!storiesByUser.has(story.userId)) {
-                                storiesByUser.set(story.userId, story);
-                            }
-                        });
-
-                        // Adicionar botão para criar story
-                        if (auth.currentUser) {
-                            const createStoryElement = document.createElement('div');
-                            createStoryElement.className = 'story';
-                            createStoryElement.id = 'create-story-btn';
-                            createStoryElement.innerHTML = `
-                                <div class="story-avatar">
-                                    <div class="story-avatar-inner">
-                                        <i class="fas fa-plus"></i>
-                                    </div>
-                                </div>
-                                <div class="story-username">Criar</div>
-                            `;
-                            storiesContainer.appendChild(createStoryElement);
-                        }
-
-                        // Carregar dados dos usuários e renderizar stories
-                        for (const [userId, story] of storiesByUser) {
-                            try {
-                                const userDoc = await db.collection('users').doc(userId).get();
-                                if (userDoc.exists) {
-                                    const userData = userDoc.data();
-                                    
-                                    const storyElement = document.createElement('div');
-                                    storyElement.className = 'story';
-                                    storyElement.dataset.storyId = story.id;
-                                    storyElement.innerHTML = `
-                                        <div class="story-avatar">
-                                            <div class="story-avatar-inner">
-                                                <img src="${userData.avatar}" alt="${userData.name}" loading="lazy">
-                                            </div>
-                                        </div>
-                                        <div class="story-username">${userData.name}</div>
-                                    `;
-                                    
-                                    storiesContainer.appendChild(storyElement);
-                                }
-                            } catch (error) {
-                                console.error('Erro ao carregar usuário do story:', error);
-                            }
-                        }
-                    }, error => {
-                        console.error('Erro ao carregar stories:', error);
+            async generateResponse(userMessage) {
+                try {
+                    // Adicionar mensagem do usuário ao histórico
+                    this.conversationHistory.push({
+                        role: "user",
+                        content: userMessage,
+                        timestamp: new Date().toISOString()
                     });
 
-            } catch (error) {
-                console.error('Erro ao carregar stories:', error);
-            }
-        }
-
-        function stopStoriesListener() {
-            if (storiesListener) {
-                storiesListener();
-                storiesListener = null;
-            }
-        }
-
-        async function createStory(imageFile) {
-            try {
-                const user = auth.currentUser;
-                if (!user) throw new Error('Usuário não autenticado');
-
-                // Upload da imagem
-                const storageRef = storage.ref();
-                const fileRef = storageRef.child(`stories/${user.uid}/${Date.now()}_${imageFile.name}`);
-                
-                const snapshot = await fileRef.put(imageFile);
-                const imageUrl = await snapshot.ref.getDownloadURL();
-
-                // Criar documento da story
-                const storyData = {
-                    userId: user.uid,
-                    imageUrl: imageUrl,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // Expira em 24 horas
-                };
-
-                await db.collection('stories').add(storyData);
-                
-                showToast('História publicada com sucesso!', 'success');
-                return true;
-            } catch (error) {
-                console.error('Erro ao criar story:', error);
-                showToast('Erro ao publicar história', 'error');
-                throw error;
-            }
-        }
-
-        // ===== PERFIL =====
-        async function loadProfile(userId = null) {
-            const targetUserId = userId || auth.currentUser.uid;
-            
-            try {
-                const userDoc = await db.collection('users').doc(targetUserId).get();
-                if (!userDoc.exists) {
-                    throw new Error('Usuário não encontrado');
-                }
-
-                const userData = userDoc.data();
-                
-                // Atualizar UI do perfil
-                updateProfileUI(userData);
-                
-                // Carregar posts do perfil
-                await loadProfilePosts(targetUserId);
-                
-                // Carregar estatísticas
-                await loadProfileStats(targetUserId);
-                
-                return userData;
-            } catch (error) {
-                console.error('Erro ao carregar perfil:', error);
-                throw error;
-            }
-        }
-
-        function updateProfileUI(userData) {
-            document.getElementById('profile-avatar-img').src = userData.avatar;
-            document.getElementById('profile-name').textContent = userData.name;
-            document.getElementById('profile-bio').textContent = userData.bio || 'Sem bio';
-        }
-
-        async function loadProfilePosts(userId) {
-            const profilePostsContainer = document.getElementById('profile-posts');
-            
-            try {
-                // Limpar listener anterior se existir
-                if (profilePostsListener) {
-                    profilePostsListener();
-                }
-
-                profilePostsListener = db.collection('posts')
-                    .where('userId', '==', userId)
-                    .orderBy('createdAt', 'desc')
-                    .onSnapshot(async (snapshot) => {
-                        profilePostsContainer.innerHTML = '';
-                        
-                        if (snapshot.empty) {
-                            profilePostsContainer.innerHTML = `
-                                <div class="card text-center">
-                                    <p class="text-muted">Nenhuma publicação ainda.</p>
-                                </div>
-                            `;
-                            return;
-                        }
-
-                        const posts = [];
-                        
-                        for (const doc of snapshot.docs) {
-                            const post = doc.data();
-                            post.id = doc.id;
-                            post.user = await getUserData(post.userId);
-                            
-                            // Carregar contagem de likes
-                            const likesSnapshot = await db.collection('likes')
-                                .where('postId', '==', post.id)
-                                .get();
-                            post.likesCount = likesSnapshot.size;
-                            
-                            // Verificar se usuário atual curtiu
-                            if (auth.currentUser) {
-                                const userLike = await db.collection('likes')
-                                    .where('postId', '==', post.id)
-                                    .where('userId', '==', auth.currentUser.uid)
-                                    .get();
-                                post.userLiked = !userLike.empty;
-                            }
-                            
-                            posts.push(post);
-                        }
-                        
-                        // Renderizar posts
-                        posts.forEach(post => {
-                            renderPost(post, profilePostsContainer);
-                        });
-                    }, error => {
-                        console.error('Erro ao carregar posts do perfil:', error);
-                    });
-
-            } catch (error) {
-                console.error('Erro ao carregar posts do perfil:', error);
-            }
-        }
-
-        function stopProfilePostsListener() {
-            if (profilePostsListener) {
-                profilePostsListener();
-                profilePostsListener = null;
-            }
-        }
-
-        async function loadProfileStats(userId) {
-            try {
-                // Contar posts
-                const postsSnapshot = await db.collection('posts')
-                    .where('userId', '==', userId)
-                    .get();
-                const postsCount = postsSnapshot.size;
-
-                // Contar seguidores
-                const followersSnapshot = await db.collection('followers')
-                    .where('followingId', '==', userId)
-                    .get();
-                const followersCount = followersSnapshot.size;
-
-                // Contar seguindo
-                const followingSnapshot = await db.collection('followers')
-                    .where('followerId', '==', userId)
-                    .get();
-                const followingCount = followingSnapshot.size;
-
-                // Atualizar UI
-                document.getElementById('stat-posts').textContent = postsCount;
-                document.getElementById('stat-followers').textContent = followersCount;
-                document.getElementById('stat-following').textContent = followingCount;
-
-            } catch (error) {
-                console.error('Erro ao carregar estatísticas:', error);
-            }
-        }
-
-        async function getUserData(userId) {
-            try {
-                const userDoc = await db.collection('users').doc(userId).get();
-                return userDoc.exists ? userDoc.data() : null;
-            } catch (error) {
-                console.error('Erro ao obter dados do usuário:', error);
-                return null;
-            }
-        }
-
-        // ===== LIKES E COMENTÁRIOS =====
-        async function toggleLike(postId) {
-            try {
-                const user = auth.currentUser;
-                if (!user) throw new Error('Usuário não autenticado');
-
-                // Verificar se já curtiu
-                const existingLike = await db.collection('likes')
-                    .where('postId', '==', postId)
-                    .where('userId', '==', user.uid)
-                    .get();
-
-                if (!existingLike.empty) {
-                    // Descurtir - remover like
-                    await db.collection('likes').doc(existingLike.docs[0].id).delete();
-                    
-                    // Atualizar contador no post
-                    await db.collection('posts').doc(postId).update({
-                        likesCount: firebase.firestore.FieldValue.increment(-1),
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-
-                    return false; // Like removido
-                } else {
-                    // Curtir - adicionar like
-                    await db.collection('likes').add({
-                        postId: postId,
-                        userId: user.uid,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-
-                    // Atualizar contador no post
-                    await db.collection('posts').doc(postId).update({
-                        likesCount: firebase.firestore.FieldValue.increment(1),
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-
-                    return true; // Like adicionado
-                }
-            } catch (error) {
-                console.error('Erro ao curtir post:', error);
-                showToast('Erro ao curtir post', 'error');
-                throw error;
-            }
-        }
-
-        async function addComment(postId, text) {
-            try {
-                const user = auth.currentUser;
-                if (!user) throw new Error('Usuário não autenticado');
-
-                const commentData = {
-                    postId: postId,
-                    userId: user.uid,
-                    text: text,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-
-                await db.collection('comments').add(commentData);
-                
-                // Atualizar contador de comentários no post
-                await db.collection('posts').doc(postId).update({
-                    commentsCount: firebase.firestore.FieldValue.increment(1),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                showToast('Comentário adicionado!', 'success');
-            } catch (error) {
-                console.error('Erro ao adicionar comentário:', error);
-                showToast('Erro ao adicionar comentário', 'error');
-                throw error;
-            }
-        }
-
-        // ===== IA ASSISTANT =====
-        async function fetchGeminiAI(prompt) {
-            try {
-                const response = await fetch(GEMINI_API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
+                    // Preparar contexto completo
+                    const fullContext = {
                         contents: [{
                             parts: [{
-                                text: `Como assistente bíblico do IMJA (Ministério dos Justos Aperfeiçoados), responda de forma cristã, amorosa e baseada na Bíblia: ${prompt}`
+                                text: this.getSystemPrompt() + 
+                                      "\n\nHistórico da Conversa:\n" + 
+                                      this.formatConversationHistory() +
+                                      "\n\nÚltima Mensagem do Usuário: " + userMessage
                             }]
                         }]
-                    })
+                    };
+
+                    // Fazer requisição para a API Gemini
+                    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(fullContext)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Erro na API: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    const aiResponse = data.candidates[0].content.parts[0].text;
+
+                    // Adicionar resposta ao histórico
+                    this.conversationHistory.push({
+                        role: "assistant",
+                        content: aiResponse,
+                        timestamp: new Date().toISOString()
+                    });
+
+                    // Atualizar preferências do usuário baseado na conversa
+                    this.updateUserPreferences(userMessage, aiResponse);
+
+                    return aiResponse;
+
+                } catch (error) {
+                    console.error("Erro na IA:", error);
+                    return "Desculpe, estou com dificuldades técnicas. Pode contactar nosso suporte no WhatsApp: +258 85 017 2093";
+                }
+            }
+
+            formatConversationHistory() {
+                return this.conversationHistory
+                    .map(msg => `${msg.role === 'user' ? '👤 Usuário' : '🤖 StreamMoz'}: ${msg.content}`)
+                    .join('\n');
+            }
+
+            updateUserPreferences(userMessage, aiResponse) {
+                // Detectar interesse em planos
+                const planKeywords = {
+                    'básico': 'Básico',
+                    'padrão': 'Padrão', 
+                    'premium': 'Premium',
+                    'família': 'Família',
+                    'prime video': 'Prime Video'
+                };
+
+                for (const [keyword, plan] of Object.entries(planKeywords)) {
+                    if (userMessage.toLowerCase().includes(keyword)) {
+                        this.userPreferences.planPreference = plan;
+                        break;
+                    }
+                }
+
+                // Detectar interesses de conteúdo
+                const contentInterests = ['séries', 'filmes', 'documentários', 'animação', 'hbo', 'netflix'];
+                contentInterests.forEach(interest => {
+                    if (userMessage.toLowerCase().includes(interest) && 
+                        !this.userPreferences.interests.includes(interest)) {
+                        this.userPreferences.interests.push(interest);
+                    }
                 });
 
-                if (!response.ok) {
-                    throw new Error('Erro na API Gemini');
+                // Manter histórico de consultas
+                this.userPreferences.previousQueries.push({
+                    query: userMessage,
+                    timestamp: new Date().toISOString()
+                });
+            }
+
+            // Método para obter recomendações personalizadas
+            getPersonalizedRecommendation() {
+                if (this.userPreferences.interests.length === 0) {
+                    return "Posso ajudar a encontrar conteúdo baseado nos seus interesses! Que tipo de filmes ou séries prefere?";
                 }
 
-                const data = await response.json();
-                
-                if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-                    return data.candidates[0].content.parts[0].text;
-                } else {
-                    throw new Error('Resposta da IA inválida');
-                }
-            } catch (error) {
-                console.error('Erro ao chamar Gemini AI:', error);
-                
-                // Respostas de fallback
-                const fallbackResponses = [
-                    "Deus te abençoe! Em momentos de dúvida, lembre-se de Filipenses 4:6-7: 'Não andem ansiosos por coisa alguma, mas em tudo, pela oração e súplicas, e com ação de graças, apresentem seus pedidos a Deus.'",
-                    "A paz do Senhor! A Bíblia nos ensina em Jeremias 29:11: 'Porque eu sei os planos que tenho para vocês', declara o SENHOR, 'planos de fazê-los prosperar e não de causar dano, planos de dar-lhes esperança e um futuro.'",
-                    "Jesus disse: 'Eu sou o caminho, a verdade e a vida' (João 14:6). Confie Nele em todos os seus caminhos.",
-                    "Para fortalecer sua fé, medite em Romanos 8:28: 'Sabemos que Deus age em todas as coisas para o bem daqueles que o amam.'"
-                ];
-                
-                return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+                const interests = this.userPreferences.interests.join(', ');
+                return `Baseado no seu interesse em ${interests}, recomendo explorar nosso catálogo completo. Posso sugerir alguns conteúdos específicos?`;
             }
         }
 
-        function addChatMessage(text, type, containerId = 'ai-chat-messages') {
-            const container = document.getElementById(containerId);
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${type}`;
-            messageDiv.textContent = text;
-            container.appendChild(messageDiv);
-            container.scrollTop = container.scrollHeight;
-            return messageDiv;
-        }
+        // Instanciar a IA
+        const streamMozAI = new StreamMozAI();
 
-        async function handleAIChat() {
-            const input = document.getElementById('ai-chat-input');
-            const message = input.value.trim();
-            
-            if (!message) return;
-            
+        // Integração com a interface do chat
+        const aiAssistantBtn = document.getElementById('aiAssistantBtn');
+        const aiChatWidget = document.getElementById('aiChatWidget');
+        const closeAiChat = document.getElementById('closeAiChat');
+        const aiChatMessages = document.getElementById('aiChatMessages');
+        const aiChatInput = document.getElementById('aiChatInput');
+        const aiSendBtn = document.getElementById('aiSendBtn');
+        const aiTyping = document.getElementById('aiTyping');
+
+        // Alternar visibilidade do chat
+        aiAssistantBtn.addEventListener('click', () => {
+            aiChatWidget.style.display = aiChatWidget.style.display === 'none' ? 'flex' : 'none';
+        });
+
+        closeAiChat.addEventListener('click', () => {
+            aiChatWidget.style.display = 'none';
+        });
+
+        // Enviar mensagem
+        aiSendBtn.addEventListener('click', sendAIMessage);
+        aiChatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendAIMessage();
+            }
+        });
+
+        async function sendAIMessage() {
+            const message = aiChatInput.value.trim();
+            if (message === '') return;
+
             // Adicionar mensagem do usuário
-            addChatMessage(message, 'sent');
-            input.value = '';
-            
+            addAIMessage(message, 'user');
+            aiChatInput.value = '';
+
             // Mostrar indicador de digitação
-            const typingIndicator = addChatMessage('IMJA Assistant está digitando...', 'received');
-            
+            aiTyping.style.display = 'block';
+            aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+
             try {
-                const response = await fetchGeminiAI(message);
+                // Obter resposta da IA
+                const response = await streamMozAI.generateResponse(message);
                 
-                // Remover indicador e mostrar resposta
-                typingIndicator.remove();
-                addChatMessage(response, 'received');
+                // Esconder indicador de digitação e mostrar resposta
+                aiTyping.style.display = 'none';
+                addAIMessage(response, 'bot');
             } catch (error) {
-                console.error('Erro na IA:', error);
-                typingIndicator.remove();
-                addChatMessage('Desculpe, estou com dificuldades técnicas. Por favor, tente novamente.', 'received');
+                aiTyping.style.display = 'none';
+                addAIMessage("Desculpe, ocorreu um erro. Tente novamente ou contacte nosso suporte.", 'bot');
             }
         }
 
-        async function handleProfileAI() {
-            const input = document.getElementById('profile-ai-input');
-            const message = input.value.trim();
-            const responseElement = document.getElementById('profile-ai-response');
-            
-            if (!message) return;
-            
-            // Mostrar indicador de carregamento
-            responseElement.textContent = 'Processando sua pergunta...';
-            responseElement.classList.add('show');
-            input.value = '';
-            
-            try {
-                const response = await fetchGeminiAI(message);
-                responseElement.textContent = response;
-            } catch (error) {
-                console.error('Erro na IA:', error);
-                responseElement.textContent = 'Desculpe, estou com dificuldades técnicas. Por favor, tente novamente.';
-            }
+        function addAIMessage(text, sender) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('ai-message');
+            messageElement.classList.add(sender === 'user' ? 'ai-user-message' : 'ai-bot-message');
+            messageElement.textContent = text;
+            aiChatMessages.appendChild(messageElement);
+            aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
         }
 
-        // ===== UTILITÁRIOS =====
-        function showToast(message, type = 'info') {
-            const toastContainer = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
+        // Gatilhos automáticos da IA
+        function setupAITriggers() {
+            // Gatilho quando usuário visualiza planos
+            const pricingSection = document.querySelector('.pricing');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !streamMozAI.isActive) {
+                        setTimeout(() => {
+                            addAIMessage("Vejo que está interessado nos nossos planos! Posso ajudar a escolher o melhor para si?", 'bot');
+                            streamMozAI.isActive = true;
+                        }, 2000);
+                    }
+                });
+            });
             
-            toastContainer.appendChild(toast);
+            if (pricingSection) {
+                observer.observe(pricingSection);
+            }
             
-            setTimeout(() => {
-                toast.remove();
+            // Gatilho no botão de assinatura
+            document.querySelectorAll('.btn-primary, .btn-netflix').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    addAIMessage("Excelente escolha! Posso guiá-lo no processo de assinatura e pagamento.", 'bot');
+                    aiChatWidget.style.display = 'flex';
+                });
+            });
+        }
+
+        // =============================================
+        // CÓDIGO ORIGINAL DO WEBSITE
+        // =============================================
+
+        // Animação de scroll suave
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Animação de elementos ao rolar
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+
+        // Observar elementos com a classe fade-in
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Menu mobile
+        const mobileMenu = document.querySelector('.mobile-menu');
+        const nav = document.querySelector('nav ul');
+        
+        mobileMenu.addEventListener('click', () => {
+            nav.classList.toggle('active');
+        });
+
+        // Ajustar menu em redimensionamento
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                nav.classList.remove('active');
+            }
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Sistema de pagamento
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            startTimer();
+            setupAITriggers();
+            
+            // Iniciar efeito de digitação quando a página carregar
+            setTimeout(typeWriter, 1000);
+            
+            // Configurar PWA
+            setupPWA();
+        });
+        
+        // Gerar nova referência
+        function generateNewReference() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
+            let newRef = 'NFLX-';
+            for (let i = 0; i < 4; i++) {
+                newRef += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            
+            referenceCode = newRef;
+            referenceElement.textContent = newRef;
+            
+            // Reiniciar timer
+            clearInterval(timerInterval);
+            timeLeft = 15 * 60;
+            startTimer();
+            
+            // Mostrar notificação
+            showNotification('Nova referência gerada: ' + newRef);
+        }
+        
+        // Iniciar contador
+        function startTimer() {
+            clearInterval(timerInterval);
+            
+            timerInterval = setInterval(function() {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                
+                timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerElement.textContent = 'EXPIRADO';
+                    timerElement.classList.add('payment-timer-expired');
+                    generateBtn.disabled = true;
+                } else {
+                    timeLeft--;
+                }
+            }, 1000);
+        }
+        
+        // Copiar referência
+        function copyReference() {
+            const tempInput = document.createElement('input');
+            tempInput.value = referenceCode;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            
+            showNotification('Referência copiada para a área de transferência!');
+        }
+        
+        // Contatar WhatsApp
+        function contactWhatsApp() {
+            const message = `Olá! Gostaria de confirmar o pagamento da Netflix. Minha referência: ${referenceCode}`;
+            const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+        }
+        
+        // Verificar status do pagamento
+        function checkPaymentStatus() {
+            loaderElement.style.display = 'block';
+            
+            // Simulação de verificação
+            setTimeout(function() {
+                loaderElement.style.display = 'none';
+                
+                // Simulação: 80% de chance de sucesso
+                if (Math.random() > 0.2) {
+                    successElement.style.display = 'block';
+                    showNotification('Pagamento confirmado com sucesso!');
+                    
+                    // Simulação de envio de detalhes
+                    setTimeout(function() {
+                        const message = `✅ Netflix Ativada!\n\nSua conta Netflix Premium foi ativada com sucesso.\nReferência: ${referenceCode}\nValor: ${price}\n\nAproveite!`;
+                        const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+                        window.open(url, '_blank');
+                    }, 2000);
+                } else {
+                    showNotification('Pagamento ainda não identificado. Tente novamente em alguns instantes.', 'warning');
+                }
             }, 3000);
         }
-
-        function formatTimeAgo(date) {
-            if (!date) return 'Agora mesmo';
+        
+        // Mostrar notificação
+        function showNotification(message, type = 'success') {
+            notificationElement.textContent = message;
+            notificationElement.className = 'notification';
             
-            const now = new Date();
-            const diffInSeconds = Math.floor((now - date) / 1000);
-            
-            if (diffInSeconds < 60) return 'Agora mesmo';
-            if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} min`;
-            if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} h`;
-            if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)} d`;
-            if (diffInSeconds < 31536000) return `${Math.floor(diffInSeconds / 2592000)} mes`;
-            return `${Math.floor(diffInSeconds / 31536000)} ano`;
-        }
-
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
-
-        // ===== EVENT LISTENERS =====
-        function setupEventListeners() {
-            setupAuthEventListeners();
-            setupNavigationEventListeners();
-            setupModalEventListeners();
-            setupContentEventListeners();
-            setupAIEventListeners();
-            setupResponsiveEventListeners();
-        }
-
-        function setupAuthEventListeners() {
-            document.getElementById('show-login-btn').addEventListener('click', () => {
-                document.querySelector('.auth-container').classList.add('hidden');
-                document.getElementById('login-auth').classList.remove('hidden');
-            });
-            
-            document.getElementById('show-register-btn').addEventListener('click', () => {
-                document.querySelector('.auth-container').classList.add('hidden');
-                document.getElementById('register-auth').classList.remove('hidden');
-            });
-            
-            document.getElementById('back-from-login-btn').addEventListener('click', goBackAuth);
-            document.getElementById('back-from-register-btn').addEventListener('click', goBackAuth);
-            
-            document.getElementById('register-btn').addEventListener('click', handleRegister);
-            document.getElementById('login-btn').addEventListener('click', handleLogin);
-            document.getElementById('google-signin-btn').addEventListener('click', handleGoogleSignIn);
-            document.getElementById('logout-btn').addEventListener('click', handleLogout);
-            document.getElementById('mobile-logout-btn').addEventListener('click', handleLogout);
-            
-            document.getElementById('register-role').addEventListener('change', function() {
-                const leaderCodeGroup = document.getElementById('leader-code-group');
-                if (this.value === 'leader') {
-                    leaderCodeGroup.classList.remove('hidden');
-                } else {
-                    leaderCodeGroup.classList.add('hidden');
-                }
-            });
-        }
-
-        function setupNavigationEventListeners() {
-            document.querySelectorAll('.nav-item[data-section]').forEach(item => {
-                item.addEventListener('click', () => {
-                    const section = item.dataset.section;
-                    showSection(section);
-                });
-            });
-            
-            document.querySelectorAll('.bottom-nav-item[data-section]').forEach(item => {
-                item.addEventListener('click', () => {
-                    const section = item.dataset.section;
-                    showSection(section);
-                });
-            });
-            
-            document.getElementById('mobile-more-btn').addEventListener('click', function(e) {
-                e.stopPropagation();
-                const menu = this.querySelector('.mobile-more-menu');
-                menu.classList.toggle('show');
-            });
-            
-            document.addEventListener('click', () => {
-                document.querySelectorAll('.mobile-more-menu').forEach(menu => {
-                    menu.classList.remove('show');
-                });
-            });
-        }
-
-        function setupModalEventListeners() {
-            document.getElementById('ai-chat-btn').addEventListener('click', () => toggleModal('ai-chat-modal', true));
-            document.getElementById('mobile-ai-chat-btn').addEventListener('click', () => toggleModal('ai-chat-modal', true));
-            
-            document.getElementById('create-post-nav').addEventListener('click', () => toggleModal('create-post-modal', true));
-            document.getElementById('create-post-mobile').addEventListener('click', () => toggleModal('create-post-modal', true));
-            document.getElementById('admin-create-post').addEventListener('click', () => toggleModal('create-post-modal', true));
-            
-            document.addEventListener('click', (e) => {
-                if (e.target.closest('#create-story-btn')) {
-                    toggleModal('create-story-modal', true);
-                }
-            });
-            
-            document.querySelectorAll('.close-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const modalId = e.target.dataset.modal;
-                    toggleModal(modalId, false);
-                });
-            });
-            
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    closeAllModals();
-                }
-            });
-            
-            document.querySelectorAll('.modal-backdrop').forEach(modal => {
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) {
-                        modal.classList.add('hidden');
-                    }
-                });
-            });
-        }
-
-        function setupContentEventListeners() {
-            document.getElementById('publish-post-btn').addEventListener('click', handleCreatePost);
-            document.getElementById('post-type').addEventListener('change', togglePostType);
-            document.getElementById('publish-story-btn').addEventListener('click', handleCreateStory);
-            
-            const searchInput = document.getElementById('search-input');
-            if (searchInput) {
-                searchInput.addEventListener('input', debounce(handleSearch, 300));
-            }
-        }
-
-        function setupAIEventListeners() {
-            document.getElementById('send-ai-message-btn').addEventListener('click', handleAIChat);
-            document.getElementById('ai-chat-input').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') handleAIChat();
-            });
-            
-            document.getElementById('profile-ai-send-btn').addEventListener('click', handleProfileAI);
-            document.getElementById('profile-ai-input').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') handleProfileAI();
-            });
-        }
-
-        function setupResponsiveEventListeners() {
-            window.addEventListener('resize', debounce(() => {
-                if (window.innerWidth <= 768) {
-                    document.querySelector('.sidebar').style.display = 'none';
-                } else {
-                    document.querySelector('.sidebar').style.display = 'flex';
-                }
-            }, 250));
-        }
-
-        // ===== HANDLERS =====
-        async function handleRegister() {
-            const name = document.getElementById('register-name').value.trim();
-            const email = document.getElementById('register-email').value.trim();
-            const password = document.getElementById('register-password').value;
-            const bio = document.getElementById('register-bio').value.trim();
-            const role = document.getElementById('register-role').value;
-            const leaderCode = document.getElementById('leader-code').value;
-            
-            if (!name || !email || !password) {
-                showToast('Por favor, preencha todos os campos obrigatórios.', 'error');
-                return;
+            if (type === 'warning') {
+                notificationElement.style.backgroundColor = 'var(--warning)';
+            } else {
+                notificationElement.style.backgroundColor = 'var(--netflix-red)';
             }
             
-            try {
-                await registerUser(email, password, name, bio, role, leaderCode);
-            } catch (error) {
-                showToast(error.message, 'error');
-            }
+            notificationElement.classList.add('show');
+            
+            setTimeout(function() {
+                notificationElement.classList.remove('show');
+            }, 3000);
         }
-
-        async function handleLogin() {
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value;
-            
-            if (!email || !password) {
-                showToast('Por favor, preencha todos os campos.', 'error');
-                return;
-            }
-            
-            try {
-                await loginUser(email, password);
-            } catch (error) {
-                showToast(error.message, 'error');
-            }
-        }
-
-        async function handleGoogleSignIn() {
-            try {
-                await signInWithGoogle();
-            } catch (error) {
-                showToast(error.message, 'error');
-            }
-        }
-
-        async function handleLogout() {
-            try {
-                await logoutUser();
-                showAuthScreens();
-            } catch (error) {
-                showToast(error.message, 'error');
-            }
-        }
-
-        function goBackAuth() {
-            document.getElementById('login-auth').classList.add('hidden');
-            document.getElementById('register-auth').classList.add('hidden');
-            document.querySelector('.auth-container').classList.remove('hidden');
-        }
-
-        async function handleCreatePost() {
-            if (!userData || userData.role !== 'leader') {
-                showToast('Apenas líderes podem criar posts.', 'error');
-                toggleModal('create-post-modal', false);
-                return;
-            }
-            
-            const caption = document.getElementById('post-caption').value.trim();
-            const postType = document.getElementById('post-type').value;
-            const imageFile = document.getElementById('post-image').files[0];
-            const youtubeUrl = document.getElementById('youtube-url').value.trim();
-            
-            if (!caption) {
-                showToast('Adicione uma legenda', 'error');
-                return;
-            }
-            
-            if (postType === 'image' && !imageFile) {
-                showToast('Selecione uma imagem', 'error');
-                return;
-            }
-            
-            if (postType === 'video' && !youtubeUrl) {
-                showToast('Insira um URL do YouTube', 'error');
-                return;
-            }
-            
-            try {
-                await createPost(caption, imageFile, youtubeUrl);
-                
-                // Limpar formulário
-                document.getElementById('post-caption').value = '';
-                document.getElementById('post-image').value = '';
-                document.getElementById('youtube-url').value = '';
-                
-                toggleModal('create-post-modal', false);
-            } catch (error) {
-                showToast(error.message, 'error');
-            }
-        }
-
-        async function handleCreateStory() {
-            const imageFile = document.getElementById('story-image').files[0];
-            
-            if (!imageFile) {
-                showToast('Selecione uma imagem', 'error');
-                return;
-            }
-            
-            try {
-                await createStory(imageFile);
-                
-                // Limpar formulário
-                document.getElementById('story-image').value = '';
-                
-                toggleModal('create-story-modal', false);
-            } catch (error) {
-                showToast(error.message, 'error');
-            }
-        }
-
-        async function handleSearch(e) {
-            const query = e.target.value.trim();
-            const resultsContainer = document.getElementById('search-results');
-            
-            if (!query) {
-                resultsContainer.innerHTML = '';
-                return;
-            }
-            
-            try {
-                const postsSnapshot = await db.collection('posts')
-                    .orderBy('createdAt', 'desc')
-                    .get();
-
-                const results = [];
-                
-                for (const doc of postsSnapshot.docs) {
-                    const post = doc.data();
-                    post.id = doc.id;
+        
+        // Sistema inteligente de verificação
+        function startIntelligentVerification() {
+            // Verificação automática a cada 30 segundos
+            setInterval(function() {
+                // Simulação: 10% de chance de detectar pagamento
+                if (Math.random() < 0.1) {
+                    showNotification('Pagamento detectado! Ativando sua Netflix...');
                     
-                    // Buscar em legenda
-                    if (post.caption && post.caption.toLowerCase().includes(query.toLowerCase())) {
-                        // Carregar dados do autor
-                        const userDoc = await db.collection('users').doc(post.userId).get();
-                        if (userDoc.exists) {
-                            post.user = userDoc.data();
-                        }
-                        results.push(post);
-                    }
+                    setTimeout(function() {
+                        successElement.style.display = 'block';
+                        showNotification('Netflix ativada com sucesso!');
+                    }, 2000);
                 }
-                
-                if (results.length === 0) {
-                    resultsContainer.innerHTML = '<p class="text-center text-muted">Nenhum resultado encontrado.</p>';
-                    return;
-                }
-                
-                resultsContainer.innerHTML = '<h3>Resultados da Pesquisa</h3>';
-                
-                results.forEach(post => {
-                    const resultElement = document.createElement('div');
-                    resultElement.className = 'card';
-                    resultElement.innerHTML = `
-                        <div class="post-header">
-                            <div class="post-avatar">
-                                <img src="${post.user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop'}" alt="${post.user?.name}">
-                            </div>
-                            <div class="post-user">
-                                <div class="post-username">${post.user?.name}</div>
-                            </div>
-                        </div>
-                        <p>${post.caption}</p>
-                    `;
-                    resultsContainer.appendChild(resultElement);
-                });
-            } catch (error) {
-                console.error('Erro na pesquisa:', error);
-                showToast('Erro na pesquisa', 'error');
+            }, 30000);
+        }
+        
+        // Iniciar verificação inteligente após 1 minuto
+        setTimeout(startIntelligentVerification, 60000);
+        
+        // Efeito de digitação no título
+        const heroTitle = document.querySelector('.hero h1');
+        const originalText = heroTitle.textContent;
+        heroTitle.textContent = '';
+        
+        let i = 0;
+        function typeWriter() {
+            if (i < originalText.length) {
+                heroTitle.textContent += originalText.charAt(i);
+                i++;
+                setTimeout(typeWriter, 50);
             }
         }
+
+        // =============================================
+        // PWA IMPLEMENTATION
+        // =============================================
+        
+        function setupPWA() {
+            // Verificar se o navegador suporta service workers
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js')
+                        .then((registration) => {
+                            console.log('Service Worker registrado com sucesso:', registration);
+                        })
+                        .catch((error) => {
+                            console.log('Falha ao registrar Service Worker:', error);
+                        });
+                });
+            }
+            
+            // Gerenciar prompt de instalação
+            let deferredPrompt;
+            const installPrompt = document.getElementById('pwaInstallPrompt');
+            const installConfirm = document.getElementById('pwaInstallConfirm');
+            const installCancel = document.getElementById('pwaInstallCancel');
+            
+            window.addEventListener('beforeinstallprompt', (e) => {
+                // Prevenir que o prompt apareça automaticamente
+                e.preventDefault();
+                deferredPrompt = e;
+                
+                // Mostrar nosso prompt personalizado após um tempo
+                setTimeout(() => {
+                    if (!isAppInstalled()) {
+                        installPrompt.classList.add('show');
+                    }
+                }, 5000);
+            });
+            
+            // Instalar PWA
+            installConfirm.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    
+                    if (outcome === 'accepted') {
+                        console.log('Usuário aceitou a instalação do PWA');
+                    } else {
+                        console.log('Usuário recusou a instalação do PWA');
+                    }
+                    
+                    deferredPrompt = null;
+                    installPrompt.classList.remove('show');
+                }
+            });
+            
+            // Cancelar instalação
+            installCancel.addEventListener('click', () => {
+                installPrompt.classList.remove('show');
+                // Não mostrar novamente por um tempo
+                localStorage.setItem('pwaPromptDismissed', Date.now().toString());
+            });
+            
+            // Verificar se o app já está instalado
+            function isAppInstalled() {
+                return window.matchMedia('(display-mode: standalone)').matches || 
+                       window.navigator.standalone === true;
+            }
+            
+            // Verificar se o prompt foi dispensado recentemente
+            function wasPromptDismissedRecently() {
+                const dismissedTime = localStorage.getItem('pwaPromptDismissed');
+                if (!dismissedTime) return false;
+                
+                const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+                return parseInt(dismissedTime) > oneWeekAgo;
+            }
+        }
+    </script>
+
+    <!-- Service Worker inline para PWA -->
+    <script>
+        // Service Worker inline (seria normalmente em um arquivo separado sw.js)
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                // Nome do cache
+                const CACHE_NAME = 'streammoz-pwa-v1.0';
+                
+                // Arquivos para cache
+                const urlsToCache = [
+                    '/',
+                    '/index.html',
+                    '/styles.css',
+                    '/app.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+                    'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1469&q=80'
+                ];
+                
+                // Instalar Service Worker
+                self.addEventListener('install', (event) => {
+                    event.waitUntil(
+                        caches.open(CACHE_NAME)
+                            .then((cache) => {
+                                return cache.addAll(urlsToCache);
+                            })
+                    );
+                });
+                
+                // Ativar Service Worker
+                self.addEventListener('activate', (event) => {
+                    event.waitUntil(
+                        caches.keys().then((cacheNames) => {
+                            return Promise.all(
+                                cacheNames.map((cacheName) => {
+                                    if (cacheName !== CACHE_NAME) {
+                                        return caches.delete(cacheName);
+                                    }
+                                })
+                            );
+                        })
+                    );
+                });
+                
+                // Interceptar requisições
+                self.addEventListener('fetch', (event) => {
+                    event.respondWith(
+                        caches.match(event.request)
+                            .then((response) => {
+                                // Retornar do cache ou fazer requisição
+                                return response || fetch(event.request);
+                            })
+                    );
+                });
+            `;
+            
+            // Registrar o service worker inline
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+            
+            navigator.serviceWorker.register(swUrl)
+                .then((registration) => {
+                    console.log('Service Worker registrado com sucesso:', registration);
+                })
+                .catch((error) => {
+                    console.log('Falha ao registrar Service Worker:', error);
+                });
+        }
+    </script>
+
+    <!-- Manifest inline para PWA -->
+    <script type="application/json" id="manifest-data">
+        {
+            "name": "StreamMoz - Streaming em Moçambique",
+            "short_name": "StreamMoz",
+            "description": "Netflix, Prime Video e muito mais em uma única plataforma. Escolhe o teu plano, paga em meticais e começa a ver agora.",
+            "start_url": "/",
+            "display": "standalone",
+            "background_color": "#0f0f1a",
+            "theme_color": "#4a6cf7",
+            "orientation": "portrait-primary",
+            "icons": [
+                {
+                    "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiM0QTZDRjciLz4KPHBhdGggZD0iTTc2IDY0SDEyMFYxMjhINzZWMTEySDkyVjgwSDc2VjY0WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTEyMCAxMjhWMTQ0SDEwNFYxMjhIMTIwWiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cg==",
+                    "sizes": "192x192",
+                    "type": "image/svg+xml"
+                },
+                {
+                    "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iNjQiIGZpbGw9IiM0QTZDRjciLz4KPHBhdGggZD0iTTIwMiAxNzBIMzE4VjM0MkgyMDJWMjk0SDI0NFYyMThIMjAyVjE3MFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0zMTggMzQyVjM5OEgyNzBWMzQySDMxOFoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo=",
+                    "sizes": "512x512",
+                    "type": "image/svg+xml"
+                }
+            ],
+            "categories": ["entertainment", "utilities"],
+            "lang": "pt-MZ"
+        }
+    </script>
+
+    <script>
+        // Criar manifest dinamicamente
+        document.addEventListener('DOMContentLoaded', function() {
+            const manifestData = JSON.parse(document.getElementById('manifest-data').textContent);
+            const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
+            const manifestURL = URL.createObjectURL(manifestBlob);
+            
+            const manifestLink = document.createElement('link');
+            manifestLink.rel = 'manifest';
+            manifestLink.href = manifestURL;
+            document.head.appendChild(manifestLink);
+        });
     </script>
 </body>
 </html>
